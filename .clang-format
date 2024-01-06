@@ -1,0 +1,7 @@
+BasedOnStyle: LLVM
+IncludeBlocks: Regroup
+IndentWidth: 4
+TabWidth: 4
+AccessModifierOffset: -4
+
+ColumnLimit: 110
