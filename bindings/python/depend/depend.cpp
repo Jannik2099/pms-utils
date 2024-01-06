@@ -58,9 +58,7 @@ void _register(pybind11::module &_module) {
     pybind11::class_<UseConditional>(depend, "UseConditional")
         .def_readonly("negate", &UseConditional::negate)
         .def_readonly("useflag", &UseConditional::useflag)
-        .def(
-            "__repr__", [](const UseConditional &cond) { return std::string(cond); },
-            pybind11::name("__repr__"), pybind11::is_method(depend));
+        .def("__repr__", [](const UseConditional &cond) { return std::string(cond); });
 
     pybind11::enum_<GroupHeaderOp>(depend, "GroupHeaderOp")
         .value("any_of", GroupHeaderOp::any_of)
@@ -77,9 +75,7 @@ void _register(pybind11::module &_module) {
             pybind11::keep_alive<0, 1>())
         .def_readonly("conditional", &GroupExpr::conditional)
         .def_readonly("nodes", &GroupExpr::nodes)
-        .def(
-            "__repr__", [](const GroupExpr &expr) { return std::string(expr); }, pybind11::name("__repr__"),
-            pybind11::is_method(depend));
+        .def("__repr__", [](const GroupExpr &expr) { return std::string(expr); });
 
     depend.def("DependExpr", &from_str);
 }

@@ -89,9 +89,7 @@ void _register(pybind11::module &_module) {
     pybind11::class_<VersionSuffix>(atom, "VersionSuffix")
         .def_readonly("word", &VersionSuffix::word)
         .def_readonly("number", &VersionSuffix::number)
-        .def(
-            "__repr__", [](const VersionSuffix &suffix) { return std::string(suffix); },
-            pybind11::name("__repr__"), pybind11::is_method(atom));
+        .def("__repr__", [](const VersionSuffix &suffix) { return std::string(suffix); });
 
     pybind11::class_<Version>(atom, "Version")
         .def_readonly("numbers", &Version::numbers)
@@ -104,16 +102,12 @@ void _register(pybind11::module &_module) {
         .def(pybind11::self >= pybind11::self)
         .def(pybind11::self == pybind11::self)
         .def(pybind11::self != pybind11::self)
-        .def(
-            "__repr__", [](const Version &version) { return std::string(version); },
-            pybind11::name("__repr__"), pybind11::is_method(atom));
+        .def("__repr__", [](const Version &version) { return std::string(version); });
 
     pybind11::class_<Slot>(atom, "Slot")
         .def_readonly("slot", &Slot::slot)
         .def_readonly("subslot", &Slot::subslot)
-        .def(
-            "__repr__", [](const Slot &slot) { return std::string(slot); }, pybind11::name("__repr__"),
-            pybind11::is_method(atom));
+        .def("__repr__", [](const Slot &slot) { return std::string(slot); });
 
     pybind11::enum_<SlotVariant>(atom, "SlotVariant")
         .value("none", SlotVariant::none)
@@ -123,9 +117,7 @@ void _register(pybind11::module &_module) {
     pybind11::class_<SlotExpr>(atom, "SlotExpr")
         .def_readonly("slot_variant", &SlotExpr::slotVariant)
         .def_readonly("slot", &SlotExpr::slot)
-        .def(
-            "__repr__", [](const SlotExpr &slot) { return std::string(slot); }, pybind11::name("__repr__"),
-            pybind11::is_method(atom));
+        .def("__repr__", [](const SlotExpr &slot) { return std::string(slot); });
 
     pybind11::enum_<UsedepSign>(atom, "UsedepSign")
         .value("plus", UsedepSign::plus)
@@ -146,9 +138,7 @@ void _register(pybind11::module &_module) {
         .def_readonly("useflag", &Usedep::useflag)
         .def_readonly("sign", &Usedep::sign)
         .def_readonly("conditional", &Usedep::conditional)
-        .def(
-            "__repr__", [](const Usedep &usedep) { return std::string(usedep); }, pybind11::name("__repr__"),
-            pybind11::is_method(atom));
+        .def("__repr__", [](const Usedep &usedep) { return std::string(usedep); });
 
     pybind11::class_<PackageExpr>(atom, "Atom")
         .def(pybind11::init(&from_str))
@@ -159,9 +149,7 @@ void _register(pybind11::module &_module) {
         .def_readonly("version", &PackageExpr::version)
         .def_readonly("slot_expr", &PackageExpr::slotExpr)
         .def_readonly("usedeps", &PackageExpr::usedeps)
-        .def(
-            "__repr__", [](const PackageExpr &expr) { return std::string(expr); }, pybind11::name("__repr__"),
-            pybind11::is_method(atom));
+        .def("__repr__", [](const PackageExpr &expr) { return std::string(expr); });
 }
 
 } // namespace pms_utils::bindings::python::atom
