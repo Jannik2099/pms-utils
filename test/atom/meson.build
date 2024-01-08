@@ -6,6 +6,7 @@ tests = [
     'slot_no_subslot',
     'blocker',
     'version_specifier',
+    'name_like_ver',
 ]
 
 foreach t : tests

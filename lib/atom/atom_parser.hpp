@@ -154,14 +154,14 @@ constexpr inline auto package_dep_helper = [](auto &ctx, bool requireVerSpec) {
 
         if (!version_specifier.has_value() && requireVerSpec) {
             // TODO
-            throw std::runtime_error("TODO");
+            x3::_pass(ctx) = false;
         }
         if (asterisk) {
             if (version_specifier == atom::VersionSpecifier::eq) {
                 version_specifier = atom::VersionSpecifier::ea;
             } else {
                 // TODO
-                throw std::runtime_error("TODO");
+                x3::_pass(ctx) = false;
             }
         }
         val.version = version;
@@ -191,9 +191,12 @@ PARSER_RULE_T(package_version, atom::Version) = ver_num >> -ver_letter >> *ver_s
 PARSER_RULE_T(category, atom::Category) = (x3::ascii::alnum | x3::char_("_")) >>
                                           *(x3::ascii::alnum | x3::char_("_") | x3::char_("-") |
                                             x3::char_("+") | x3::char_("."));
+// this basically means "name not followed by a -version which itself is followed by what comes after version
+// in an Atom, or end of input". Otherwise e.g. name(foo-1-1) would match fully
 PARSER_RULE_T(name, atom::Name) = (x3::ascii::alnum | x3::char_("_")) >>
                                   *((x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+")) -
-                                    (x3::lit("-") >> package_version));
+                                    (x3::lit("-") >> package_version >>
+                                     !(x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+"))));
 
 PARSER_RULE_T(useflag, atom::Useflag) = x3::ascii::alnum >>
                                         *(x3::ascii::alnum | x3::char_("_") | x3::char_("-") |
@@ -209,7 +212,7 @@ PARSER_RULE_T(use_dep, atom::Usedep) = (x3::matches["!"] >> useflag >>
 PARSER_RULE_T(use_deps, atom::Usedeps) = x3::lit("[") >> use_dep % "," >> x3::lit("]");
 
 // unsure about how to handle the "duplicate rules for requireVerSpec"
-constexpr auto atom_helper = [](bool requireVerSpec) {
+const auto atom_helper = [](bool requireVerSpec) {
     return (-blocker >> -version_specifier >> category >> x3::lit("/") >> name >>
             -(x3::lit("-") >> package_version >> x3::matches["*"]) >> -slot_expr >>
             -use_deps)[([requireVerSpec](auto &ctx) { _internal::package_dep_helper(ctx, requireVerSpec); })];

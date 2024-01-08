@@ -12,6 +12,7 @@
 namespace pms_utils::atom {
 
 // BEGIN ast types
+
 enum class VersionSpecifier {
     lt, // <
     le, // <=
