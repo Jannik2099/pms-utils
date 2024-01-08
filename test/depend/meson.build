@@ -1,5 +1,9 @@
 tests = ['depend', 'ast_iterator']
 
+if fs.is_dir('/var/db/repos/gentoo/metadata/md5-cache')
+    tests += 'md5-cache'
+endif
+
 foreach t : tests
     test(
         t,
