@@ -1,5 +1,3 @@
-#define BOOST_SPIRIT_X3_DEBUG
-
 #include "atom/atom.hpp"
 #include "atom/atom_parser.hpp"
 
@@ -11,7 +9,8 @@ namespace parsers = pms_utils::parsers;
 int main() {
     bool ret = true;
 
-    const std::string str = "[foo,bar]";
+    // TODO: migrate to x3_util::try_parse
+    const std::string str = "[foo(-)?,bar(+),!baz(+)?]";
     Usedeps usedeps;
     auto begin = str.begin();
     const auto end = str.end();

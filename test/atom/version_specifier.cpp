@@ -1,5 +1,6 @@
 #include "atom/atom.hpp"
 #include "atom/atom_parser.hpp"
+#include "x3_util.hpp"
 
 #include <iostream>
 #include <string>
@@ -11,38 +12,26 @@ namespace {
 
 template <VersionSpecifier versionSpecifier> void testVerspec(bool &ret) {
     const std::string str = to_string(versionSpecifier);
-    VersionSpecifier parsed{};
-    if (parse(str.begin(), str.end(), parsers::version_specifier, parsed)) {
-        if (parsed != versionSpecifier) {
-            std::cerr << "error: parsed VersionSpecifier " << str << " as " << to_string(parsed) << "\n";
-            ret = false;
-        }
-    } else {
-        std::cerr << "error: failed to match VersionSpecifier " << str;
+    const auto res = try_parse(str, parsers::version_specifier);
+    if (!res.as_expected) {
         ret = false;
+    }
+    if (res.result != versionSpecifier) {
+        ret = false;
+        std::cerr << std::format("parsed VersonSpecifier {} as {}\n", str, to_string(res.result));
     }
 }
 
 // specialization for =* needed, see remarks in parser.hpp
 template <> void testVerspec<VersionSpecifier::ea>(bool &ret) {
     const std::string str = to_string(VersionSpecifier::ea);
-    VersionSpecifier parsed{};
-    auto begin = str.begin();
-    const auto end = str.end();
-    if (parse(begin, end, parsers::version_specifier, parsed)) {
-        if (parsed != VersionSpecifier::eq) {
-            std::cerr << "error: parsed VersionSpecifier =* as " << to_string(parsed) << "\n";
-            ret = false;
-        }
-        if (begin != end) {
-            std::cerr << "parser did not consume all input, remaining: " << std::string_view{begin, end}
-                      << '\n';
-            ret = false;
-        }
-
-    } else {
-        std::cerr << "error: failed to match VersionSpecifier =*";
+    const auto res = try_parse(str, parsers::version_specifier);
+    if (!res.as_expected) {
         ret = false;
+    }
+    if (res.result != VersionSpecifier::eq) {
+        ret = false;
+        std::cerr << std::format("parsed VersonSpecifier {} as {}\n", str, to_string(res.result));
     }
 }
 

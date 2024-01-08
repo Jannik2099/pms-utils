@@ -1,6 +1,7 @@
 #include "depend/depend.hpp"
 
 #include "depend/depend_parser.hpp"
+#include "x3_util.hpp"
 
 #include <string>
 
@@ -20,19 +21,10 @@ int main() {
     default-libcxx? ( >=sys-libs/libcxx-13.0.1 )
     default-lld? ( sys-devel/lld )
     )---";
-    GroupExpr expr;
-    auto begin = str.begin();
-    const auto end = str.end();
 
-    if (!parse(begin, end, parsers::nodes, expr)) {
-        std::cerr << "parser failed \n";
+    const auto ret = try_parse(str, parsers::nodes);
+
+    if (!ret.as_expected) {
         return 1;
     }
-
-    if (begin != end) {
-        std::cerr << "did not consume all input. remainder: \n" << std::string(begin, end) << '\n';
-        return 1;
-    }
-
-    std::cout << expr;
 }

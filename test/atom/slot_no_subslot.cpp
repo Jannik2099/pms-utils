@@ -1,58 +1,26 @@
-#include "atom/atom.hpp"
 #include "atom/atom_parser.hpp"
-
-#include <iostream>
-#include <string>
+#include "x3_util.hpp"
 
 using namespace pms_utils::atom;
 namespace parsers = pms_utils::parsers;
 
-namespace {
-
-void test(bool &ret, std::string_view input) {
-    const auto *iter = input.begin();
-    SlotNoSubslot result;
-    if (!parse(iter, input.end(), parsers::slot_no_subslot, result)) {
-        std::cerr << "error: failed to parse SlotNoSubslot " << input << '\n';
-        ret = false;
-    }
-    if (iter != input.end()) {
-        std::cerr << "error: parser did not consume full SlotNoSubslot, got " << input << " consumed "
-                  << std::string_view(input.begin(), iter) << " parsed " << result << '\n';
-        ret = false;
-    }
-}
-
-void test2(bool &ret, std::string_view input) {
-    const auto *iter = input.begin();
-    SlotNoSubslot result;
-    parse(iter, input.end(), parsers::slot_no_subslot, result);
-    if (iter == input.end()) {
-        std::cerr << "error: parsed misformed input " << input << '\n';
-        ret = false;
-    }
-}
-
-} // namespace
-
 int main() {
     bool ret = true;
 
-    test(ret, "a");
-    test(ret, "A");
-    test(ret, "0");
-    test(ret, "_");
+    for (const auto &str : {"a", "A", "0", "_"}) {
+        ret &= try_parse(str, parsers::slot_no_subslot, true).as_expected;
+    }
 
-    test(ret, "a+");
-    test(ret, "a-");
-    test(ret, "a.");
-    test(ret, "a+_");
-    test(ret, "aa");
+    for (const auto &str : {"a+", "a-", "a.", "a+_", "aa"}) {
+        ret &= try_parse(str, parsers::slot_no_subslot, true).as_expected;
+    }
 
-    test2(ret, "+");
-    test2(ret, "-");
-    test2(ret, ".");
-    test2(ret, "a?");
+    for (const auto &str : {"+", "-", "."}) {
+        ret &= try_parse(str, parsers::slot_no_subslot, false).as_expected;
+    }
+
+    ret &= try_parse("a?", parsers::slot_no_subslot, true, false).as_expected;
+
     if (!ret) {
         return 1;
     }

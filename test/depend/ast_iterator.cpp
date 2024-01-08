@@ -1,7 +1,9 @@
 #include "atom/atom.hpp"
 #include "depend/depend.hpp"
 #include "depend/depend_parser.hpp"
+#include "x3_util.hpp"
 
+#include <format>
 #include <string>
 
 using namespace pms_utils;
@@ -39,19 +41,19 @@ int main() {
                                             "foo/foo3", "bar2?",    "foo/foo4", "foo/foo5", "foo/foo6",
                                             "foo/foo7", "bar3?",    "foo/foo8"};
 
-    GroupExpr ast;
-    if (!parse(test.begin(), test.end(), parsers::nodes, ast)) {
-        std::cerr << "error: failed to parse expression";
+    const auto res = try_parse(test, parsers::nodes);
+    if (!res.as_expected) {
         return 1;
     }
+    const GroupExpr &ast = res.result;
 
     bool error = false;
     {
         auto index = check.begin();
         for (auto iter = ast.begin(); iter != ast.end(); iter++) {
             if (boost::apply_visitor(Myvisitor(), *iter) != *index) {
-                std::cerr << "error: expected " << *index << " got "
-                          << boost::apply_visitor(Myvisitor(), *iter) << "\n";
+                std::cerr << std::format("iterator error\nexpected\n\t{}\ngot\n\t{}\n", *index,
+                                         boost::apply_visitor(Myvisitor(), *iter));
                 error = true;
             }
             index++;
@@ -62,8 +64,8 @@ int main() {
         // TODO: use reverse iterator
         for (auto iter = --ast.end(); iter != ast.begin(); iter--) {
             if (boost::apply_visitor(Myvisitor(), *iter) != *index) {
-                std::cout << "error: expected " << *index << " got "
-                          << boost::apply_visitor(Myvisitor(), *iter) << "\n";
+                std::cerr << std::format("reverse iterator error\nexpected\n\t{}\ngot\n\t{}\n", *index,
+                                         boost::apply_visitor(Myvisitor(), *iter));
                 error = true;
             }
             index++;

@@ -1,4 +1,12 @@
-tests = ['atom', 'usedeps', 'useflag', 'slot', 'slot_no_subslot', 'blocker', 'version_specifier']
+tests = [
+    'atom',
+    'usedeps',
+    'useflag',
+    'slot',
+    'slot_no_subslot',
+    'blocker',
+    'version_specifier',
+]
 
 foreach t : tests
     test(
@@ -7,7 +15,7 @@ foreach t : tests
             t,
             t + '.cpp',
             link_with: [lib_atom],
-            include_directories: [inc_lib],
+            include_directories: [inc_test_utils, inc_lib],
         ),
     )
 endforeach

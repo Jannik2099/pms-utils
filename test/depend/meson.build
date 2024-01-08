@@ -7,7 +7,7 @@ foreach t : tests
             t,
             t + '.cpp',
             link_with: [lib_depend],
-            include_directories: [inc_lib],
+            include_directories: [inc_test_utils, inc_lib],
         ),
     )
 endforeach
