@@ -1,12 +1,12 @@
 #include "depend.hpp"
 
+#include "../common.hpp"
 #include "depend/depend.hpp"
 #include "depend/depend_parser.hpp"
 
 #include <pybind11/attr.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <stdexcept>
 #include <string_view>
 
 using namespace pms_utils::depend;
@@ -28,28 +28,6 @@ template <> struct visit_helper<boost::variant> {
 } // namespace detail
 } // namespace PYBIND11_NAMESPACE
 
-namespace {
-
-GroupExpr from_str(std::string_view str) {
-    GroupExpr ret;
-    const auto *begin = str.begin();
-    const auto *const end = str.end();
-    if (!parse(begin, end, pms_utils::parsers::nodes, ret)) {
-        // TODO
-        throw std::runtime_error("parser failed");
-    }
-
-    if (begin != end) {
-        // TODO
-        throw std::runtime_error(std::string("parser did not consume all input, remaining ") +
-                                 std::string{begin, end});
-    }
-
-    return ret;
-}
-
-} // namespace
-
 namespace pms_utils::bindings::python::depend {
 
 void _register(pybind11::module &_module) {
@@ -58,6 +36,7 @@ void _register(pybind11::module &_module) {
     pybind11::class_<UseConditional>(depend, "UseConditional")
         .def_readonly("negate", &UseConditional::negate)
         .def_readonly("useflag", &UseConditional::useflag)
+        .def(pybind11::init([](std::string_view str) { return expr_from_str(parsers::use_cond, str); }))
         .def("__repr__", [](const UseConditional &cond) { return std::string(cond); });
 
     pybind11::enum_<GroupHeaderOp>(depend, "GroupHeaderOp")
@@ -75,9 +54,10 @@ void _register(pybind11::module &_module) {
             pybind11::keep_alive<0, 1>())
         .def_readonly("conditional", &GroupExpr::conditional)
         .def_readonly("nodes", &GroupExpr::nodes)
+        .def(pybind11::init([](std::string_view str) { return expr_from_str(parsers::group, str); }))
         .def("__repr__", [](const GroupExpr &expr) { return std::string(expr); });
 
-    depend.def("DependExpr", &from_str);
+    depend.def("DependExpr", [](std::string_view str) { return expr_from_str(parsers::nodes, str); });
 }
 
 } // namespace pms_utils::bindings::python::depend
