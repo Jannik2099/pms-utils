@@ -11,7 +11,7 @@ namespace pms_utils::repo {
 
 struct Ebuild {
     std::filesystem::path path;
-    std::string name;
+    pms_utils::atom::Name name;
     pms_utils::atom::Version version;
 };
 
@@ -47,7 +47,7 @@ class Package;
 class Category {
 private:
     std::filesystem::path _path;
-    std::string _name;
+    pms_utils::atom::Category _name;
 
     [[nodiscard]] Category() = default;
 
@@ -76,7 +76,7 @@ public:
 class Package {
 private:
     std::filesystem::path _path;
-    std::string _name;
+    pms_utils::atom::Name _name;
 
     [[nodiscard]] Package() = default;
 
