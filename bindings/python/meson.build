@@ -2,6 +2,7 @@ lib_bindings_py = []
 
 subdir('atom')
 subdir('depend')
+subdir('repo')
 
 mod_bindings_py = py_installation.extension_module(
     'pms_utils',
