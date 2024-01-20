@@ -18,10 +18,6 @@ struct Ebuild {
 class Category;
 
 class Repository {
-private:
-    std::filesystem::path _path;
-    std::string _name;
-
 public:
     class Iterator;
 
@@ -31,6 +27,11 @@ public:
     using reference = value_type &;
     using const_iterator = Iterator;
 
+private:
+    std::filesystem::path _path;
+    std::string _name;
+
+public:
     [[nodiscard]] const_iterator begin() const noexcept;
     [[nodiscard]] const_iterator cbegin() const noexcept;
     [[nodiscard]] const_iterator end() const noexcept;
@@ -45,14 +46,6 @@ public:
 class Package;
 
 class Category {
-private:
-    std::filesystem::path _path;
-    pms_utils::atom::Category _name;
-
-    [[nodiscard]] Category() = default;
-
-    friend Repository::Iterator;
-
 public:
     class Iterator;
 
@@ -62,6 +55,15 @@ public:
     using reference = value_type &;
     using const_iterator = Iterator;
 
+private:
+    std::filesystem::path _path;
+    pms_utils::atom::Category _name;
+
+    [[nodiscard]] Category() = default;
+
+    friend Repository::Iterator;
+
+public:
     [[nodiscard]] const_iterator begin() const noexcept;
     [[nodiscard]] const_iterator cbegin() const noexcept;
     [[nodiscard]] const_iterator end() const noexcept;
@@ -74,14 +76,6 @@ public:
 };
 
 class Package {
-private:
-    std::filesystem::path _path;
-    pms_utils::atom::Name _name;
-
-    [[nodiscard]] Package() = default;
-
-    friend Category::Iterator;
-
 public:
     class Iterator;
 
@@ -91,6 +85,15 @@ public:
     using reference = value_type &;
     using const_iterator = Iterator;
 
+private:
+    std::filesystem::path _path;
+    pms_utils::atom::Name _name;
+
+    [[nodiscard]] Package() = default;
+
+    friend Category::Iterator;
+
+public:
     [[nodiscard]] const_iterator begin() const noexcept;
     [[nodiscard]] const_iterator cbegin() const noexcept;
     [[nodiscard]] const_iterator end() const noexcept;
@@ -105,6 +108,12 @@ public:
 // BEGIN ITERATOR
 
 class Package::Iterator {
+public:
+    using difference_type = std::ptrdiff_t;
+    using value_type = Ebuild;
+    using pointer = const value_type *;
+    using reference = const value_type &;
+
 private:
     std::filesystem::path path;
     std::filesystem::directory_iterator iter;
@@ -115,11 +124,6 @@ private:
     friend class Package;
 
 public:
-    using difference_type = std::ptrdiff_t;
-    using value_type = Ebuild;
-    using pointer = const value_type *;
-    using reference = const value_type &;
-
     [[nodiscard]] constexpr reference operator*() const noexcept { return elem; };
     [[nodiscard]] constexpr pointer operator->() const noexcept { return &elem; };
 
@@ -131,6 +135,12 @@ public:
 };
 
 class Category::Iterator {
+public:
+    using difference_type = std::ptrdiff_t;
+    using value_type = Package;
+    using pointer = const value_type *;
+    using reference = const value_type &;
+
 private:
     std::filesystem::path path;
     std::filesystem::directory_iterator iter;
@@ -141,11 +151,6 @@ private:
     friend class Category;
 
 public:
-    using difference_type = std::ptrdiff_t;
-    using value_type = Package;
-    using pointer = const value_type *;
-    using reference = const value_type &;
-
     [[nodiscard]] constexpr reference operator*() const noexcept { return elem; };
     [[nodiscard]] constexpr pointer operator->() const noexcept { return &elem; };
 
@@ -157,6 +162,12 @@ public:
 };
 
 class Repository::Iterator {
+public:
+    using difference_type = std::ptrdiff_t;
+    using value_type = Category;
+    using pointer = const value_type *;
+    using reference = const value_type &;
+
 private:
     std::filesystem::path path;
     std::vector<std::filesystem::path> categories;
@@ -169,11 +180,6 @@ private:
     friend class Repository;
 
 public:
-    using difference_type = std::ptrdiff_t;
-    using value_type = Category;
-    using pointer = const value_type *;
-    using reference = const value_type &;
-
     [[nodiscard]] constexpr reference operator*() const noexcept { return elem; };
     [[nodiscard]] constexpr pointer operator->() const noexcept { return &elem; };
 
