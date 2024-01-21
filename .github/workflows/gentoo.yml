@@ -12,7 +12,6 @@ jobs:
         cc: [gcc, clang]
         sanitizer: [none, address, undefined]
         type: [debugoptimized, release]
-        lto: [true, false]
       fail-fast: false
     runs-on: ubuntu-latest
     container: gentoo/stage3:latest
@@ -40,7 +39,7 @@ jobs:
               ;;
         esac
 
-        meson setup --buildtype="${{ matrix.type }}" -Db_lto="${{ matrix.lto }}" -Db_sanitize="${SANITIZER}" ${args} -Dwerror=true build
+        meson setup --buildtype="${{ matrix.type }}" -Db_lto=true -Db_sanitize="${SANITIZER}" ${args} -Dwerror=true build
 
     - name: Build
       run: |
