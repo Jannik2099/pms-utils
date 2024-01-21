@@ -1,0 +1,35 @@
+# GitHub actions workflow.
+# https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+
+name: Gentoo test
+
+on: [pull_request, push]
+
+jobs:
+  make:
+    strategy:
+      matrix:
+        cc: [gcc, clang]
+        sanitizer: [none, address, undefined]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    container: gentoo/stage3:latest
+    env:
+      CC: ${{ matrix.cc }}
+      SANITIZER: ${{ matrix.sanitizer }}
+    steps:
+    - name: Install dependencies
+      run: |
+        export FEATURES="-network-sandbox -ipc-sandbox -mount-sandbox" # docker
+
+        emerge-webrsync -q
+        getuto
+        emerge -qg dev-libs/boost dev-python/pybind11
+    - uses: actions/checkout@v4
+    - name: Build
+      run: |
+        meson setup -Db_sanitize="${SANITIZER}" build
+        ninja -C build
+    - name: Test
+      run: |
+        meson -C build test
