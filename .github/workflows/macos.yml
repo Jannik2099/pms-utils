@@ -27,7 +27,8 @@ jobs:
         esac
 
     - uses: actions/checkout@v4
-    - name: Build
+
+    - name: Configure
       run: |
         # From brew messages post-LLVM install
         export PATH="/usr/local/opt/llvm/bin:${PATH}"
@@ -47,6 +48,14 @@ jobs:
         esac
 
         meson setup -Dwerror=true build
+
+    - name: Build
+      run: |
+        # From brew messages post-LLVM install
+        export PATH="/usr/local/opt/llvm/bin:${PATH}"
+        export CPPFLAGS="-I/usr/local/opt/llvm/include ${CPPFLAGS}"
+        export LDFLAGS="-L/usr/local/opt/llvm/lib ${LDFLAGS}"
+
         ninja -C build
 
     - name: Test

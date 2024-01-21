@@ -20,8 +20,10 @@ jobs:
     - name: Install dependencies
       run: |
         apk --no-cache add meson pkgconf boost-dev python3-dev py3-pybind11 py3-pybind11-dev build-base valgrind ${{ matrix.cc }}
+
     - uses: actions/checkout@v4
-    - name: Build
+
+    - name: Configure
       run: |
         case "${{ matrix.cc }}" in
           gcc)
@@ -35,7 +37,11 @@ jobs:
         esac
 
         meson setup -Dwerror=true build
+
+    - name: Build
+      run: |
         ninja -C build
+
     - name: Test
       run: |
         case "${{ matrix.valgrind }}" in

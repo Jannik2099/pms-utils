@@ -27,8 +27,10 @@ jobs:
         emerge-webrsync -q
         getuto
         emerge -qg dev-libs/boost dev-python/pybind11
+
     - uses: actions/checkout@v4
-    - name: Build
+
+    - name: Configure
       run: |
         case "${{ matrix.type }}" in
           *debug*)
@@ -39,7 +41,11 @@ jobs:
         esac
 
         meson setup --buildtype="${{ matrix.type }}" -Db_lto="${{ matrix.lto }}" -Db_sanitize="${SANITIZER}" ${args} -Dwerror=true build
+
+    - name: Build
+      run: |
         ninja -C build
+
     - name: Test
       run: |
         meson test -C build
