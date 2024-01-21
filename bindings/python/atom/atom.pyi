@@ -1,12 +1,12 @@
 from enum import Enum
 from typing import Optional
 
-type VersionNumber = list[str]
-type VersionLetter = str
-type VersionRevision = str
-type Useflag = str
-type Category = str
-type Name = str
+VersionNumber = list[str]
+VersionLetter = str
+VersionRevision = str
+Useflag = str
+Category = str
+Name = str
 
 class VersionSpecifier(Enum):
     lt = 0
@@ -105,7 +105,7 @@ class Usedep:
     def __init__(self, string: str) -> None: ...
     def __repr__(self) -> str: ...
 
-type Usedeps = list[Usedep]
+Usedeps = list[Usedep]
 
 class PackageExpr:
     blocker: Optional[Blocker]

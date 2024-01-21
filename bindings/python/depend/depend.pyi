@@ -18,9 +18,8 @@ class GroupHeaderOp(Enum):
 
     def __repr__(self) -> str: ...
 
-type GroupHeader = Union[UseConditional, GroupHeaderOp]
-
-type Node = Union[atom.PackageExpr, GroupExpr]
+GroupHeader = Union[UseConditional, GroupHeaderOp]
+Node = Union[atom.PackageExpr, GroupExpr]
 
 class GroupExpr(Iterable[Node]):
     conditional: Optional[GroupHeader]
