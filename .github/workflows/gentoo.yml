@@ -11,6 +11,7 @@ jobs:
       matrix:
         cc: [gcc, clang]
         sanitizer: [none, address, undefined]
+        type: [debugoptimized, release]
       fail-fast: false
     runs-on: ubuntu-latest
     container: gentoo/stage3:latest
@@ -25,11 +26,25 @@ jobs:
         emerge-webrsync -q
         getuto
         emerge -qg dev-libs/boost dev-python/pybind11
+
     - uses: actions/checkout@v4
+
+    - name: Configure
+      run: |
+        case "${{ matrix.type }}" in
+          *debug*)
+              args="-Dcpp_debugstl=true"
+              ;;
+          *)
+              ;;
+        esac
+
+        meson setup --buildtype="${{ matrix.type }}" -Db_lto=true -Db_sanitize="${SANITIZER}" ${args} -Dwerror=true build
+
     - name: Build
       run: |
-        meson setup -Db_sanitize="${SANITIZER}" build
         ninja -C build
+
     - name: Test
       run: |
         meson test -C build
