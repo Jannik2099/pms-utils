@@ -32,4 +32,4 @@ jobs:
         ninja -C build
     - name: Test
       run: |
-        meson -C build test
+        meson test -C build
