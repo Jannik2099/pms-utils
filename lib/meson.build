@@ -6,6 +6,7 @@ libpms_utils = library(
     'pms-utils',
     link_whole: [lib_atom, lib_depend, lib_repo],
     install: true,
+    include_directories: inc_lib,
 )
 
 pms_utils_dep = declare_dependency(
