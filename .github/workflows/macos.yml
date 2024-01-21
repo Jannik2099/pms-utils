@@ -1,12 +1,12 @@
 # GitHub actions workflow.
 # https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
 
-name: macOS test
+name: macOS
 
 on: [pull_request, push]
 
 jobs:
-  build-macos:
+  build:
     strategy:
       matrix:
         os: [macos-latest]
