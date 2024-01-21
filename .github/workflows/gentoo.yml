@@ -1,12 +1,12 @@
 # GitHub actions workflow.
 # https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
 
-name: Gentoo test
+name: Gentoo
 
 on: [pull_request, push]
 
 jobs:
-  make:
+  build:
     strategy:
       matrix:
         cc: [gcc, clang]
@@ -32,4 +32,4 @@ jobs:
         ninja -C build
     - name: Test
       run: |
-        meson -C build test
+        meson test -C build

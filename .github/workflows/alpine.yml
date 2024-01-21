@@ -1,12 +1,12 @@
 # GitHub actions workflow.
 # https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
 
-name: Alpine test
+name: Alpine
 
 on: [pull_request, push]
 
 jobs:
-  make:
+  build:
     strategy:
       matrix:
         cc: [gcc, clang]
