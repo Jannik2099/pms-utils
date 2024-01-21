@@ -8,8 +8,11 @@ add_global_arguments(['-fvisibility=hidden', '-fvisibility-inlines-hidden'], lan
 add_global_arguments('-DBOOST_ALL_DYN_LINK=1', language: 'cpp')
 
 fs = import('fs')
+pkg = import('pkgconfig')
 
 boost_dep = dependency('boost')
+
+subdir('include')
 
 subdir('lib')
 

@@ -1,4 +1,4 @@
-#include "atom.hpp"
+#include "atom/atom.hpp"
 
 #include <compare>
 #include <optional>
