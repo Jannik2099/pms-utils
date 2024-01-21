@@ -1,0 +1,54 @@
+# GitHub actions workflow.
+# https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+
+name: macOS test
+
+on: [pull_request, push]
+
+jobs:
+  build-macos:
+    strategy:
+      matrix:
+        os: [macos-latest]
+        cc: [gcc, clang]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Install dependencies
+      run: |
+        brew install meson ninja boost pybind11
+
+        case "${{ matrix.cc }}" in
+          gcc)
+            brew install gcc
+            ;;
+          clang)
+            brew install llvm
+            ;;
+        esac
+
+    - uses: actions/checkout@v4
+    - name: Build
+      run: |
+        # From brew messages post-LLVM install
+        export PATH="/usr/local/opt/llvm/bin:${PATH}"
+        export CPPFLAGS="-I/usr/local/opt/llvm/include ${CPPFLAGS}"
+        export LDFLAGS="-L/usr/local/opt/llvm/lib ${LDFLAGS}"
+
+        case "${{ matrix.cc }}" in
+          gcc)
+            export CC=/usr/local/bin/gcc-13
+            export CXX=/usr/local/bin/g++-13
+            ;;
+          clang)
+            LDFLAGS="-L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++ ${LDFLAGS}"
+            export CC=/usr/local/opt/llvm/bin/clang
+            export CXX=/usr/local/opt/llvm/bin/clang++
+            ;;
+        esac
+
+        meson setup build
+        ninja -C build
+
+    - name: Test
+      run: |
+        meson -C build test

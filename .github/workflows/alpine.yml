@@ -1,0 +1,49 @@
+# GitHub actions workflow.
+# https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+
+name: Alpine test
+
+on: [pull_request, push]
+
+jobs:
+  make:
+    strategy:
+      matrix:
+        cc: [gcc, clang]
+        valgrind: [valgrind, vanilla]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    container: alpine:latest
+    env:
+      CC: ${{ matrix.cc }}
+    steps:
+    - name: Install dependencies
+      run: |
+        apk --no-cache add meson pkgconf boost-dev python3-dev py3-pybind11 py3-pybind11-dev build-base valgrind ${{ matrix.cc }}
+    - uses: actions/checkout@v4
+    - name: Build
+      run: |
+        case "${{ matrix.cc }}" in
+          gcc)
+            export CC=gcc
+            export CXX=g++
+            ;;
+          clang)
+            export CC=clang
+            export CXX=clang++
+            ;;
+        esac
+
+        meson setup build
+        ninja -C build
+    - name: Test
+      run: |
+        case "${{ matrix.valgrind }}" in
+          valgrind)
+            args="--wrapper valgrind"
+            ;;
+          vanilla)
+            ;;
+        esac
+
+        meson test -C build ${args}
