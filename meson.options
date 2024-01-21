@@ -1,0 +1,5 @@
+option(
+    'bindings',
+    type: 'array',
+    choices: ['python'],
+)
