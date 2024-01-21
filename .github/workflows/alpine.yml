@@ -34,7 +34,7 @@ jobs:
             ;;
         esac
 
-        meson setup build
+        meson setup -Dwerror=true build
         ninja -C build
     - name: Test
       run: |

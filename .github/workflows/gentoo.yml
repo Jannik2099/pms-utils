@@ -38,7 +38,7 @@ jobs:
               ;;
         esac
 
-        meson setup --buildtype="${{ matrix.type }}" -Db_lto="${{ matrix.lto }}" -Db_sanitize="${SANITIZER}" ${args} build
+        meson setup --buildtype="${{ matrix.type }}" -Db_lto="${{ matrix.lto }}" -Db_sanitize="${SANITIZER}" ${args} -Dwerror=true build
         ninja -C build
     - name: Test
       run: |
