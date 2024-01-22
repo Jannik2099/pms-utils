@@ -7,7 +7,7 @@
 #include <string_view>
 #include <vector>
 
-namespace pms_utils [[gnu::visibility("default")]] {
+namespace [[gnu::visibility("default")]] pms_utils {
 namespace repo {
 
 struct Ebuild {
@@ -194,4 +194,4 @@ public:
 // END ITERATOR
 
 } // namespace repo
-} // namespace gnu::visibility("default")
+} // namespace pms_utils

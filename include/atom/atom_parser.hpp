@@ -28,12 +28,12 @@ BOOST_FUSION_ADAPT_STRUCT(pms_utils::atom::PackageExpr, blocker, category, name,
     const inline auto name = x3::rule<struct name ## _struc, type>{#name}
 // clang-format on
 
-namespace pms_utils [[gnu::visibility("default")]] {
+namespace [[gnu::visibility("default")]] pms_utils {
 namespace parsers {
 
 namespace x3 = boost::spirit::x3;
 
-namespace _internal [[gnu::visibility("hidden")]] {
+namespace [[gnu::visibility("hidden")]] _internal {
 
 struct VerSpec final : x3::symbols<atom::VersionSpecifier> {
     // This intentionally lacks VersionSpecifier::ea because we cannot match against it directly
@@ -170,7 +170,7 @@ constexpr inline auto package_dep_helper = [](auto &ctx, bool requireVerSpec) {
     }
 };
 
-} // namespace gnu::visibility("hidden")
+} // namespace _internal
 
 PARSER_RULE_T(version_specifier, atom::VersionSpecifier) = _internal::VerSpec();
 PARSER_RULE_T(blocker, atom::Blocker) = _internal::Blocker();
@@ -224,4 +224,4 @@ PARSER_RULE_T(package_dep, atom::PackageExpr) = atom_helper(true);
 PARSER_RULE_T(atom, atom::PackageExpr) = atom_helper(false);
 
 } // namespace parsers
-} // namespace gnu::visibility("default")
+} // namespace pms_utils

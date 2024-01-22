@@ -9,7 +9,7 @@
 #include <string_view>
 #include <vector>
 
-namespace pms_utils [[gnu::visibility("default")]] {
+namespace [[gnu::visibility("default")]] pms_utils {
 namespace atom {
 
 // BEGIN ast types
@@ -174,4 +174,4 @@ std::ostream &operator<<(std::ostream &out, const PackageExpr &package);
 // END IO
 
 } // namespace atom
-} // namespace gnu::visibility("default")
+} // namespace pms_utils

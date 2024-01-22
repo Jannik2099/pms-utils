@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-namespace pms_utils [[gnu::visibility("default")]] {
+namespace [[gnu::visibility("default")]] pms_utils {
 namespace depend {
 
 // BEGIN GroupExpr
@@ -264,4 +264,4 @@ std::ostream &operator<<(std::ostream &out, const GroupExpr &group) { return out
 // END IO
 
 } // namespace depend
-} // namespace gnu::visibility("default")
+} // namespace pms_utils

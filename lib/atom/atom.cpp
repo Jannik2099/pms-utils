@@ -5,7 +5,7 @@
 #include <string>
 #include <string_view>
 
-namespace pms_utils [[gnu::visibility("default")]] {
+namespace [[gnu::visibility("default")]] pms_utils {
 namespace atom {
 
 // BEGIN IO
@@ -392,4 +392,4 @@ std::strong_ordering Version::compare_impl(const Version &lhs, const Version &rh
 }
 
 } // namespace atom
-} // namespace gnu::visibility("default")
+} // namespace pms_utils

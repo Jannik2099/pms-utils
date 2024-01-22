@@ -32,7 +32,7 @@ PARSER_RULE_T(ebuild_plus_version,
 
 } // namespace
 
-namespace pms_utils [[gnu::visibility("default")]] {
+namespace [[gnu::visibility("default")]] pms_utils {
 namespace repo {
 
 Package::Package(std::filesystem::path path) : _path(std::move(path)), _name(_path.filename().string()) {}
@@ -265,4 +265,4 @@ bool Repository::Iterator::operator==(const Iterator &rhs) const {
 // END ITERATOR
 
 } // namespace repo
-} // namespace gnu::visibility("default")
+} // namespace pms_utils
