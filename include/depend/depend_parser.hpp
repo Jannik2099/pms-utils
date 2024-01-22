@@ -8,11 +8,12 @@
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::depend::UseConditional, negate, useflag);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::depend::GroupExpr, conditional, nodes);
 
-namespace pms_utils::parsers {
+namespace pms_utils [[gnu::visibility("default")]] {
+namespace parsers {
 
 namespace x3 = boost::spirit::x3;
 
-namespace _internal {
+namespace _internal [[gnu::visibility("hidden")]] {
 
 struct GroupHeaderOp final : x3::symbols<depend::GroupHeaderOp> {
     // clang-format off
@@ -27,7 +28,7 @@ struct GroupHeaderOp final : x3::symbols<depend::GroupHeaderOp> {
     // clang-format on
 };
 
-} // namespace _internal
+} // namespace gnu::visibility("hidden")
 
 PARSER_RULE_T(use_cond, depend::UseConditional) = x3::matches["!"] >> useflag >> x3::lit("?");
 PARSER_RULE_T(conds, depend::GroupHeader) = use_cond | _internal::GroupHeaderOp();
@@ -43,4 +44,5 @@ PARSER_RULE_T(nodes, depend::GroupExpr) =
 
 BOOST_SPIRIT_DEFINE(node)
 
-} // namespace pms_utils::parsers
+} // namespace parsers
+} // namespace gnu::visibility("default")

@@ -11,7 +11,8 @@
 #include <string>
 #include <vector>
 
-namespace pms_utils::depend {
+namespace pms_utils [[gnu::visibility("default")]] {
+namespace depend {
 
 struct UseConditional {
     bool negate;
@@ -143,4 +144,5 @@ std::ostream &operator<<(std::ostream &out, const GroupExpr &group);
 
 // END IO
 
-} // namespace pms_utils::depend
+} // namespace depend
+} // namespace gnu::visibility("default")

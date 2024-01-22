@@ -7,7 +7,8 @@
 #include <string_view>
 #include <vector>
 
-namespace pms_utils::repo {
+namespace pms_utils [[gnu::visibility("default")]] {
+namespace repo {
 
 struct Ebuild {
     std::filesystem::path path;
@@ -192,4 +193,5 @@ public:
 
 // END ITERATOR
 
-} // namespace pms_utils::repo
+} // namespace repo
+} // namespace gnu::visibility("default")
