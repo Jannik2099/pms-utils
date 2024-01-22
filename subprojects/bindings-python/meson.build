@@ -5,7 +5,9 @@ project(
     default_options: ['warning_level=3', 'cpp_std=c++20'],
 )
 add_project_arguments(['-fvisibility=hidden', '-fvisibility-inlines-hidden'], language: 'cpp')
-add_global_arguments('-DBOOST_ALL_DYN_LINK=1', language: 'cpp')
+add_project_arguments('-DBOOST_ALL_DYN_LINK=1', language: 'cpp')
+
+fs = import('fs')
 
 pms_utils_dep = dependency('pms-utils')
 boost_dep = dependency('boost')
@@ -16,3 +18,7 @@ py_installation = pymod.find_installation()
 python_dep = py_installation.dependency()
 
 subdir('lib')
+
+if get_option('test')
+    subdir('test')
+endif
