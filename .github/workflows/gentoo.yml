@@ -39,7 +39,7 @@ jobs:
               ;;
         esac
 
-        meson setup --buildtype="${{ matrix.type }}" -Db_lto=true -Db_sanitize="${SANITIZER}" ${args} -Dwerror=true build
+        meson setup --buildtype="${{ matrix.type }}" -Db_lto=true -Db_sanitize="${SANITIZER}" ${args} -Dtest=true -Dwerror=true build
 
     - name: Build
       run: |

@@ -3,3 +3,8 @@ option(
     type: 'array',
     choices: ['python'],
 )
+option(
+    'test',
+    type: 'boolean',
+    value: false,
+)

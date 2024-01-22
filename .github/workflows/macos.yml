@@ -47,7 +47,7 @@ jobs:
             ;;
         esac
 
-        meson setup -Dwerror=true build
+        meson setup -Dtest=true -Dwerror=true build
 
     - name: Build
       run: |

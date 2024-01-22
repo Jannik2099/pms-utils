@@ -16,7 +16,9 @@ subdir('include')
 
 subdir('lib')
 
-subdir('test')
+if get_option('test')
+    subdir('test')
+endif
 
 if get_option('bindings').contains('python')
     subproject('bindings-python')
