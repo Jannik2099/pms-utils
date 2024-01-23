@@ -21,7 +21,7 @@ jobs:
     steps:
     - name: Install dependencies
       run: |
-        export FEATURES="-network-sandbox -ipc-sandbox -mount-sandbox" # docker
+        export FEATURES="-network-sandbox -pid-sandbox -ipc-sandbox -mount-sandbox" # docker
         FEATURES="${FEATURES} binpkg-request-signature getbinpkg"
 
         case "${{ matrix.cc }}" in
