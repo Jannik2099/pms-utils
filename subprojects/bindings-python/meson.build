@@ -21,5 +21,9 @@ subdir('lib')
 
 
 if get_option('test')
-    subdir('test')
+    # due to ASANd dsos requiring LD_PRELOAD
+    # need to figure out a reliable way to find the ASAN dso
+    if not get_option('b_sanitize').contains('address')
+        subdir('test')
+    endif
 endif
