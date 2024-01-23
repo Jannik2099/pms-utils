@@ -19,6 +19,7 @@ python_dep = py_installation.dependency()
 
 subdir('lib')
 
+
 if get_option('test')
     subdir('test')
 endif

@@ -23,17 +23,34 @@ jobs:
       run: |
         export FEATURES="-network-sandbox -ipc-sandbox -mount-sandbox" # docker
 
+        case "${{ matrix.cc }}" in
+          clang)
+            pkgs+="sys-devel/clang sys-devel/lld "
+            ;;
+        esac
+
         emerge-webrsync -q
         getuto
-        emerge -qg dev-libs/boost dev-python/pybind11
+        emerge -qg dev-libs/boost dev-python/pybind11 ${pkgs}
 
     - uses: actions/checkout@v4
 
     - name: Configure
       run: |
+        case "${{ matrix.cc }}" in
+          gcc)
+            export CC=gcc
+            export CXX=g++
+            ;;
+          clang)
+            export CC=clang
+            export CXX=clang++
+            args+="-Db_lundef=false "
+            ;;
+        esac
         case "${{ matrix.type }}" in
           *debug*)
-              args="-Dcpp_debugstl=true"
+              args+="-Dcpp_debugstl=true "
               ;;
           *)
               ;;
