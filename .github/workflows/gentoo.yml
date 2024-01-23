@@ -22,6 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         export FEATURES="-network-sandbox -ipc-sandbox -mount-sandbox" # docker
+        FEATURES="${FEATURES} binpkg-request-signature getbinpkg"
 
         case "${{ matrix.cc }}" in
           clang)
@@ -31,7 +32,7 @@ jobs:
 
         emerge-webrsync -q
         getuto
-        emerge -qg dev-libs/boost dev-python/pybind11 ${pkgs}
+        emerge -q dev-libs/boost dev-python/pybind11 ${pkgs}
 
     - uses: actions/checkout@v4
 
