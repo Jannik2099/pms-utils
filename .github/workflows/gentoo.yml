@@ -51,6 +51,7 @@ jobs:
           clang)
             export CC=clang
             export CXX=clang++
+            export LDFLAGS="-fuse-ld=lld"
             args+="-Db_lto_mode=thin -Db_lundef=false "
             ;;
         esac
