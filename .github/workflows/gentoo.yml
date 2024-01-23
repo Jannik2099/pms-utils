@@ -51,7 +51,7 @@ jobs:
           clang)
             export CC=clang
             export CXX=clang++
-            args+="-Db_lundef=false "
+            args+="-Db_lto_mode=thin -Db_lundef=false "
             ;;
         esac
         case "${{ matrix.type }}" in
