@@ -33,11 +33,15 @@ jobs:
         emerge-webrsync -q
         getuto
         emerge -q dev-libs/boost dev-python/pybind11 ${pkgs}
+        env-update
 
     - uses: actions/checkout@v4
 
     - name: Configure
       run: |
+        # Needed to find LLVM tools
+        . /etc/profile
+
         case "${{ matrix.cc }}" in
           gcc)
             export CC=gcc
@@ -61,6 +65,9 @@ jobs:
 
     - name: Build
       run: |
+        # Needed to find LLVM tools
+        . /etc/profile
+
         ninja -C build
 
     - name: Test
