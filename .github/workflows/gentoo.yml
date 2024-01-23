@@ -22,6 +22,7 @@ jobs:
     - name: Install dependencies
       run: |
         export FEATURES="-network-sandbox -pid-sandbox -ipc-sandbox -mount-sandbox" # docker
+        FEAUTRES="${FEATURES} parallel-fetch parallel-merge -merge-sync"
         FEATURES="${FEATURES} binpkg-request-signature getbinpkg"
 
         case "${{ matrix.cc }}" in
