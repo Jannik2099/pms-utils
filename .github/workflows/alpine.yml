@@ -52,4 +52,4 @@ jobs:
             ;;
         esac
 
-        meson test -C build ${args}
+        meson test -C build --print-errorlogs ${args}

@@ -21,19 +21,43 @@ jobs:
     steps:
     - name: Install dependencies
       run: |
-        export FEATURES="-network-sandbox -ipc-sandbox -mount-sandbox" # docker
+        export FEATURES="-network-sandbox -pid-sandbox -ipc-sandbox -mount-sandbox" # docker
+        FEAUTRES="${FEATURES} parallel-fetch parallel-merge -merge-sync"
+        FEATURES="${FEATURES} binpkg-request-signature getbinpkg"
+
+        case "${{ matrix.cc }}" in
+          clang)
+            pkgs+="sys-devel/clang sys-devel/lld "
+            ;;
+        esac
 
         emerge-webrsync -q
         getuto
-        emerge -qg dev-libs/boost dev-python/pybind11
+        emerge -q dev-libs/boost dev-python/pybind11 ${pkgs}
+        env-update
 
     - uses: actions/checkout@v4
 
     - name: Configure
       run: |
+        # Needed to find LLVM tools
+        . /etc/profile
+
+        case "${{ matrix.cc }}" in
+          gcc)
+            export CC=gcc
+            export CXX=g++
+            ;;
+          clang)
+            export CC=clang
+            export CXX=clang++
+            export LDFLAGS="-fuse-ld=lld"
+            args+="-Db_lto_mode=thin -Db_lundef=false "
+            ;;
+        esac
         case "${{ matrix.type }}" in
           *debug*)
-              args="-Dcpp_debugstl=true"
+              args+="-Dcpp_debugstl=true "
               ;;
           *)
               ;;
@@ -43,8 +67,11 @@ jobs:
 
     - name: Build
       run: |
+        # Needed to find LLVM tools
+        . /etc/profile
+
         ninja -C build
 
     - name: Test
       run: |
-        meson test -C build
+        meson test -C build --print-errorlogs
