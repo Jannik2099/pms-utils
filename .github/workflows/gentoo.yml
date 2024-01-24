@@ -3,7 +3,11 @@
 
 name: Gentoo
 
-on: [pull_request, push]
+on:
+  pull_request:
+  push:
+    branches:
+      main
 
 jobs:
   build:
@@ -16,15 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     container: gentoo/stage3:latest
     env:
-      CC: ${{ matrix.cc }}
       SANITIZER: ${{ matrix.sanitizer }}
+      # we technically support py3_10, but it's not in the binhost repo
+      MY_PY_TARGETS: "python3_11 python3_12 pypy3"
+      FEATURES: "-network-sandbox -pid-sandbox -ipc-sandbox -mount-sandbox parallel-fetch parallel-install -merge-sync binpkg-request-signature getbinpkg"
     steps:
-    - name: Install dependencies
+    - name: Install build dependencies
       run: |
-        export FEATURES="-network-sandbox -pid-sandbox -ipc-sandbox -mount-sandbox" # docker
-        FEAUTRES="${FEATURES} parallel-fetch parallel-merge -merge-sync"
-        FEATURES="${FEATURES} binpkg-request-signature getbinpkg"
-
         case "${{ matrix.cc }}" in
           clang)
             pkgs+="sys-devel/clang sys-devel/lld "
@@ -33,25 +35,49 @@ jobs:
 
         emerge-webrsync -q
         getuto
-        emerge -q dev-libs/boost dev-python/pybind11 ${pkgs}
+        emerge -q -j8 dev-vcs/git dev-util/pkgdev ${pkgs}
         env-update
 
     - uses: actions/checkout@v4
 
-    - name: Configure
+    - name: Set up ebuild repo
       run: |
-        # Needed to find LLVM tools
-        . /etc/profile
+        mkdir /etc/portage/repos.conf
+        cp .github/gentoo.conf /etc/portage/repos.conf
+        cp .github/localrepo.conf /etc/portage/repos.conf
+        pushd /etc/portage
+
+        mkdir -p package.accept_keywords
+        echo "dev-libs/pms-utils **" > package.accept_keywords/pms-utils
+
+        mkdir -p profile/use.stable.mask
+        echo "-python_targets_python3_12" >> profile/use.stable.mask/pms-utils
+        echo "-python_targets_pypy3" >> profile/use.stable.mask/pms-utils
+        echo "-python_single_target_python3_12" >> profile/use.stable.mask/pms-utils
+        echo "-python_single_target_pypy3" >> profile/use.stable.mask/pms-utils
+
+        mkdir -p package.mask
+        # to prefer -bin
+        echo "dev-python/pypy3_*-exe" >> package.mask/pypy3
+
+        mkdir -p package.env
+        mkdir -p env
+
+        echo "dev-libs/pms-utils myenv" > package.env/pms-utils
+        TEMP=\"${{ github.repositoryUrl }}\"
+        TEMP="$(echo ${TEMP} | sed 's/git/https/')"
+        echo EGIT_OVERRIDE_REPO_JANNIK2099_PMS_UTILS=\"${TEMP}\" >> env/myenv
+        echo EGIT_OVERRIDE_COMMIT_JANNIK2099_PMS_UTILS=\"${{ github.ref }}\" >> env/myenv
 
         case "${{ matrix.cc }}" in
           gcc)
-            export CC=gcc
-            export CXX=g++
+            echo CC=gcc >> env/myenv
+            echo CXX=g++ >> env/myenv
             ;;
           clang)
-            export CC=clang
-            export CXX=clang++
-            export LDFLAGS="-fuse-ld=lld"
+            echo CC=clang >> env/myenv
+            echo CXX=clang++ >> env/myenv
+            echo LDFLAGS=\"-fuse-ld=lld\" >> env/myenv
             args+="-Db_lto_mode=thin -Db_lundef=false "
             ;;
         esac
@@ -63,15 +89,43 @@ jobs:
               ;;
         esac
 
-        meson setup --buildtype="${{ matrix.type }}" -Db_lto=true -Db_sanitize="${SANITIZER}" ${args} -Dtest=true -Dwerror=true build
+        echo FEATURES='"${FEATURES} test"' >> env/myenv
+        echo "PYTHON_TARGETS=\"${MY_PY_TARGETS}\"" >> env/myenv
+        echo "MYMESONARGS=\"--buildtype=${{ matrix.type }} -Dwerror=true -Db_lto=true -Db_sanitize=${SANITIZER} ${args}\"" >> env/myenv
+        popd
 
-    - name: Build
+        cp -r .github/localrepo /var/db/repos/localrepo
+        cd /var/db/repos/localrepo/dev-libs/pms-utils
+        pkgdev manifest -f
+
+    - name: Install package dependencies
       run: |
-        # Needed to find LLVM tools
-        . /etc/profile
+        emerge --autounmask --autounmask-write --autounmask-continue -q -j8 -o dev-libs/pms-utils
 
-        ninja -C build
+    - name: Configure
+      run: |
+        cd /var/db/repos/localrepo/dev-libs/pms-utils
+        ebuild pms-utils-9999.ebuild configure
+
+    - name: Compile
+      run: |
+        cd /var/db/repos/localrepo/dev-libs/pms-utils
+        ebuild pms-utils-9999.ebuild compile
 
     - name: Test
       run: |
-        meson test -C build --print-errorlogs
+        if [[ "${{ matrix.sanitizer }}" == "address" ]]; then
+          export FEATURES="${FEATURES} -sandbox -usersandbox"
+        fi
+        cd /var/db/repos/localrepo/dev-libs/pms-utils
+        ebuild pms-utils-9999.ebuild test
+
+    - name: Install
+      run: |
+        cd /var/db/repos/localrepo/dev-libs/pms-utils
+        ebuild pms-utils-9999.ebuild install
+
+    - name: Merge
+      run: |
+        cd /var/db/repos/localrepo/dev-libs/pms-utils
+        ebuild pms-utils-9999.ebuild merge
