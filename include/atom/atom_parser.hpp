@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../x3_utils.hpp"
 #include "atom.hpp"
+#include "misc/x3_utils.hpp"
 
 #include <boost/spirit/home/x3.hpp>
 
