@@ -56,7 +56,7 @@ int main() {
 
                 GroupExpr expr;
                 const auto before = std::chrono::steady_clock::now();
-                const bool parse_res = parse(begin, end, parsers::nodes, expr);
+                const bool parse_res = parse(begin, end, parsers::nodes(), expr);
                 const auto after = std::chrono::steady_clock::now();
                 runtime += std::chrono::duration_cast<std::chrono::nanoseconds>(after - before);
                 if (parse_res) {

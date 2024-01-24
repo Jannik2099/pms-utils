@@ -3,7 +3,8 @@
 #include "atom/atom.hpp"
 #include "atom/atom_parser.hpp"
 
-#include <boost/spirit/home/x3/nonterminal/rule.hpp>
+#include <boost/fusion/adapted.hpp>
+#include <boost/spirit/home/x3.hpp>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -12,6 +13,9 @@
 #include <utility>
 
 namespace x3 = boost::spirit::x3;
+
+#define PARSER_RULE_T(name, type)                                                                            \
+    const inline auto name = x3::rule<struct name##_struc, type> { #name }
 
 namespace {
 
@@ -26,9 +30,8 @@ BOOST_FUSION_ADAPT_STRUCT(ebuild_plus_version_t, name, version);
 
 namespace {
 
-PARSER_RULE_T(ebuild_plus_version,
-              ebuild_plus_version_t) = pms_utils::parsers::name
-                                       >> x3::lit("-") >> pms_utils::parsers::package_version;
+PARSER_RULE_T(ebuild_plus_version, ebuild_plus_version_t) =
+    pms_utils::parsers::name() >> x3::lit("-") >> pms_utils::parsers::package_version();
 
 } // namespace
 
@@ -149,7 +152,7 @@ Category::Iterator::value_type Category::Iterator::init_value() {
         const std::string pathstr = iter->path().filename().string();
         auto begin = pathstr.begin();
         const auto end = pathstr.end();
-        if (!parse(begin, end, pms_utils::parsers::name, name)) {
+        if (!parse(begin, end, pms_utils::parsers::name(), name)) {
             iter++;
             continue;
         }
@@ -212,7 +215,7 @@ std::vector<std::filesystem::path> Repository::Iterator::init_categories() const
         auto begin = line.begin();
         const auto end = line.end();
         std::string parsed;
-        if (!parse(begin, end, pms_utils::parsers::category, parsed) || begin != end) {
+        if (!parse(begin, end, pms_utils::parsers::category(), parsed) || begin != end) {
             // TODO
             throw std::runtime_error(std::format("malformed line in categories file: {}", line));
         }

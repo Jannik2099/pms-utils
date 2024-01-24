@@ -5,8 +5,8 @@ if fs.is_dir('/var/db/repos/gentoo')
         executable(
             temp,
             temp + '.cpp',
-            link_with: [lib_repo],
-            include_directories: [inc_test_utils, inc_lib],
+            dependencies: pms_utils_dep,
+            include_directories: inc_test_utils,
         ),
         timeout: 0,
     )

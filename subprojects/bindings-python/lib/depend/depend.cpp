@@ -38,7 +38,7 @@ void _register(py::module &_module) {
     py::class_<UseConditional>(depend, "UseConditional")
         .def_readonly("negate", &UseConditional::negate)
         .def_readonly("useflag", &UseConditional::useflag)
-        .def(py::init([](std::string_view str) { return expr_from_str(parsers::use_cond, str); }),
+        .def(py::init([](std::string_view str) { return expr_from_str(parsers::use_cond(), str); }),
              py::call_guard<py::gil_scoped_release>())
         .def("__repr__", [](const UseConditional &cond) { return std::string(cond); });
 
@@ -56,12 +56,12 @@ void _register(py::module &_module) {
             py::keep_alive<0, 1>())
         .def_readonly("conditional", &GroupExpr::conditional)
         .def_readonly("nodes", &GroupExpr::nodes)
-        .def(py::init([](std::string_view str) { return expr_from_str(parsers::group, str); }),
+        .def(py::init([](std::string_view str) { return expr_from_str(parsers::group(), str); }),
              py::call_guard<py::gil_scoped_release>())
         .def("__repr__", [](const GroupExpr &expr) { return std::string(expr); });
 
     depend.def(
-        "DependExpr", [](std::string_view str) { return expr_from_str(parsers::nodes, str); },
+        "DependExpr", [](std::string_view str) { return expr_from_str(parsers::nodes(), str); },
         py::call_guard<py::gil_scoped_release>());
 }
 
