@@ -14,7 +14,7 @@
 
 namespace x3 = boost::spirit::x3;
 
-#define PARSER_RULE_T(name, type)                                                                            \
+#define PARSER_DEF(name, type)                                                                               \
     const inline auto name = x3::rule<struct name##_struc, type> { #name }
 
 namespace {
@@ -30,7 +30,7 @@ BOOST_FUSION_ADAPT_STRUCT(ebuild_plus_version_t, name, version);
 
 namespace {
 
-PARSER_RULE_T(ebuild_plus_version, ebuild_plus_version_t) =
+PARSER_DEF(ebuild_plus_version, ebuild_plus_version_t) =
     pms_utils::parsers::name() >> x3::lit("-") >> pms_utils::parsers::package_version();
 
 } // namespace
