@@ -7,6 +7,7 @@ install_headers(
         'depend/depend.hpp',
         'depend/depend_parser.hpp',
         'repo/repo.hpp',
+        'misc/x3_utils.hpp',
     ],
     subdir: 'pms_utils',
     preserve_path: true,

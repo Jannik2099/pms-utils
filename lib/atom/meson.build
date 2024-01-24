@@ -1,6 +1,2 @@
-lib_atom = static_library(
-    'atom',
-    'atom.cpp',
-    dependencies: boost_dep,
-    include_directories: [inc_lib],
-)
+libpms_utils_src += files('atom.cpp')
+libpms_utils_src += files('atom_parser.cpp')

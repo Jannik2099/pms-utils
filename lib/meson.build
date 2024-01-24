@@ -1,12 +1,15 @@
+libpms_utils_src = []
+
 subdir('atom')
 subdir('depend')
 subdir('repo')
 
 libpms_utils = library(
     'pms-utils',
-    link_whole: [lib_atom, lib_depend, lib_repo],
-    install: true,
+    libpms_utils_src,
+    dependencies: boost_dep,
     include_directories: inc_lib,
+    install: true,
 )
 
 pms_utils_dep = declare_dependency(

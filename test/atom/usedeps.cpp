@@ -14,7 +14,7 @@ int main() {
     Usedeps usedeps;
     auto begin = str.begin();
     const auto end = str.end();
-    ret = parse(begin, end, parsers::use_deps, usedeps);
+    ret = parse(begin, end, parsers::use_deps(), usedeps);
 
     if (!ret) {
         return 1;

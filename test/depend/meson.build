@@ -7,8 +7,8 @@ if fs.is_dir('/var/db/repos/gentoo/metadata/md5-cache')
         executable(
             temp,
             temp + '.cpp',
-            link_with: [lib_depend],
-            include_directories: [inc_test_utils, inc_lib],
+            dependencies: pms_utils_dep,
+            include_directories: inc_test_utils,
         ),
         timeout: 0,
     )
@@ -20,9 +20,8 @@ foreach t : tests
         executable(
             t,
             t + '.cpp',
-            dependencies: boost_dep,
-            link_with: [lib_depend],
-            include_directories: [inc_test_utils, inc_lib],
+            dependencies: [boost_dep, pms_utils_dep],
+            include_directories: inc_test_utils,
         ),
     )
 endforeach
