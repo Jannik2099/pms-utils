@@ -21,6 +21,7 @@ RUN <<EOF
     getuto
     emerge --autounmask --autounmask-write --autounmask-continue -q -j8 dev-vcs/git dev-util/pkgdev sys-devel/clang sys-devel/lld dev-libs/boost dev-python/pybind11 dev-build/meson dev-python/pip dev-util/cppcheck
     env-update
+    . /etc/profile
     rm -rf /var/cache/distfiles
     rm -rf /var/cache/binpkgs
 EOF
