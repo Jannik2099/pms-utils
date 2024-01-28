@@ -17,9 +17,7 @@ jobs:
     #   - https://gh.io/using-larger-runners
     # Consider using larger runners for possible analysis time improvements.
     runs-on: ubuntu-latest
-    container: gentoo/stage3:latest
-    env:
-      FEATURES: "-network-sandbox -pid-sandbox -ipc-sandbox -mount-sandbox parallel-fetch parallel-install -merge-sync binpkg-request-signature getbinpkg"
+    container: ghcr.io/jannik2099/pms-utils-gentoo-ci:main
     permissions:
       # required for all workflows
       security-events: write
@@ -36,14 +34,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-  
-    - name: Install build dependencies
-      run: |
-        emerge-webrsync -q
-        getuto
-        emerge -q -j8 dev-libs/boost dev-python/pybind11 dev-build/meson dev-vcs/git
-        env-update
-        git config --global --add safe.directory .
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL

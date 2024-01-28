@@ -4,10 +4,10 @@
 name: Gentoo
 
 on:
-  pull_request:
   push:
-    branches:
-      main
+    branches: main
+  pull_request:
+    branches: main
 
 jobs:
   build:
@@ -18,26 +18,12 @@ jobs:
         type: [debugoptimized, release]
       fail-fast: false
     runs-on: ubuntu-latest
-    container: gentoo/stage3:latest
+    container: ghcr.io/jannik2099/pms-utils-gentoo-ci:main
     env:
       SANITIZER: ${{ matrix.sanitizer }}
       # we technically support py3_10, but it's not in the binhost repo
       MY_PY_TARGETS: "python3_11 python3_12 pypy3"
-      FEATURES: "-network-sandbox -pid-sandbox -ipc-sandbox -mount-sandbox parallel-fetch parallel-install -merge-sync binpkg-request-signature getbinpkg"
     steps:
-    - name: Install build dependencies
-      run: |
-        case "${{ matrix.cc }}" in
-          clang)
-            pkgs+="sys-devel/clang sys-devel/lld "
-            ;;
-        esac
-
-        emerge-webrsync -q
-        getuto
-        emerge -q -j8 dev-vcs/git dev-util/pkgdev ${pkgs}
-        env-update
-
     - uses: actions/checkout@v4
 
     - name: Set up ebuild repo
