@@ -1,0 +1,48 @@
+name: "CodeChecker"
+
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    container:
+      image: gentoo/stage3:latest
+      volumes:
+        # https://github.com/actions/runner/issues/716
+        - /home/runner/work/_actions/whisperity/codechecker-analysis-action/:/home/runner/work/_actions/whisperity/codechecker-analysis-action/
+    env:
+      FEATURES: "-network-sandbox -pid-sandbox -ipc-sandbox -mount-sandbox parallel-fetch parallel-install -merge-sync binpkg-request-signature getbinpkg"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          emerge-webrsync -q
+          getuto
+          emerge -q -j8 dev-libs/boost dev-python/pybind11 dev-build/meson dev-vcs/git sys-devel/clang sys-devel/lld dev-python/pip
+          env-update
+          . /etc/profile
+          git config --global --add safe.directory .
+          # CodeChecker calls pip install directly
+          rm -f /usr/lib/python*/EXTERNALLY-MANAGED
+          # CodeChecker seems to hardcode PATH
+          ln -s $(command -v clang-tidy) /usr/bin/clang-tidy
+
+      - name: Configure
+        run: |
+          meson setup build
+
+      - uses: whisperity/codechecker-analysis-action@v1
+        id: codechecker
+        with:
+          logfile: build/compile_commands.json
+          llvm-version: ignore
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "CodeChecker Bug Reports"
+          path: ${{ steps.codechecker.outputs.result-html-dir }}
