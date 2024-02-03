@@ -1,7 +1,7 @@
-#include "repo/repo.hpp"
+#include "pms-utils/repo/repo.hpp"
 
-#include "atom/atom.hpp"
-#include "atom/atom_parser.hpp"
+#include "pms-utils/atom/atom.hpp"
+#include "pms-utils/atom/atom_parser.hpp"
 
 #include <boost/fusion/adapted.hpp>
 #include <boost/spirit/home/x3.hpp>

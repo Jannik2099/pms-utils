@@ -1,6 +1,6 @@
-#include "depend/depend.hpp"
+#include "pms-utils/depend/depend.hpp"
 
-#include "depend/depend_parser.hpp"
+#include "pms-utils/depend/depend_parser.hpp"
 #include "x3_util.hpp"
 
 #include <string>
