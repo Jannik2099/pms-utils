@@ -1,6 +1,6 @@
-#include "depend/depend_parser.hpp"
+#include "pms-utils/depend/depend_parser.hpp"
 
-#include "atom/atom_parser.hpp"
+#include "pms-utils/atom/atom_parser.hpp"
 
 #include <boost/spirit/home/x3.hpp>
 

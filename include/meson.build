@@ -2,13 +2,12 @@ inc_lib = include_directories('.')
 
 install_headers(
     [
-        'atom/atom.hpp',
-        'atom/atom_parser.hpp',
-        'depend/depend.hpp',
-        'depend/depend_parser.hpp',
-        'repo/repo.hpp',
-        'misc/x3_utils.hpp',
+        'pms-utils/atom/atom.hpp',
+        'pms-utils/atom/atom_parser.hpp',
+        'pms-utils/depend/depend.hpp',
+        'pms-utils/depend/depend_parser.hpp',
+        'pms-utils/repo/repo.hpp',
+        'pms-utils/misc/x3_utils.hpp',
     ],
-    subdir: 'pms_utils',
     preserve_path: true,
 )

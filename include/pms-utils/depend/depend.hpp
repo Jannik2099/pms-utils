@@ -1,6 +1,6 @@
 #pragma once
 
-#include "atom/atom.hpp"
+#include "pms-utils/atom/atom.hpp"
 
 #include <boost/optional.hpp>
 #include <boost/safe_numerics/safe_integer.hpp>

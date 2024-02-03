@@ -1,8 +1,8 @@
 #include "atom.hpp"
 
 #include "../common.hpp"
-#include "atom/atom.hpp"
-#include "atom/atom_parser.hpp"
+#include "pms-utils/atom/atom.hpp"
+#include "pms-utils/atom/atom_parser.hpp"
 
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
