@@ -10,7 +10,7 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/jannik2099/pms-utils-gentoo-ci:main
+      image: ghcr.io/jannik2099/pms-utils-gentoo-ci:latest
       volumes:
         # https://github.com/actions/runner/issues/716
         - /home/runner/work/_actions/whisperity/codechecker-analysis-action/:/home/runner/work/_actions/whisperity/codechecker-analysis-action/
