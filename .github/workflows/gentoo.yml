@@ -18,7 +18,7 @@ jobs:
         type: [debugoptimized, release]
       fail-fast: false
     runs-on: ubuntu-latest
-    container: ghcr.io/jannik2099/pms-utils-gentoo-ci:main
+    container: ghcr.io/jannik2099/pms-utils-gentoo-ci:latest
     env:
       SANITIZER: ${{ matrix.sanitizer }}
       # we technically support py3_10, but it's not in the binhost repo
