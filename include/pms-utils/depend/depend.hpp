@@ -276,6 +276,10 @@ template <typename T> GroupExpr<T>::operator std::string() const {
         spacing.pop_back();
         ret += "\n" + spacing + ")";
     };
+    // this is a quick hack to handle "am I the topmost GroupExpr, in that case do not add needless ()"
+    if (conditional.has_value()) {
+        iter.callbacks.downwards();
+    }
     for (; iter != end(); iter++) {
         const Node &expr = *iter;
         if (expr.type() == typeid(T)) {
@@ -286,6 +290,9 @@ template <typename T> GroupExpr<T>::operator std::string() const {
                 ret += spacing + to_string(groupExpr.conditional.value()) + " ";
             }
         }
+    }
+    if (conditional.has_value()) {
+        iter.callbacks.upwards();
     }
     return ret;
 }

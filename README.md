@@ -62,8 +62,12 @@ for e in expr:
 <class 'pms_utils.atom.Atom'>
 
 expr.nodes
-[foo/bar, foo? foo/baz, || foo/baz
-foo/qux] # nested formatting not quite fleshed out
+[foo/bar, foo? (
+        foo/baz
+), || (
+        foo/baz
+        foo/qux
+)]
 
 expr.nodes[2].conditional
 ||
