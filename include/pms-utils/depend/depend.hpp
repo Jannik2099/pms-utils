@@ -3,13 +3,13 @@
 #include "pms-utils/atom/atom.hpp"
 
 #include <boost/optional.hpp>
-#include <boost/safe_numerics/safe_integer.hpp>
 #include <boost/variant.hpp>
 #include <boost/variant/detail/apply_visitor_unary.hpp>
 #include <boost/variant/recursive_variant.hpp>
 #include <boost/variant/variant.hpp>
 #include <functional>
 #include <span>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -74,9 +74,7 @@ public:
 private:
     const GroupExpr *ast{};
     pointer node{};
-    std::vector<boost::safe_numerics::safe<std::size_t>> index_ = {0};
-    // until clang gets std::is_layout_compatible, this is our best approach
-    static_assert(sizeof(typename decltype(index_)::value_type) == sizeof(std::size_t));
+    std::vector<std::size_t> index_ = {0};
 
     [[nodiscard]] pointer parent_expr() const {
         if (index_.size() == 1) {
@@ -91,8 +89,7 @@ private:
     }
     // this returns a new iterator at the given index. It does NOT copy callbacks, nor traverse them towards
     // the new iterator
-    [[nodiscard]] static Iterator AST_at(const GroupExpr &ast,
-                                         std::span<const boost::safe_numerics::safe<std::size_t>> index) {
+    [[nodiscard]] static Iterator AST_at(const GroupExpr &ast, std::span<const std::size_t> index) {
         auto indexIter = index.begin();
         const Node *node = &ast.nodes.at(*indexIter);
         indexIter++;
@@ -176,15 +173,12 @@ public:
         index_ = {ast->nodes.size()};
     };
 
-    // for some godforsaken reason friend declarations cannot be [[nodiscard]], so we keep the definition in
-    // the header
     [[nodiscard]] friend constexpr std::strong_ordering operator<=>(const Iterator &lhs,
                                                                     const Iterator &rhs) noexcept {
         const std::size_t index = std::min(lhs.index_.size(), rhs.index_.size());
         for (std::size_t i = 0; i < index; i++) {
             if (lhs.index_[i] != rhs.index_[i]) {
-                // safe<> does not seem to provide operator<=> yet
-                return static_cast<std::size_t>(lhs.index_[i]) <=> static_cast<std::size_t>(rhs.index_[i]);
+                return lhs.index_[i] <=> rhs.index_[i];
             }
         }
         // if all indexes are equal, either the index vectors are equal, in which case the iterators are
