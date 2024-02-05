@@ -14,7 +14,9 @@ namespace {
 class Myvisitor : private boost::static_visitor<std::string> {
 public:
     std::string operator()(const atom::PackageExpr &packageExpr) const { return std::string{packageExpr}; }
-    std::string operator()(const GroupExpr &groupExpr) const { return to_string(*groupExpr.conditional); }
+    std::string operator()(const GroupExpr<atom::PackageExpr> &groupExpr) const {
+        return to_string(*groupExpr.conditional);
+    }
 };
 } // namespace
 
@@ -45,7 +47,7 @@ int main() {
     if (!res.as_expected) {
         return 1;
     }
-    const GroupExpr &ast = res.result;
+    const GroupExpr<atom::PackageExpr> &ast = res.result;
 
     bool error = false;
     {

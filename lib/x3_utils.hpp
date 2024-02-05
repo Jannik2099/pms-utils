@@ -15,7 +15,7 @@ BOOST_FUSION_ADAPT_STRUCT(pms_utils::atom::Usedep, negate, useflag, sign, condit
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::atom::PackageExpr, blocker, category, name, verspec, version, slotExpr,
                           usedeps);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::depend::UseConditional, negate, useflag);
-BOOST_FUSION_ADAPT_STRUCT(pms_utils::depend::GroupExpr, conditional, nodes);
+BOOST_FUSION_ADAPT_STRUCT(pms_utils::depend::GroupExpr<pms_utils::atom::PackageExpr>, conditional, nodes);
 
 #ifdef BOOST_SPIRIT_INSTANTIATE
 #undef BOOST_SPIRIT_INSTANTIATE
