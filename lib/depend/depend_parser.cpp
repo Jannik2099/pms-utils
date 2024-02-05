@@ -31,8 +31,8 @@ PARSER_DEFINE(conds, use_cond() | GroupHeaderOp());
 PARSER_DEFINE(group, -(conds() >> x3::omit[+x3::space]) >> x3::lit("(") >> x3::omit[+x3::space] >>
                          node() % +x3::space >> x3::omit[+x3::space] >> x3::lit(")"));
 PARSER_DEFINE(node, package_dep() | group());
-PARSER_DEFINE(nodes, x3::attr(decltype(depend::GroupExpr<atom::PackageExpr>::conditional){}) >>
-                         x3::omit[*x3::space] >> node() % +x3::space >> x3::omit[*x3::space]);
+PARSER_DEFINE(nodes, x3::attr(decltype(depend::DependExpr::conditional){}) >> x3::omit[*x3::space] >>
+                         node() % +x3::space >> x3::omit[*x3::space]);
 
 } // namespace parsers
 } // namespace pms_utils

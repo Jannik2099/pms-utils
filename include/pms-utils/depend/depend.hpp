@@ -61,6 +61,8 @@ template <typename T> struct GroupExpr {
     // TODO: figure out reverse iterator
 };
 
+using DependExpr = GroupExpr<atom::PackageExpr>;
+
 // BEGIN ITERATOR
 
 template <typename T> class GroupExpr<T>::Iterator {
@@ -243,7 +245,7 @@ public:
     explicit Iterator(const GroupExpr &ast) : ast(&ast), node(&ast.nodes.at(0)){};
 };
 
-static_assert(std::bidirectional_iterator<GroupExpr<atom::PackageExpr>::Iterator>);
+static_assert(std::bidirectional_iterator<DependExpr::Iterator>);
 
 // END ITERATOR
 

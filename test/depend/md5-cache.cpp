@@ -54,7 +54,7 @@ int main() {
                 }
                 found_counter++;
 
-                GroupExpr<pms_utils::atom::PackageExpr> expr;
+                DependExpr expr;
                 const auto before = std::chrono::steady_clock::now();
                 const bool parse_res = parse(begin, end, parsers::nodes(), expr);
                 const auto after = std::chrono::steady_clock::now();

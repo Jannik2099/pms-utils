@@ -50,22 +50,15 @@ void _register(py::module &_module) {
             "__repr__", [](GroupHeaderOp header) { return to_string(header); }, py::name("__repr__"),
             py::is_method(depend));
 
-    py::class_<GroupExpr<atom::PackageExpr>>(depend, "GroupExpr")
+    py::class_<DependExpr>(depend, "DependExpr")
         .def(
-            "__iter__",
-            [](const GroupExpr<atom::PackageExpr> &expr) {
-                return py::make_iterator(expr.begin(), expr.end());
-            },
+            "__iter__", [](const DependExpr &expr) { return py::make_iterator(expr.begin(), expr.end()); },
             py::keep_alive<0, 1>())
-        .def_readonly("conditional", &GroupExpr<atom::PackageExpr>::conditional)
-        .def_readonly("nodes", &GroupExpr<atom::PackageExpr>::nodes)
-        .def(py::init([](std::string_view str) { return expr_from_str(parsers::group(), str); }),
+        .def_readonly("conditional", &DependExpr::conditional)
+        .def_readonly("nodes", &DependExpr::nodes)
+        .def(py::init([](std::string_view str) { return expr_from_str(parsers::nodes(), str); }),
              py::call_guard<py::gil_scoped_release>())
-        .def("__repr__", [](const GroupExpr<atom::PackageExpr> &expr) { return std::string(expr); });
-
-    depend.def(
-        "DependExpr", [](std::string_view str) { return expr_from_str(parsers::nodes(), str); },
-        py::call_guard<py::gil_scoped_release>());
+        .def("__repr__", [](const DependExpr &expr) { return std::string(expr); });
 }
 
 } // namespace pms_utils::bindings::python::depend
