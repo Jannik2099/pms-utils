@@ -24,7 +24,12 @@ enum class VersionSpecifier {
     gt, // >=
 };
 
-using VersionNumber = std::vector<std::string>;
+struct VersionNumber {
+    std::vector<std::string> data;
+
+    [[nodiscard]] explicit operator std::string() const;
+};
+
 using VersionLetter = char;
 
 enum class VersionSuffixWord {
@@ -144,7 +149,6 @@ struct PackageExpr {
 [[nodiscard]] std::string to_string(VersionSpecifier versionSpecifier);
 std::ostream &operator<<(std::ostream &out, VersionSpecifier versionSpecifier);
 
-[[nodiscard]] std::string to_string(const VersionNumber &versionNumber);
 std::ostream &operator<<(std::ostream &out, const VersionNumber &versionNumber);
 
 [[nodiscard]] std::string to_string(VersionSuffixWord versionSuffixWord);

@@ -1,5 +1,8 @@
 #include "pms-utils/atom/atom_parser.hpp"
 
+#include "pms-utils/atom/atom.hpp"
+#include "pms-utils/misc/x3_utils.hpp"
+
 #include <boost/spirit/home/x3.hpp>
 #include <stdexcept>
 
@@ -156,7 +159,9 @@ PARSER_DEFINE(slot_no_subslot,
 PARSER_DEFINE(slot, slot_no_subslot() >> -(x3::lit("/") >> slot_no_subslot()));
 PARSER_DEFINE(slot_expr, x3::lit(":") >> (x3::char_("*") | (-slot() >> x3::matches["="]))[slot_expr_helper]);
 
-PARSER_DEFINE(ver_num, +x3::digit % '.');
+PARSER_RULE_T(internal_ver_num, decltype(atom::VersionNumber::data));
+PARSER_DEFINE(internal_ver_num, +x3::digit % '.')
+PARSER_DEFINE(ver_num, internal_ver_num());
 PARSER_DEFINE(ver_letter, x3::ascii::lower);
 PARSER_DEFINE(ver_suffix_word, VersionSuffixWord());
 PARSER_DEFINE(ver_suffix, ver_suffix_word() >> *x3::digit);

@@ -35,9 +35,9 @@ std::ostream &operator<<(std::ostream &out, VersionSpecifier versionSpecifier) {
     return out << to_string(versionSpecifier);
 }
 
-std::string to_string(const VersionNumber &versionNumber) {
+VersionNumber::operator std::string() const {
     std::string ret;
-    for (const std::string &str : versionNumber) {
+    for (const std::string &str : data) {
         ret.append(str);
         ret.append(".");
     }
@@ -47,7 +47,7 @@ std::string to_string(const VersionNumber &versionNumber) {
     return ret;
 }
 std::ostream &operator<<(std::ostream &out, const VersionNumber &versionNumber) {
-    return out << to_string(versionNumber);
+    return out << std::string(versionNumber);
 }
 
 std::string to_string(VersionSuffixWord versionSuffixWord) {
@@ -79,7 +79,7 @@ std::ostream &operator<<(std::ostream &out, const VersionSuffix &suffix) {
 
 Version::operator std::string() const {
     std::string ret;
-    ret += to_string(numbers);
+    ret += std::string(numbers);
     if (letter.has_value()) {
         ret += letter.value();
     }
@@ -236,8 +236,8 @@ namespace {
                                                                 std::string_view right);
 
 std::optional<std::strong_ordering> algorithm_3_2(const VersionNumber &left, const VersionNumber &right) {
-    const auto left_int = std::stoul(left[0]);
-    const auto right_int = std::stoul(right[0]);
+    const auto left_int = std::stoul(left.data[0]);
+    const auto right_int = std::stoul(right.data[0]);
 
     if (left_int < right_int) {
         return std::strong_ordering::less;
@@ -246,17 +246,17 @@ std::optional<std::strong_ordering> algorithm_3_2(const VersionNumber &left, con
         return std::strong_ordering::greater;
     }
 
-    for (std::size_t i = 1; i < std::min(left.size(), right.size()); i++) {
-        const auto ret = algorithm_3_3(left[i], right[i]);
+    for (std::size_t i = 1; i < std::min(left.data.size(), right.data.size()); i++) {
+        const auto ret = algorithm_3_3(left.data[i], right.data[i]);
         if (ret.has_value()) {
             return ret.value();
         }
     }
 
-    if (left.size() < right.size()) {
+    if (left.data.size() < right.data.size()) {
         return std::strong_ordering::less;
     }
-    if (left.size() > right.size()) {
+    if (left.data.size() > right.data.size()) {
         return std::strong_ordering::greater;
     }
     return {};

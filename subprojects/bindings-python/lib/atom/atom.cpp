@@ -80,7 +80,7 @@ void _register(py::module &_module) {
     py::class_<Version>(atom, "Version")
         .def(py::init([](std::string_view str) { return expr_from_str(parsers::package_version(), str); }),
              py::call_guard<py::gil_scoped_release>())
-        .def_readonly("numbers", &Version::numbers)
+        .def_property_readonly("numbers", [](const Version &version) { return version.numbers.data; })
         .def_readonly("letter", &Version::letter)
         .def_readonly("suffixes", &Version::suffixes)
         .def_readonly("revision", &Version::revision)
