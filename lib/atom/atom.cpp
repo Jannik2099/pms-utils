@@ -37,7 +37,7 @@ std::ostream &operator<<(std::ostream &out, VersionSpecifier versionSpecifier) {
 
 VersionNumber::operator std::string() const {
     std::string ret;
-    for (const std::string &str : data) {
+    for (const std::string &str : *this) {
         ret.append(str);
         ret.append(".");
     }
@@ -236,8 +236,8 @@ namespace {
                                                                 std::string_view right);
 
 std::optional<std::strong_ordering> algorithm_3_2(const VersionNumber &left, const VersionNumber &right) {
-    const auto left_int = std::stoul(left.data[0]);
-    const auto right_int = std::stoul(right.data[0]);
+    const auto left_int = std::stoul(left[0]);
+    const auto right_int = std::stoul(right[0]);
 
     if (left_int < right_int) {
         return std::strong_ordering::less;
@@ -246,17 +246,17 @@ std::optional<std::strong_ordering> algorithm_3_2(const VersionNumber &left, con
         return std::strong_ordering::greater;
     }
 
-    for (std::size_t i = 1; i < std::min(left.data.size(), right.data.size()); i++) {
-        const auto ret = algorithm_3_3(left.data[i], right.data[i]);
+    for (std::size_t i = 1; i < std::min(left.size(), right.size()); i++) {
+        const auto ret = algorithm_3_3(left[i], right[i]);
         if (ret.has_value()) {
             return ret.value();
         }
     }
 
-    if (left.data.size() < right.data.size()) {
+    if (left.size() < right.size()) {
         return std::strong_ordering::less;
     }
-    if (left.data.size() > right.data.size()) {
+    if (left.size() > right.size()) {
         return std::strong_ordering::greater;
     }
     return {};
@@ -387,7 +387,8 @@ std::strong_ordering Version::compare_impl(const Version &lhs, const Version &rh
     if (const auto ret3 = algorithm_3_5(lhs.suffixes, rhs.suffixes); ret3.has_value()) {
         return ret3.value();
     }
-    const auto ret4 = algorithm_3_7(lhs.revision.value_or("0"), rhs.revision.value_or("0"));
+    const auto ret4 = algorithm_3_7(lhs.revision.value_or(VersionRevision("0")),
+                                    rhs.revision.value_or(VersionRevision("0")));
     return ret4.value_or(std::strong_ordering::equal);
 }
 

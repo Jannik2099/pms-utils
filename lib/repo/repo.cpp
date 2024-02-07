@@ -91,8 +91,8 @@ Ebuild Package::Iterator::make_value() const {
     }
     if (res.name != path.filename().string()) {
         // TODO
-        throw std::runtime_error(
-            std::format("ebuild name {} did not match package name {}", res.name, path.filename().string()));
+        throw std::runtime_error(std::format("ebuild name {} did not match package name {}",
+                                             std::string_view(res.name), path.filename().string()));
     }
     return Ebuild{iter->path(), res.name, res.version};
 }

@@ -11,7 +11,6 @@
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::atom::Slot, slot, subslot);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::atom::VersionSuffix, word, number);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::atom::Version, numbers, letter, suffixes, revision);
-BOOST_FUSION_ADAPT_STRUCT(pms_utils::atom::VersionNumber, data);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::atom::Usedep, negate, useflag, sign, conditional);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::atom::PackageExpr, blocker, category, name, verspec, version, slotExpr,
                           usedeps);

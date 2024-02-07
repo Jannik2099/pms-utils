@@ -24,9 +24,7 @@ enum class VersionSpecifier {
     gt, // >=
 };
 
-struct VersionNumber {
-    std::vector<std::string> data;
-
+struct VersionNumber : public std::vector<std::string> {
     [[nodiscard]] explicit operator std::string() const;
 };
 
@@ -48,7 +46,7 @@ struct VersionSuffix {
 
     [[nodiscard]] explicit operator std::string() const;
 };
-using VersionRevision = std::string;
+struct VersionRevision : public std::string {};
 
 struct Version {
 private:
@@ -87,7 +85,7 @@ enum class Blocker {
     strong, // !!
 };
 
-using SlotNoSubslot = std::string;
+struct SlotNoSubslot : public std::string {};
 
 struct Slot {
     std::string slot;
@@ -108,10 +106,10 @@ struct SlotExpr {
     [[nodiscard]] explicit operator std::string() const;
 };
 
-using Category = std::string;
-using Name = std::string;
+struct Category : public std::string {};
+struct Name : public std::string {};
 
-using Useflag = std::string;
+struct Useflag : public std::string {};
 enum class UsedepSign {
     plus,  // use(+)
     minus, // use(-)
