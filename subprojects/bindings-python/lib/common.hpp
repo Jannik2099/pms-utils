@@ -49,12 +49,24 @@ struct is_specialization<Ref<Args...>, Ref> : std::true_type {};
     return str.substr(str.find_last_of(':') + 1);
 }
 
+template <template <typename, typename> typename T, typename T1, typename T2> struct extract_crtp {
+    using first = T1;
+    using second = T2;
+
+    explicit extract_crtp(T<T1, T2> /*unused*/){};
+};
+
+template <typename T>
+concept is_crtp = requires {
+    requires std::is_same_v<T, typename decltype(_internal::extract_crtp(typename T::Base()))::second>;
+};
+
 } // namespace _internal
 
-template <typename T, typename R = bool>
+template <typename T, typename M, typename R = bool>
     requires(std::is_enum_v<T> && boost::describe::has_describe_enumerators<T>::value)
 static inline auto create_bindings(
-    py::module_ module_, R rule = false,
+    M module_, R rule = false,
     std::string name = std::string(_internal::unqualified(boost::core::demangle(typeid(T).name())))) {
     using namespace boost::mp11;
 
@@ -68,10 +80,10 @@ static inline auto create_bindings(
     return std::move(ret);
 }
 
-template <typename T, typename R = bool>
+template <typename T, typename M, typename R = bool>
     requires(std::is_class_v<T> && boost::describe::has_describe_members<T>::value)
 static inline auto create_bindings(
-    py::module_ module_, R rule = false,
+    M module_, R rule = false,
     std::string name = std::string(_internal::unqualified(boost::core::demangle(typeid(T).name())))) {
     using namespace boost::mp11;
 
@@ -79,16 +91,17 @@ static inline auto create_bindings(
     using bases = boost::describe::describe_bases<T, boost::describe::mod_any_access>;
     // if no inheritance, bases is empty and thus mp_first<bases> not a valid expression
     // otherwise, bases already contains T (why?)
-    using pytype = mp_eval_or<mp_list<T>, mp_first, bases>;
+    using t_plus_bases = mp_eval_or<mp_list<T>, mp_first, bases>;
+    // for now, only declare inheritance for CRTP
+    // need to figure out a way to prevent multiple declarations when e.g. two types inherit from std::string
+    using pytype = std::conditional_t<_internal::is_crtp<T>, t_plus_bases, mp_list<T>>;
     static_assert(std::is_same_v<mp_first<pytype>, T>);
     using pyclass = mp_apply<py::class_, pytype>;
 
     // if we are doing CRTP, register the base type as an empty class
-    if constexpr (mp_size<pytype>{} > 1) {
+    if constexpr (_internal::is_crtp<T>) {
         using crtp_base = mp_second<pytype>;
-        if constexpr (std::is_base_of_v<crtp_base, T>) {
-            py::class_<crtp_base>(module_, (std::string("_crtp_") + name).data());
-        }
+        py::class_<crtp_base>(module_, (std::string("_crtp_") + name).data());
     }
 
     auto ret = pyclass(module_, name.data());
