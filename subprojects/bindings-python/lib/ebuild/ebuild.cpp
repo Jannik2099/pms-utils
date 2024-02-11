@@ -68,6 +68,8 @@ void _register(py::module &_module) {
 
     auto py_phases = create_bindings<phases>(ebuild);
     auto py_DEFINED_PHASES = create_bindings<DEFINED_PHASES>(ebuild, parsers::DEFINED_PHASES);
+
+    auto py_Metadata = create_bindings<Metadata>(ebuild);
 }
 
 } // namespace pms_utils::bindings::python::ebuild

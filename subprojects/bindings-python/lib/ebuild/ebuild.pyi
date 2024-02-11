@@ -166,3 +166,23 @@ class DEFINED_PHASES:
 
     def __init__(self, string: str) -> None: ...
     def __repr__(self) -> str: ...
+
+class Metadata:
+    DEPEND: depend.DependExpr
+    RDEPEND: depend.DependExpr
+    SLOT: atom.Slot
+    SRC_URI: SRC_URI
+    RESTRICT: RESTRICT
+    HOMEPAGE: HOMEPAGE
+    LICENSE: LICENSE
+    DESCRIPTION: str
+    KEYWORDS: KEYWORDS
+    INHERITED: INHERITED
+    IUSE: IUSE
+    REQUIRED_USE: REQUIRED_USE
+    PDEPEND: depend.DependExpr
+    BDEPEND: depend.DependExpr
+    EAPI: EAPI
+    PROPERTIES: PROPERTIES
+    DEFINED_PHASES: DEFINED_PHASES
+    IDEPEND: depend.DependExpr

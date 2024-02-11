@@ -8,10 +8,12 @@
 #include <format>
 #include <fstream>
 #include <iostream>
+#include <pms-utils/ebuild/ebuild.hpp>
 #include <sstream>
 #include <string>
 #include <unordered_map>
 
+using namespace pms_utils;
 using namespace pms_utils::repo;
 
 namespace {
@@ -30,14 +32,14 @@ bool check_file(const Ebuild &ebuild, Metrics &metrics) {
                                             std::string(ebuild.name + "-" + std::string(ebuild.version));
 
     const auto before = std::chrono::steady_clock::now();
-    const Metadata &metadata = ebuild.metadata();
+    const ebuild::Metadata &metadata = ebuild.metadata();
     const auto after = std::chrono::steady_clock::now();
     metrics.runtime += std::chrono::duration_cast<std::chrono::nanoseconds>(after - before);
     bool success = true;
 
     std::ifstream stream(cachefile);
     for (std::string line; std::getline(stream, line);) {
-        using Md = boost::describe::describe_members<Metadata, boost::describe::mod_any_access>;
+        using Md = boost::describe::describe_members<ebuild::Metadata, boost::describe::mod_any_access>;
         boost::mp11::mp_for_each<Md>([&](auto member) {
             const std::string match =
                 member.name == "INHERITED" ? "INHERIT=" : std::string(member.name) + '=';
@@ -78,7 +80,7 @@ int main() {
     }
 
     std::size_t total_bytes{};
-    using Md = boost::describe::describe_members<Metadata, boost::describe::mod_any_access>;
+    using Md = boost::describe::describe_members<ebuild::Metadata, boost::describe::mod_any_access>;
     boost::mp11::mp_for_each<Md>([&](auto member) {
         std::cout << std::format("parsed {} out of {} {} expressions\n", metrics.parsed[member.name],
                                  metrics.found[member.name], member.name);

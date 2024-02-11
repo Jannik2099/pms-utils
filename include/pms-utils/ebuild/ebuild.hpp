@@ -96,6 +96,27 @@ struct DEFINED_PHASES : public std::vector<phases> {
     [[nodiscard]] explicit operator std::string() const;
 };
 
+struct Metadata {
+    depend::DependExpr DEPEND;
+    depend::DependExpr RDEPEND;
+    atom::Slot SLOT;
+    SRC_URI SRC_URI;
+    RESTRICT RESTRICT;
+    HOMEPAGE HOMEPAGE;
+    LICENSE LICENSE;
+    std::string DESCRIPTION;
+    KEYWORDS KEYWORDS;
+    INHERITED INHERITED;
+    IUSE IUSE;
+    REQUIRED_USE REQUIRED_USE;
+    depend::DependExpr PDEPEND;
+    depend::DependExpr BDEPEND;
+    EAPI EAPI;
+    PROPERTIES PROPERTIES;
+    DEFINED_PHASES DEFINED_PHASES;
+    depend::DependExpr IDEPEND;
+};
+
 // BEGIN DESCRIBE
 
 BOOST_DESCRIBE_STRUCT(URI, (std::string), ());
@@ -131,12 +152,17 @@ BOOST_DESCRIBE_STRUCT(PROPERTIES, (PROPERTIES::Base), ());
 
 BOOST_DESCRIBE_STRUCT(DEFINED_PHASES, (std::vector<phases>), ());
 
+BOOST_DESCRIBE_STRUCT(Metadata, (),
+                      (DEPEND, RDEPEND, SLOT, SRC_URI, RESTRICT, HOMEPAGE, LICENSE, DESCRIPTION, KEYWORDS,
+                       INHERITED, IUSE, REQUIRED_USE, PDEPEND, BDEPEND, EAPI, PROPERTIES, DEFINED_PHASES,
+                       IDEPEND));
+
 namespace meta {
 
 using all = boost::mp11::mp_list<URI, uri_elem, SRC_URI, restrict_elem::Type, restrict_elem, RESTRICT,
                                  HOMEPAGE, license_elem, LICENSE, keyword, KEYWORDS, inherited_elem,
                                  INHERITED, iuse_elem, IUSE, REQUIRED_USE, EAPI, properties_elem::Type,
-                                 properties_elem, PROPERTIES, DEFINED_PHASES>;
+                                 properties_elem, PROPERTIES, DEFINED_PHASES, Metadata>;
 static_assert(boost::mp11::mp_is_set<all>{});
 static_assert(boost::mp11::mp_all_of<all, pms_utils::meta::is_described>{});
 

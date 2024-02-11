@@ -3,6 +3,7 @@
 #include "pms-utils/atom/atom.hpp"
 #include "pms-utils/atom/atom_parser.hpp"
 #include "pms-utils/depend/depend_parser.hpp"
+#include "pms-utils/ebuild/ebuild.hpp"
 #include "pms-utils/ebuild/ebuild_parser.hpp"
 
 #include <boost/fusion/adapted.hpp>
@@ -62,14 +63,11 @@ bool metadata_parser(std::string_view line, std::string_view name, Member &membe
 
 } // namespace
 
-Ebuild::Ebuild(std::filesystem::path path, pms_utils::atom::Name name, pms_utils::atom::Version version)
-    : path(std::move(path)), name(std::move(name)), version(std::move(version)) {}
-
-const Metadata &Ebuild::metadata() const {
+const ebuild::Metadata &Ebuild::metadata() const {
     if (_metadata.has_value()) {
         return _metadata.value();
     }
-    Metadata meta;
+    ebuild::Metadata meta;
     const std::filesystem::path category = path.parent_path().parent_path();
     const std::filesystem::path repopath = category.parent_path();
     const std::filesystem::path cachefile = repopath / "metadata" / "md5-cache" / category.filename() /
@@ -153,6 +151,9 @@ const Metadata &Ebuild::metadata() const {
     _metadata = meta;
     return _metadata.value();
 }
+
+Ebuild::Ebuild(std::filesystem::path path, pms_utils::atom::Name name, pms_utils::atom::Version version)
+    : path(std::move(path)), name(std::move(name)), version(std::move(version)) {}
 
 // END EBUILD
 
