@@ -22,7 +22,7 @@ void _register(py::module &_module) {
     auto py_Category = create_bindings<Category>(repo);
 
     auto py_Repository =
-        create_bindings<Repository>(repo).def(py::init<std::string_view, std::string_view>());
+        create_bindings<Repository>(repo).def(py::init<std::filesystem::path, std::string_view>());
 }
 
 } // namespace pms_utils::bindings::python::repo

@@ -8,6 +8,8 @@
 #include <boost/mp11/list.hpp>
 #include <pms-utils/depend/depend.hpp>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/stl/filesystem.h>
 #include <stdexcept>
 #include <string>
 #include <string_view>
