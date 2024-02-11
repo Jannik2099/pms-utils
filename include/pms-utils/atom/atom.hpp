@@ -1,7 +1,13 @@
 #pragma once
 
+#include "pms-utils/misc/meta.hpp"
+
+#include <boost/describe/class.hpp>
+#include <boost/describe/enum.hpp>
+#include <boost/mp11/algorithm.hpp>
+#include <boost/mp11/list.hpp>
+#include <boost/mp11/set.hpp>
 #include <boost/optional.hpp>
-#include <boost/variant/recursive_wrapper.hpp>
 #include <boost/variant/variant.hpp>
 #include <compare>
 #include <iostream>
@@ -24,7 +30,10 @@ enum class VersionSpecifier {
     gt, // >=
 };
 
-using VersionNumber = std::vector<std::string>;
+struct VersionNumber : public std::vector<std::string> {
+    [[nodiscard]] explicit operator std::string() const;
+};
+
 using VersionLetter = char;
 
 enum class VersionSuffixWord {
@@ -43,7 +52,7 @@ struct VersionSuffix {
 
     [[nodiscard]] explicit operator std::string() const;
 };
-using VersionRevision = std::string;
+struct VersionRevision : public std::string {};
 
 struct Version {
 private:
@@ -82,7 +91,7 @@ enum class Blocker {
     strong, // !!
 };
 
-using SlotNoSubslot = std::string;
+struct SlotNoSubslot : public std::string {};
 
 struct Slot {
     std::string slot;
@@ -103,10 +112,14 @@ struct SlotExpr {
     [[nodiscard]] explicit operator std::string() const;
 };
 
-using Category = std::string;
-using Name = std::string;
+struct Category : public std::string {};
+struct Name : public std::string {};
 
-using Useflag = std::string;
+struct Useflag : public std::string {};
+enum class UsedepNegate {
+    minus,       // -use
+    exclamation, // !use
+};
 enum class UsedepSign {
     plus,  // use(+)
     minus, // use(-)
@@ -116,14 +129,14 @@ enum class UsedepCond {
     question, // use?
 };
 struct Usedep {
-    bool negate; // the - and ! variants are identical really, no need to cover them seperately
+    boost::optional<UsedepNegate> negate;
     Useflag useflag;
     boost::optional<UsedepSign> sign;
     boost::optional<UsedepCond> conditional;
 
     [[nodiscard]] explicit operator std::string() const;
 };
-using Usedeps = std::vector<Usedep>;
+struct Usedeps : public std::vector<Usedep> {};
 
 struct PackageExpr {
     boost::optional<Blocker> blocker;
@@ -139,12 +152,63 @@ struct PackageExpr {
 
 // END ast types
 
+// BEGIN DESCRIBE
+
+BOOST_DESCRIBE_ENUM(VersionSpecifier, lt, le, eq, ea, td, ge, gt);
+
+BOOST_DESCRIBE_STRUCT(VersionNumber, (std::vector<std::string>), ());
+
+BOOST_DESCRIBE_ENUM(VersionSuffixWord, alpha, beta, pre, rc, p);
+
+BOOST_DESCRIBE_STRUCT(VersionSuffix, (), (word, number));
+
+BOOST_DESCRIBE_STRUCT(VersionRevision, (std::string), ());
+
+BOOST_DESCRIBE_STRUCT(Version, (), (numbers, letter, suffixes, revision));
+
+BOOST_DESCRIBE_ENUM(Blocker, weak, strong);
+
+BOOST_DESCRIBE_STRUCT(SlotNoSubslot, (std::string), ());
+
+BOOST_DESCRIBE_STRUCT(Slot, (), (slot, subslot));
+
+BOOST_DESCRIBE_ENUM(SlotVariant, none, star, equal);
+
+BOOST_DESCRIBE_STRUCT(SlotExpr, (), (slotVariant, slot));
+
+BOOST_DESCRIBE_STRUCT(Category, (std::string), ());
+
+BOOST_DESCRIBE_STRUCT(Name, (std::string), ());
+
+BOOST_DESCRIBE_STRUCT(Useflag, (std::string), ());
+
+BOOST_DESCRIBE_ENUM(UsedepNegate, minus, exclamation);
+BOOST_DESCRIBE_ENUM(UsedepSign, plus, minus);
+BOOST_DESCRIBE_ENUM(UsedepCond, eqal, question);
+
+BOOST_DESCRIBE_STRUCT(Usedep, (), (negate, useflag, sign, conditional));
+BOOST_DESCRIBE_STRUCT(Usedeps, (std::vector<Usedep>), ());
+
+BOOST_DESCRIBE_STRUCT(PackageExpr, (), (blocker, category, name, verspec, version, slotExpr, usedeps));
+
+namespace meta {
+
+using all =
+    boost::mp11::mp_list<VersionSpecifier, VersionNumber, VersionSuffixWord, VersionSuffix, VersionRevision,
+                         Version, Blocker, SlotNoSubslot, Slot, SlotVariant, SlotExpr, Category, Name,
+                         Useflag, UsedepNegate, UsedepSign, UsedepCond, Usedep, Usedeps, PackageExpr>;
+static_assert(boost::mp11::mp_is_set<all>{});
+static_assert(boost::mp11::mp_all_of<all, pms_utils::meta::is_described>{});
+
+} // namespace meta
+
+// END DESCRIBE
+
 // BEGIN IO
 
 [[nodiscard]] std::string to_string(VersionSpecifier versionSpecifier);
 std::ostream &operator<<(std::ostream &out, VersionSpecifier versionSpecifier);
 
-[[nodiscard]] std::string to_string(const VersionNumber &versionNumber);
 std::ostream &operator<<(std::ostream &out, const VersionNumber &versionNumber);
 
 [[nodiscard]] std::string to_string(VersionSuffixWord versionSuffixWord);
@@ -160,6 +224,9 @@ std::ostream &operator<<(std::ostream &out, Blocker blocker);
 std::ostream &operator<<(std::ostream &out, const Slot &slot);
 
 std::ostream &operator<<(std::ostream &out, const SlotExpr &slotExpr);
+
+[[nodiscard]] std::string to_string(UsedepNegate usedepNegate);
+std::ostream &operator<<(std::ostream &out, UsedepNegate usedepNegate);
 
 [[nodiscard]] std::string to_string(UsedepSign usedepSign);
 std::ostream &operator<<(std::ostream &out, UsedepSign usedepSign);

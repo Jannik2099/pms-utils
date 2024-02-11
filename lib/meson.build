@@ -2,6 +2,7 @@ libpms_utils_src = []
 
 subdir('atom')
 subdir('depend')
+subdir('ebuild')
 subdir('repo')
 
 libpms_utils = library(

@@ -2,6 +2,8 @@
 
 #include "pms-utils/atom/atom.hpp"
 #include "pms-utils/atom/atom_parser.hpp"
+#include "pms-utils/depend/depend_parser.hpp"
+#include "pms-utils/ebuild/ebuild_parser.hpp"
 
 #include <boost/fusion/adapted.hpp>
 #include <boost/spirit/home/x3.hpp>
@@ -37,6 +39,122 @@ PARSER_DEF(ebuild_plus_version, ebuild_plus_version_t) =
 
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace repo {
+
+// BEGIN EBUILD
+
+namespace {
+
+template <typename Member, typename Rule>
+bool metadata_parser(std::string_view line, std::string_view name, Member &member, Rule rule) {
+    if (!line.starts_with(name)) {
+        return false;
+    }
+    line = line.substr(name.length());
+    const auto *begin = line.begin();
+    if (const auto *const end = line.end(); parse(begin, end, rule(), member)) {
+        if (begin == end) {
+            return true;
+        }
+        member = Member();
+    }
+    return false;
+}
+
+} // namespace
+
+Ebuild::Ebuild(std::filesystem::path path, pms_utils::atom::Name name, pms_utils::atom::Version version)
+    : path(std::move(path)), name(std::move(name)), version(std::move(version)) {}
+
+const Metadata &Ebuild::metadata() const {
+    if (_metadata.has_value()) {
+        return _metadata.value();
+    }
+    Metadata meta;
+    const std::filesystem::path category = path.parent_path().parent_path();
+    const std::filesystem::path repopath = category.parent_path();
+    const std::filesystem::path cachefile = repopath / "metadata" / "md5-cache" / category.filename() /
+                                            std::string(name + "-" + std::string(version));
+    std::ifstream stream(cachefile);
+    for (std::string line; std::getline(stream, line);) {
+        bool parsed = false;
+        parsed = metadata_parser(line, "DEPEND=", meta.DEPEND, parsers::nodes);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "RDEPEND=", meta.RDEPEND, parsers::nodes);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "SLOT=", meta.SLOT, parsers::slot);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "SRC_URI=", meta.SRC_URI, parsers::SRC_URI);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "RESTRICT=", meta.RESTRICT, parsers::RESTRICT);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "HOMEPAGE=", meta.HOMEPAGE, parsers::HOMEPAGE);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "LICENSE=", meta.LICENSE, parsers::LICENSE);
+        if (parsed) {
+            continue;
+        }
+        if (line.starts_with("DESCRIPTION=")) {
+            meta.DESCRIPTION = line.substr(strlen("DESCRIPTION="));
+            continue;
+        }
+        parsed = metadata_parser(line, "KEYWORDS=", meta.KEYWORDS, parsers::KEYWORDS);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "INHERIT=", meta.INHERITED, parsers::INHERITED);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "IUSE=", meta.IUSE, parsers::IUSE);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "REQUIRED_USE=", meta.REQUIRED_USE, parsers::REQUIRED_USE);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "PDEPEND=", meta.PDEPEND, parsers::nodes);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "BDEPEND=", meta.BDEPEND, parsers::nodes);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "EAPI=", meta.EAPI, parsers::EAPI);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "PROPERTIES=", meta.PROPERTIES, parsers::PROPERTIES);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "DEFINED_PHASES=", meta.DEFINED_PHASES, parsers::DEFINED_PHASES);
+        if (parsed) {
+            continue;
+        }
+        parsed = metadata_parser(line, "IDEPEND=", meta.IDEPEND, parsers::nodes);
+        if (parsed) {
+            continue;
+        }
+    }
+    _metadata = meta;
+    return _metadata.value();
+}
+
+// END EBUILD
 
 Package::Package(std::filesystem::path path) : _path(std::move(path)), _name(_path.filename().string()) {}
 Package::const_iterator Package::begin() const noexcept { return Package::const_iterator(*this); }
@@ -91,8 +209,8 @@ Ebuild Package::Iterator::make_value() const {
     }
     if (res.name != path.filename().string()) {
         // TODO
-        throw std::runtime_error(
-            std::format("ebuild name {} did not match package name {}", res.name, path.filename().string()));
+        throw std::runtime_error(std::format("ebuild name {} did not match package name {}",
+                                             std::string_view(res.name), path.filename().string()));
     }
     return Ebuild{iter->path(), res.name, res.version};
 }

@@ -49,21 +49,25 @@ type(version_specifier): <class 'pms_utils.atom.VersionSpecifier'>
 
 ### DependExpr
 ```python
-from pms_utils.depend import DependExpr # this is just a function that returns a GroupExpr
+from pms_utils.depend import DependExpr
 expr = DependExpr("foo/bar foo? ( foo/baz ) || ( foo/baz foo/qux )")
 
 for e in expr:
     print(type(e))
 <class 'pms_utils.atom.Atom'>
-<class 'pms_utils.depend.GroupExpr'>
+<class 'pms_utils.depend.DependExpr'>
 <class 'pms_utils.atom.Atom'>
-<class 'pms_utils.depend.GroupExpr'>
+<class 'pms_utils.depend.DependExpr'>
 <class 'pms_utils.atom.Atom'>
 <class 'pms_utils.atom.Atom'>
 
 expr.nodes
-[foo/bar, foo? foo/baz, || foo/baz
-foo/qux] # nested formatting not quite fleshed out
+[foo/bar, foo? (
+        foo/baz
+), || (
+        foo/baz
+        foo/qux
+)]
 
 expr.nodes[2].conditional
 ||

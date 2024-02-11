@@ -7,6 +7,11 @@ project(
 add_project_arguments(['-fvisibility=hidden', '-fvisibility-inlines-hidden'], language: 'cpp')
 add_global_arguments('-DBOOST_ALL_DYN_LINK=1', language: 'cpp')
 
+cpp = meson.get_compiler('cpp')
+if cpp.has_argument('-Wno-gnu-zero-variadic-macro-arguments')
+    add_global_arguments('-Wno-gnu-zero-variadic-macro-arguments', language: 'cpp')
+endif
+
 fs = import('fs')
 pkg = import('pkgconfig')
 

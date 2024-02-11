@@ -1,12 +1,22 @@
 from enum import Enum
 from typing import Optional
 
-VersionNumber = list[str]
+class VersionNumber(list[str]):
+    pass
+
 VersionLetter = str
-VersionRevision = str
-Useflag = str
-Category = str
-Name = str
+
+class VersionRevision(str):
+    pass
+
+class Useflag(str):
+    pass
+
+class Category(str):
+    pass
+
+class Name(str):
+    pass
 
 class VersionSpecifier(Enum):
     lt = 0
@@ -84,6 +94,12 @@ class SlotExpr:
     def __init__(self, string: str) -> None: ...
     def __repr__(self) -> str: ...
 
+class UsedepNegate(Enum):
+    minus = 0
+    plus = 1
+
+    def __repr__(self) -> str: ...
+
 class UsedepSign(Enum):
     plus = 0
     minus = 1
@@ -97,7 +113,7 @@ class UsedepCond(Enum):
     def __repr__(self) -> str: ...
 
 class Usedep:
-    negate: bool
+    negate: Optional[UsedepNegate]
     useflag: Useflag
     sign: Optional[UsedepSign]
     conditional: Optional[UsedepCond]

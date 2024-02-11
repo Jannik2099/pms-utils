@@ -19,13 +19,11 @@ class GroupHeaderOp(Enum):
     def __repr__(self) -> str: ...
 
 GroupHeader = Union[UseConditional, GroupHeaderOp]
-Node = Union[atom.PackageExpr, GroupExpr]
 
-class GroupExpr(Iterable[Node]):
+class DependExpr(Iterable[DependExpr]):
+    Node = Union[atom.PackageExpr, DependExpr]
     conditional: Optional[GroupHeader]
     nodes: list[Node]
 
     def __init__(self, string: str) -> None: ...
     def __repr__(self) -> str: ...
-
-def DependExpr(expr: str) -> GroupExpr: ...

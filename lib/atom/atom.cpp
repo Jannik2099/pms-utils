@@ -35,9 +35,9 @@ std::ostream &operator<<(std::ostream &out, VersionSpecifier versionSpecifier) {
     return out << to_string(versionSpecifier);
 }
 
-std::string to_string(const VersionNumber &versionNumber) {
+VersionNumber::operator std::string() const {
     std::string ret;
-    for (const std::string &str : versionNumber) {
+    for (const std::string &str : *this) {
         ret.append(str);
         ret.append(".");
     }
@@ -47,7 +47,7 @@ std::string to_string(const VersionNumber &versionNumber) {
     return ret;
 }
 std::ostream &operator<<(std::ostream &out, const VersionNumber &versionNumber) {
-    return out << to_string(versionNumber);
+    return out << std::string(versionNumber);
 }
 
 std::string to_string(VersionSuffixWord versionSuffixWord) {
@@ -79,7 +79,7 @@ std::ostream &operator<<(std::ostream &out, const VersionSuffix &suffix) {
 
 Version::operator std::string() const {
     std::string ret;
-    ret += to_string(numbers);
+    ret += std::string(numbers);
     if (letter.has_value()) {
         ret += letter.value();
     }
@@ -137,6 +137,21 @@ SlotExpr::operator std::string() const {
 }
 std::ostream &operator<<(std::ostream &out, const SlotExpr &slotExpr) { return out << std::string(slotExpr); }
 
+std::string to_string(UsedepNegate usedepNegate) {
+    switch (usedepNegate) {
+    case UsedepNegate::minus:
+        return "-";
+    case UsedepNegate::exclamation:
+        return "!";
+    default:
+        // gcc cannot see that all enum values are covered, sigh
+        __builtin_unreachable();
+    }
+}
+std::ostream &operator<<(std::ostream &out, UsedepNegate usedepNegate) {
+    return out << to_string(usedepNegate);
+}
+
 std::string to_string(UsedepSign usedepSign) {
     switch (usedepSign) {
     case UsedepSign::plus:
@@ -164,11 +179,14 @@ std::ostream &operator<<(std::ostream &out, UsedepCond usedepCond) { return out 
 
 Usedep::operator std::string() const {
     std::string ret;
-    if (negate) {
-        if (conditional.has_value()) {
+    if (negate.has_value()) {
+        switch (negate.value()) {
+        case UsedepNegate::exclamation:
             ret += "!";
-        } else {
+            break;
+        case UsedepNegate::minus:
             ret += "-";
+            break;
         }
     }
     ret += useflag;
@@ -387,7 +405,8 @@ std::strong_ordering Version::compare_impl(const Version &lhs, const Version &rh
     if (const auto ret3 = algorithm_3_5(lhs.suffixes, rhs.suffixes); ret3.has_value()) {
         return ret3.value();
     }
-    const auto ret4 = algorithm_3_7(lhs.revision.value_or("0"), rhs.revision.value_or("0"));
+    const auto ret4 = algorithm_3_7(lhs.revision.value_or(VersionRevision("0")),
+                                    rhs.revision.value_or(VersionRevision("0")));
     return ret4.value_or(std::strong_ordering::equal);
 }
 
