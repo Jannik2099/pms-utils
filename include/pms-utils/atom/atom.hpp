@@ -1,7 +1,13 @@
 #pragma once
 
+#include "pms-utils/misc/meta.hpp"
+
+#include <boost/describe/class.hpp>
+#include <boost/describe/enum.hpp>
+#include <boost/mp11/algorithm.hpp>
+#include <boost/mp11/list.hpp>
+#include <boost/mp11/set.hpp>
 #include <boost/optional.hpp>
-#include <boost/variant/recursive_wrapper.hpp>
 #include <boost/variant/variant.hpp>
 #include <compare>
 #include <iostream>
@@ -145,6 +151,58 @@ struct PackageExpr {
 };
 
 // END ast types
+
+// BEGIN DESCRIBE
+
+BOOST_DESCRIBE_ENUM(VersionSpecifier, lt, le, eq, ea, td, ge, gt);
+
+BOOST_DESCRIBE_STRUCT(VersionNumber, (std::vector<std::string>), ());
+
+BOOST_DESCRIBE_ENUM(VersionSuffixWord, alpha, beta, pre, rc, p);
+
+BOOST_DESCRIBE_STRUCT(VersionSuffix, (), (word, number));
+
+BOOST_DESCRIBE_STRUCT(VersionRevision, (std::string), ());
+
+BOOST_DESCRIBE_STRUCT(Version, (), (numbers, letter, suffixes, revision));
+
+BOOST_DESCRIBE_ENUM(Blocker, weak, strong);
+
+BOOST_DESCRIBE_STRUCT(SlotNoSubslot, (std::string), ());
+
+BOOST_DESCRIBE_STRUCT(Slot, (), (slot, subslot));
+
+BOOST_DESCRIBE_ENUM(SlotVariant, none, star, equal);
+
+BOOST_DESCRIBE_STRUCT(SlotExpr, (), (slotVariant, slot));
+
+BOOST_DESCRIBE_STRUCT(Category, (std::string), ());
+
+BOOST_DESCRIBE_STRUCT(Name, (std::string), ());
+
+BOOST_DESCRIBE_STRUCT(Useflag, (std::string), ());
+
+BOOST_DESCRIBE_ENUM(UsedepNegate, minus, exclamation);
+BOOST_DESCRIBE_ENUM(UsedepSign, plus, minus);
+BOOST_DESCRIBE_ENUM(UsedepCond, eqal, question);
+
+BOOST_DESCRIBE_STRUCT(Usedep, (), (negate, useflag, sign, conditional));
+BOOST_DESCRIBE_STRUCT(Usedeps, (std::vector<Usedep>), ());
+
+BOOST_DESCRIBE_STRUCT(PackageExpr, (), (blocker, category, name, verspec, version, slotExpr, usedeps));
+
+namespace meta {
+
+using all =
+    boost::mp11::mp_list<VersionSpecifier, VersionNumber, VersionSuffixWord, VersionSuffix, VersionRevision,
+                         Version, Blocker, SlotNoSubslot, Slot, SlotVariant, SlotExpr, Category, Name,
+                         Useflag, UsedepNegate, UsedepSign, UsedepCond, Usedep, Usedeps, PackageExpr>;
+static_assert(boost::mp11::mp_is_set<all>{});
+static_assert(boost::mp11::mp_all_of<all, pms_utils::meta::is_described>{});
+
+} // namespace meta
+
+// END DESCRIBE
 
 // BEGIN IO
 

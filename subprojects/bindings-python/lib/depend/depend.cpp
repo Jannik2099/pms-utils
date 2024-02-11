@@ -35,30 +35,11 @@ namespace pms_utils::bindings::python::depend {
 void _register(py::module &_module) {
     py::module depend = _module.def_submodule("depend");
 
-    py::class_<UseConditional>(depend, "UseConditional")
-        .def_readonly("negate", &UseConditional::negate)
-        .def_readonly("useflag", &UseConditional::useflag)
-        .def(py::init([](std::string_view str) { return expr_from_str(parsers::use_cond(), str); }),
-             py::call_guard<py::gil_scoped_release>())
-        .def("__repr__", [](const UseConditional &cond) { return std::string(cond); });
+    auto py_UseConditional = create_bindings<UseConditional>(depend, parsers::use_cond);
 
-    py::enum_<GroupHeaderOp>(depend, "GroupHeaderOp")
-        .value("any_of", GroupHeaderOp::any_of)
-        .value("at_most_one_of", GroupHeaderOp::at_most_one_of)
-        .value("exactly_one_of", GroupHeaderOp::exactly_one_of)
-        .def(
-            "__repr__", [](GroupHeaderOp header) { return to_string(header); }, py::name("__repr__"),
-            py::is_method(depend));
+    auto py_GroupHeaderOp = create_bindings<GroupHeaderOp>(depend);
 
-    py::class_<DependExpr>(depend, "DependExpr")
-        .def(
-            "__iter__", [](const DependExpr &expr) { return py::make_iterator(expr.begin(), expr.end()); },
-            py::keep_alive<0, 1>())
-        .def_readonly("conditional", &DependExpr::conditional)
-        .def_readonly("nodes", &DependExpr::nodes)
-        .def(py::init([](std::string_view str) { return expr_from_str(parsers::nodes(), str); }),
-             py::call_guard<py::gil_scoped_release>())
-        .def("__repr__", [](const DependExpr &expr) { return std::string(expr); });
+    auto py_DependExpr = create_bindings<DependExpr>(depend, parsers::nodes);
 }
 
 } // namespace pms_utils::bindings::python::depend

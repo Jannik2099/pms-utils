@@ -2,15 +2,19 @@
 
 #include "pms-utils/atom/atom.hpp"
 
+#include <boost/describe/class.hpp>
+#include <boost/describe/enum.hpp>
+#include <boost/mp11/algorithm.hpp>
+#include <boost/mp11/list.hpp>
+#include <boost/mp11/set.hpp>
 #include <boost/optional.hpp>
 #include <boost/variant.hpp>
-#include <boost/variant/detail/apply_visitor_unary.hpp>
-#include <boost/variant/recursive_variant.hpp>
-#include <boost/variant/variant.hpp>
 #include <functional>
 #include <span>
+#include <sstream>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace [[gnu::visibility("default")]] pms_utils {
@@ -30,9 +34,10 @@ enum class GroupHeaderOp {
 };
 using GroupHeader = boost::variant<UseConditional, GroupHeaderOp>;
 
-template <typename T> struct GroupExpr {
+template <typename T, typename Derived = void> struct GroupExpr {
+    using group_type = std::conditional_t<std::is_same_v<Derived, void>, GroupExpr<T>, Derived>;
+    using Node = boost::variant<T, group_type>;
     boost::optional<GroupHeader> conditional;
-    using Node = boost::variant<T, GroupExpr<T>>;
     std::vector<Node> nodes;
 
     [[nodiscard]] explicit operator std::string() const;
@@ -58,25 +63,29 @@ template <typename T> struct GroupExpr {
     };
     [[nodiscard]] const_iterator cend() const noexcept { return end(); };
 
-    // TODO: figure out reverse iterator
+    BOOST_DESCRIBE_CLASS(GroupExpr, (), (conditional, nodes, begin, cbegin, end, cend), (), ());
+    //  TODO: figure out reverse iterator
 };
 
-using DependExpr = GroupExpr<atom::PackageExpr>;
+struct DependExpr : public GroupExpr<atom::PackageExpr, DependExpr> {
+    using Base = GroupExpr<atom::PackageExpr, DependExpr>;
+};
 
 // BEGIN ITERATOR
 
-template <typename T> class GroupExpr<T>::Iterator {
+template <typename T, typename Derived> class GroupExpr<T, Derived>::Iterator {
 public:
+    using group_type = std::conditional_t<std::is_same_v<Derived, void>, GroupExpr<T>, Derived>;
     using difference_type = std::ptrdiff_t;
-    using value_type = const GroupExpr<T>::Node;
+    using value_type = const group_type::Node;
     using pointer = value_type *;
     using reference = value_type &;
     using callback = std::function<void()>;
 
 private:
-    const GroupExpr *ast{};
+    const group_type *ast{};
     pointer node{};
-    std::vector<std::size_t> index_ = {0};
+    std::vector<std::size_t> index_ = {};
 
     [[nodiscard]] pointer parent_expr() const {
         if (index_.size() == 1) {
@@ -86,17 +95,17 @@ private:
         auto index2 = index_;
         index2.pop_back();
         auto ret = AST_at(*ast, index2);
-        assert(ret.node->type() == typeid(GroupExpr));
+        assert(ret.node->type() == typeid(group_type));
         return ret.node;
     }
     // this returns a new iterator at the given index. It does NOT copy callbacks, nor traverse them towards
     // the new iterator
-    [[nodiscard]] static Iterator AST_at(const GroupExpr &ast, std::span<const std::size_t> index) {
+    [[nodiscard]] static Iterator AST_at(const group_type &ast, std::span<const std::size_t> index) {
         auto indexIter = index.begin();
         const Node *node = &ast.nodes.at(*indexIter);
         indexIter++;
         while (indexIter < index.end()) {
-            const GroupExpr &groupExpr = boost::get<GroupExpr>(*node);
+            const group_type &groupExpr = boost::get<group_type>(*node);
             node = &groupExpr.nodes.at(*indexIter);
             indexIter++;
         }
@@ -109,8 +118,8 @@ private:
     };
 
     [[nodiscard]] bool traverse_downwards() {
-        if (node->type() == typeid(GroupExpr)) {
-            const GroupExpr &groupExpr = boost::get<GroupExpr>(*node);
+        if (node->type() == typeid(group_type)) {
+            const group_type &groupExpr = boost::get<group_type>(*node);
             if (groupExpr.nodes.empty()) {
                 // TODO: can this occur?
                 return false;
@@ -127,7 +136,7 @@ private:
             return false;
         }
 
-        const GroupExpr &parentExpr = index_.size() > 1 ? boost::get<GroupExpr>(*parent_expr()) : *ast;
+        const group_type &parentExpr = index_.size() > 1 ? boost::get<group_type>(*parent_expr()) : *ast;
         if (index_.back() >= parentExpr.nodes.size() - 1) {
             return false;
         }
@@ -140,7 +149,7 @@ private:
         if (index_.back() < 1) {
             return false;
         }
-        const GroupExpr &parentExpr = index_.size() > 1 ? boost::get<GroupExpr>(*parent_expr()) : *ast;
+        const group_type &parentExpr = index_.size() > 1 ? boost::get<group_type>(*parent_expr()) : *ast;
         index_.back()--;
         node = &parentExpr.nodes.at(index_.back());
         callbacks.left();
@@ -163,6 +172,7 @@ public:
         callback left = []() { return; };
         callback upwards = []() { return; };
     };
+    BOOST_DESCRIBE_CLASS(Callbacks, (), (downards, right, left, upwards), (), ());
     Callbacks callbacks;
 
     [[nodiscard]] constexpr const decltype(index_) &index() const noexcept { return index_; }
@@ -251,12 +261,36 @@ public:
 
     // this exists solely because std::incrementable is a shithead and requires std::regular
     Iterator() = default;
-    explicit Iterator(const GroupExpr &ast) : ast(&ast), node(&ast.nodes.at(0)){};
+    explicit Iterator(const GroupExpr &ast) : ast(static_cast<const group_type *>(&ast)) { to_begin(); };
+
+    BOOST_DESCRIBE_CLASS(GroupExpr::Iterator, (), (callbacks, index, to_begin, to_end), (),
+                         (ast, node, index_, parent_expr, AST_at, traverse_downwards, traverse_right,
+                          traverse_left, traverse_upwards));
 };
 
 static_assert(std::bidirectional_iterator<DependExpr::Iterator>);
 
 // END ITERATOR
+
+// BEGIN DESCRIBE
+
+BOOST_DESCRIBE_STRUCT(UseConditional, (), (negate, useflag));
+
+BOOST_DESCRIBE_ENUM(GroupHeaderOp, any_of, exactly_one_of, at_most_one_of);
+
+BOOST_DESCRIBE_STRUCT(GroupHeader, (), ());
+
+BOOST_DESCRIBE_STRUCT(DependExpr, (DependExpr::Base), ());
+
+namespace meta {
+
+using all = boost::mp11::mp_list<UseConditional, GroupHeaderOp, GroupHeader, DependExpr>;
+static_assert(boost::mp11::mp_is_set<all>{});
+static_assert(boost::mp11::mp_all_of<all, pms_utils::meta::is_described>{});
+
+} // namespace meta
+
+// END DESCRIBE
 
 // BEGIN IO
 
@@ -267,9 +301,10 @@ std::ostream &operator<<(std::ostream &out, GroupHeaderOp groupHeaderOp);
 
 [[nodiscard]] std::string to_string(const GroupHeader &groupHeader);
 
-template <typename T> std::ostream &operator<<(std::ostream &out, const GroupExpr<T> &group);
+template <typename T, typename Derived>
+std::ostream &operator<<(std::ostream &out, const GroupExpr<T, Derived> &group);
 
-template <typename T> GroupExpr<T>::operator std::string() const {
+template <typename T, typename Derived> GroupExpr<T, Derived>::operator std::string() const {
     std::string ret;
     if (conditional.has_value()) {
         ret += to_string(conditional.value()) + " ";
@@ -292,9 +327,12 @@ template <typename T> GroupExpr<T>::operator std::string() const {
     for (; iter != end(); iter++) {
         const Node &expr = *iter;
         if (expr.type() == typeid(T)) {
-            ret += spacing + std::string(boost::get<T>(expr));
+            // TODO: implement and use format
+            std::ostringstream ostr;
+            ostr << boost::get<T>(expr);
+            ret += spacing + ostr.str();
         } else {
-            const GroupExpr &groupExpr = boost::get<depend::GroupExpr<T>>(expr);
+            const group_type &groupExpr = boost::get<group_type>(expr);
             if (groupExpr.conditional.has_value()) {
                 ret += spacing + to_string(groupExpr.conditional.value()) + " ";
             }
@@ -306,16 +344,20 @@ template <typename T> GroupExpr<T>::operator std::string() const {
     return ret;
 }
 
-template <typename T> std::string to_string(const typename GroupExpr<T>::Node &node) {
+template <typename T, typename Derived>
+std::string to_string(const typename GroupExpr<T, Derived>::group_type::Node &node) {
     class visitor : private boost::static_visitor<std::string> {
     public:
         std::string operator()(const T &Texpr) const { return std::string{Texpr}; }
-        std::string operator()(const GroupExpr<T> &groupExpr) const { return std::string{groupExpr}; }
+        std::string operator()(const GroupExpr<T, Derived>::group_type &groupExpr) const {
+            return std::string{groupExpr};
+        }
     };
     return boost::apply_visitor(visitor(), node);
 }
 
-template <typename T> std::ostream &operator<<(std::ostream &out, const GroupExpr<T> &group) {
+template <typename T, typename Derived>
+std::ostream &operator<<(std::ostream &out, const GroupExpr<T, Derived> &group) {
     return out << std::string(group);
 }
 
