@@ -1,8 +1,13 @@
 #pragma once
 
 #include "pms-utils/atom/atom.hpp"
+#include "pms-utils/depend/depend.hpp"
+#include "pms-utils/ebuild/ebuild.hpp"
+#include "pms-utils/misc/meta.hpp"
 
+#include <boost/describe.hpp>
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -10,10 +15,41 @@
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace repo {
 
+struct Metadata {
+    depend::DependExpr DEPEND;
+    depend::DependExpr RDEPEND;
+    atom::Slot SLOT;
+    ebuild::SRC_URI SRC_URI;
+    ebuild::RESTRICT RESTRICT;
+    ebuild::HOMEPAGE HOMEPAGE;
+    ebuild::LICENSE LICENSE;
+    std::string DESCRIPTION;
+    ebuild::KEYWORDS KEYWORDS;
+    ebuild::INHERITED INHERITED;
+    ebuild::IUSE IUSE;
+    ebuild::REQUIRED_USE REQUIRED_USE;
+    depend::DependExpr PDEPEND;
+    depend::DependExpr BDEPEND;
+    ebuild::EAPI EAPI;
+    ebuild::PROPERTIES PROPERTIES;
+    ebuild::DEFINED_PHASES DEFINED_PHASES;
+    depend::DependExpr IDEPEND;
+};
+
 struct Ebuild {
+private:
+    mutable std::optional<Metadata> _metadata;
+
+public:
     std::filesystem::path path;
     pms_utils::atom::Name name;
     pms_utils::atom::Version version;
+    const Metadata &metadata() const;
+
+    Ebuild() = default;
+    Ebuild(std::filesystem::path path, pms_utils::atom::Name name, pms_utils::atom::Version version);
+
+    BOOST_DESCRIBE_CLASS(Ebuild, (), (path, name, version, metadata), (), (_metadata));
 };
 
 class Category;
@@ -42,6 +78,8 @@ public:
 
     [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept { return _path; }
     [[nodiscard]] constexpr const std::string &name() const noexcept { return _name; }
+
+    BOOST_DESCRIBE_CLASS(Repository, (), (begin, cbegin, end, cend, path, name), (), (_path, _name));
 };
 
 class Package;
@@ -74,6 +112,8 @@ public:
 
     [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept { return _path; }
     [[nodiscard]] constexpr const std::string &name() const noexcept { return _name; }
+
+    BOOST_DESCRIBE_CLASS(Category, (), (begin, cbegin, end, cend, path, name), (), (_path, _name));
 };
 
 class Package {
@@ -104,6 +144,8 @@ public:
 
     [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept { return _path; }
     [[nodiscard]] constexpr const std::string &name() const noexcept { return _name; }
+
+    BOOST_DESCRIBE_CLASS(Package, (), (begin, cbegin, end, cend, path, name), (), (_path, _name));
 };
 
 // BEGIN ITERATOR
@@ -133,6 +175,8 @@ public:
     [[nodiscard]] bool operator==(const Iterator &rhs) const;
 
     [[nodiscard]] explicit Iterator(const Package &package);
+
+    BOOST_DESCRIBE_CLASS(Iterator, (), (), (), (path, iter, elem));
 };
 
 class Category::Iterator {
@@ -160,6 +204,8 @@ public:
     [[nodiscard]] bool operator==(const Iterator &rhs) const;
 
     [[nodiscard]] explicit Iterator(const Category &category);
+
+    BOOST_DESCRIBE_CLASS(Iterator, (), (), (), (path, iter, elem));
 };
 
 class Repository::Iterator {
@@ -189,9 +235,29 @@ public:
     [[nodiscard]] bool operator==(const Iterator &rhs) const;
 
     [[nodiscard]] explicit Iterator(const Repository &repository);
+
+    BOOST_DESCRIBE_CLASS(Iterator, (), (), (), (path, categories, index, elem));
 };
 
 // END ITERATOR
+
+// BEGIN DESCRIBE
+
+BOOST_DESCRIBE_STRUCT(Metadata, (),
+                      (DEPEND, RDEPEND, SLOT, SRC_URI, RESTRICT, HOMEPAGE, LICENSE, DESCRIPTION, KEYWORDS,
+                       INHERITED, IUSE, REQUIRED_USE, PDEPEND, BDEPEND, EAPI, PROPERTIES, DEFINED_PHASES,
+                       IDEPEND));
+
+namespace meta {
+
+using all = boost::mp11::mp_list<Metadata, Ebuild, Category, Repository, Package, Package::Iterator,
+                                 Category::Iterator, Repository::Iterator>;
+static_assert(boost::mp11::mp_is_set<all>{});
+static_assert(boost::mp11::mp_all_of<all, pms_utils::meta::is_described>{});
+
+} // namespace meta
+
+// END DESCRIBE
 
 } // namespace repo
 } // namespace pms_utils

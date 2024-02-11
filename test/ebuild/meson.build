@@ -1,7 +1,4 @@
-tests = []
-if fs.is_dir('/var/db/repos/gentoo')
-    tests = ['iter', 'metadata']
-endif
+tests = ['uri', 'src_uri']
 
 foreach t : tests
     test(
@@ -12,6 +9,5 @@ foreach t : tests
             dependencies: [boost_dep, pms_utils_dep],
             include_directories: inc_test_utils,
         ),
-        timeout: 0,
     )
 endforeach
