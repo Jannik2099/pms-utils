@@ -18,15 +18,15 @@ BOOST_FUSION_ADAPT_STRUCT(pms_utils::atom::PackageExpr, blocker, category, name,
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::depend::UseConditional, negate, useflag);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::depend::DependExpr, conditional, nodes);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::uri_elem, uri, filename);
-BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::SRC_URI, conditional, nodes);
+BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::src_uri, conditional, nodes);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::restrict_elem, string, type);
-BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::RESTRICT, conditional, nodes);
-BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::HOMEPAGE, conditional, nodes);
-BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::LICENSE, conditional, nodes);
+BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::restrict, conditional, nodes);
+BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::homepage, conditional, nodes);
+BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::license, conditional, nodes);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::iuse_elem, default_enabled, useflag);
-BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::REQUIRED_USE, conditional, nodes);
+BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::required_use, conditional, nodes);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::properties_elem, string, type);
-BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::PROPERTIES, conditional, nodes);
+BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::properties, conditional, nodes);
 
 #ifdef BOOST_SPIRIT_INSTANTIATE
 #undef BOOST_SPIRIT_INSTANTIATE

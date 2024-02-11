@@ -38,36 +38,36 @@ void _register(py::module &_module) {
     auto py_URI = create_bindings<URI>(ebuild, parsers::uri);
 
     auto py_uri_elem = create_bindings<uri_elem>(ebuild, parsers::uri_elem);
-    auto py_SRC_URI = create_bindings<SRC_URI>(ebuild, parsers::SRC_URI);
+    auto py_src_uri = create_bindings<src_uri>(ebuild, parsers::SRC_URI);
 
     auto py_restrict_elem = create_bindings<restrict_elem>(ebuild, parsers::restrict_elem);
     auto py_restrict_elem_type = create_bindings<restrict_elem::Type>(py_restrict_elem);
-    auto py_RESTRICT = create_bindings<RESTRICT>(ebuild, parsers::RESTRICT);
+    auto py_restrict = create_bindings<restrict>(ebuild, parsers::RESTRICT);
 
-    auto py_HOMEPAGE = create_bindings<HOMEPAGE>(ebuild, parsers::HOMEPAGE);
+    auto py_homepage = create_bindings<homepage>(ebuild, parsers::HOMEPAGE);
 
     auto py_license_elem = create_bindings<license_elem>(ebuild, parsers::license_elem);
-    auto py_LICENSE = create_bindings<LICENSE>(ebuild, parsers::LICENSE);
+    auto py_license = create_bindings<license>(ebuild, parsers::LICENSE);
 
     auto py_keyword = create_bindings<keyword>(ebuild, parsers::keyword);
-    auto py_KEYWORDS = create_bindings<KEYWORDS>(ebuild, parsers::KEYWORDS);
+    auto py_keywords = create_bindings<keywords>(ebuild, parsers::KEYWORDS);
 
     auto py_inherited_elem = create_bindings<inherited_elem>(ebuild, parsers::inherited_elem);
-    auto py_INHERITED = create_bindings<INHERITED>(ebuild, parsers::INHERITED);
+    auto py_inherited = create_bindings<inherited>(ebuild, parsers::INHERITED);
 
     auto py_iuse_elem = create_bindings<iuse_elem>(ebuild, parsers::iuse_elem);
-    auto py_IUSE = create_bindings<IUSE>(ebuild, parsers::IUSE);
+    auto py_iuse = create_bindings<iuse>(ebuild, parsers::IUSE);
 
-    auto py_REQUIRED_USE = create_bindings<REQUIRED_USE>(ebuild, parsers::REQUIRED_USE);
+    auto py_required_use = create_bindings<required_use>(ebuild, parsers::REQUIRED_USE);
 
-    auto py_EAPI = create_bindings<EAPI>(ebuild, parsers::EAPI);
+    auto py_eapi = create_bindings<eapi>(ebuild, parsers::EAPI);
 
     auto py_properties_elem = create_bindings<properties_elem>(ebuild, parsers::properties_elem);
     auto py_properties_elem_type = create_bindings<properties_elem::Type>(py_properties_elem);
-    auto py_PROPERTIES = create_bindings<PROPERTIES>(ebuild, parsers::PROPERTIES);
+    auto py_properties = create_bindings<properties>(ebuild, parsers::PROPERTIES);
 
     auto py_phases = create_bindings<phases>(ebuild);
-    auto py_DEFINED_PHASES = create_bindings<DEFINED_PHASES>(ebuild, parsers::DEFINED_PHASES);
+    auto py_defined_phases = create_bindings<defined_phases>(ebuild, parsers::DEFINED_PHASES);
 
     auto py_Metadata = create_bindings<Metadata>(ebuild);
 }

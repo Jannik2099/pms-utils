@@ -49,7 +49,7 @@ std::ostream &operator<<(std::ostream &out, const restrict_elem &restrict_elem) 
 }
 std::ostream &operator<<(std::ostream &out, restrict_elem::Type type) { return out << to_string(type); }
 
-KEYWORDS::operator std::string() const {
+keywords::operator std::string() const {
     std::string ret;
     for (const auto &elem : *this) {
         ret += elem + " ";
@@ -59,9 +59,9 @@ KEYWORDS::operator std::string() const {
     }
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const KEYWORDS &keywords) { return out << std::string(keywords); }
+std::ostream &operator<<(std::ostream &out, const keywords &keywords) { return out << std::string(keywords); }
 
-INHERITED::operator std::string() const {
+inherited::operator std::string() const {
     std::string ret;
     for (const auto &elem : *this) {
         ret += elem + " ";
@@ -71,7 +71,7 @@ INHERITED::operator std::string() const {
     }
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const INHERITED &inherited) {
+std::ostream &operator<<(std::ostream &out, const inherited &inherited) {
     return out << std::string(inherited);
 }
 
@@ -87,7 +87,7 @@ std::ostream &operator<<(std::ostream &out, const iuse_elem &iuse_elem) {
     return out << std::string(iuse_elem);
 }
 
-IUSE::operator std::string() const {
+iuse::operator std::string() const {
     std::string ret;
     for (const auto &elem : *this) {
         ret += std::string(elem) + " ";
@@ -97,7 +97,7 @@ IUSE::operator std::string() const {
     }
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const IUSE &iuse) { return out << std::string(iuse); }
+std::ostream &operator<<(std::ostream &out, const iuse &iuse) { return out << std::string(iuse); }
 
 properties_elem::operator std::string() const { return string; }
 std::ostream &operator<<(std::ostream &out, const properties_elem &properties_elem) {
@@ -162,7 +162,7 @@ std::ostream &operator<<(std::ostream &out, properties_elem::Type type) { return
 }
 std::ostream &operator<<(std::ostream &out, phases _phases) { return out << to_string(_phases); }
 
-DEFINED_PHASES::operator std::string() const {
+defined_phases::operator std::string() const {
     std::string ret;
     for (const auto &elem : *this) {
         ret += to_string(elem) + " ";
@@ -174,7 +174,7 @@ DEFINED_PHASES::operator std::string() const {
     }
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const DEFINED_PHASES &defined_phases) {
+std::ostream &operator<<(std::ostream &out, const defined_phases &defined_phases) {
     return out << std::string(defined_phases);
 }
 

@@ -122,8 +122,8 @@ struct phases_token final : x3::symbols<ebuild::phases> {
 PARSER_RULE_T(internal_filename, std::filesystem::path);
 PARSER_DEFINE(internal_filename, (+x3::graph)[filename_helper])
 
-PARSER_RULE_T(internal_src_uri_node, ebuild::SRC_URI::Node);
-PARSER_RULE_T(internal_src_uri_group, ebuild::SRC_URI);
+PARSER_RULE_T(internal_src_uri_node, ebuild::src_uri::Node);
+PARSER_RULE_T(internal_src_uri_group, ebuild::src_uri);
 PARSER_DEFINE(internal_src_uri_node, uri_elem() | internal_src_uri_group());
 PARSER_DEFINE(internal_src_uri_group, GroupTemplate1(internal_src_uri_node));
 
@@ -134,21 +134,21 @@ PARSER_DEFINE(uri_elem, (uri() >> -(x3::omit[+x3::space] >> x3::lit("->") >> x3:
 PARSER_DEFINE(SRC_URI, GroupTemplate2(internal_src_uri_node));
 
 PARSER_DEFINE(restrict_elem, (+x3::graph)[restrict_elem_helper]);
-PARSER_RULE_T(internal_restrict_node, ebuild::RESTRICT::Node);
-PARSER_RULE_T(internal_restrict_group, ebuild::RESTRICT);
+PARSER_RULE_T(internal_restrict_node, ebuild::restrict ::Node);
+PARSER_RULE_T(internal_restrict_group, ebuild::restrict);
 PARSER_DEFINE(internal_restrict_node, restrict_elem() | internal_restrict_group());
 PARSER_DEFINE(internal_restrict_group, GroupTemplate1(internal_restrict_node));
 PARSER_DEFINE(RESTRICT, GroupTemplate2(internal_restrict_node));
 
-PARSER_RULE_T(internal_homepage_node, ebuild::HOMEPAGE::Node);
-PARSER_RULE_T(internal_homepage_group, ebuild::HOMEPAGE);
+PARSER_RULE_T(internal_homepage_node, ebuild::homepage::Node);
+PARSER_RULE_T(internal_homepage_group, ebuild::homepage);
 PARSER_DEFINE(internal_homepage_node, uri() | internal_homepage_group());
 PARSER_DEFINE(internal_homepage_group, GroupTemplate1(internal_homepage_node))
 PARSER_DEFINE(HOMEPAGE, GroupTemplate2(internal_homepage_node));
 
 PARSER_DEFINE(license_elem, x3::char_("A-Za-z0-9_") >> *x3::char_("A-Za-z0-9+_.-") >> &(x3::space | x3::eoi));
-PARSER_RULE_T(internal_license_node, ebuild::LICENSE::Node);
-PARSER_RULE_T(internal_license_group, ebuild::LICENSE);
+PARSER_RULE_T(internal_license_node, ebuild::license::Node);
+PARSER_RULE_T(internal_license_group, ebuild::license);
 PARSER_DEFINE(internal_license_node, license_elem() | internal_license_group());
 PARSER_DEFINE(internal_license_group, GroupTemplate1(internal_license_node));
 PARSER_DEFINE(LICENSE, GroupTemplate2(internal_license_node));
@@ -163,8 +163,8 @@ PARSER_DEFINE(INHERITED, inherited_elem() % +x3::space);
 PARSER_DEFINE(iuse_elem, -x3::char_("+") >> useflag());
 PARSER_DEFINE(IUSE, iuse_elem() % +x3::space);
 
-PARSER_RULE_T(internal_required_use_node, ebuild::REQUIRED_USE::Node);
-PARSER_RULE_T(internal_required_use_group, ebuild::REQUIRED_USE);
+PARSER_RULE_T(internal_required_use_node, ebuild::required_use::Node);
+PARSER_RULE_T(internal_required_use_group, ebuild::required_use);
 PARSER_DEFINE(internal_required_use_node, use_dep() | internal_required_use_group());
 PARSER_DEFINE(internal_required_use_group, GroupTemplate1(internal_required_use_node));
 PARSER_DEFINE(REQUIRED_USE, GroupTemplate2(internal_required_use_node));
@@ -172,8 +172,8 @@ PARSER_DEFINE(REQUIRED_USE, GroupTemplate2(internal_required_use_node));
 PARSER_DEFINE(EAPI, x3::char_("A-Za-z0-9_") >> *x3::char_("A-Za-z0-9+_.-"));
 
 PARSER_DEFINE(properties_elem, (+x3::graph)[properties_elem_helper]);
-PARSER_RULE_T(internal_properties_node, ebuild::PROPERTIES::Node);
-PARSER_RULE_T(internal_properties_group, ebuild::PROPERTIES);
+PARSER_RULE_T(internal_properties_node, ebuild::properties::Node);
+PARSER_RULE_T(internal_properties_group, ebuild::properties);
 PARSER_DEFINE(internal_properties_node, properties_elem() | internal_properties_group());
 PARSER_DEFINE(internal_properties_group, GroupTemplate1(internal_properties_node));
 PARSER_DEFINE(PROPERTIES, GroupTemplate2(internal_properties_node));
