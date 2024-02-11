@@ -167,8 +167,13 @@ public:
 
     [[nodiscard]] constexpr const decltype(index_) &index() const noexcept { return index_; }
     void to_begin() {
-        node = &ast->nodes.at(0);
-        index_ = {0};
+        if (ast->nodes.size() == 0) {
+            node = nullptr;
+            index_ = {};
+        } else {
+            node = &ast->nodes.at(0);
+            index_ = {0};
+        }
     }
     void to_end() {
         node = nullptr;
@@ -177,6 +182,10 @@ public:
 
     [[nodiscard]] friend constexpr std::strong_ordering operator<=>(const Iterator &lhs,
                                                                     const Iterator &rhs) noexcept {
+        // both at end, or both empty
+        if (lhs.node == nullptr && rhs.node == nullptr) {
+            return std::strong_ordering::equal;
+        }
         const std::size_t index = std::min(lhs.index_.size(), rhs.index_.size());
         for (std::size_t i = 0; i < index; i++) {
             if (lhs.index_[i] != rhs.index_[i]) {
