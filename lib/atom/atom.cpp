@@ -137,6 +137,21 @@ SlotExpr::operator std::string() const {
 }
 std::ostream &operator<<(std::ostream &out, const SlotExpr &slotExpr) { return out << std::string(slotExpr); }
 
+std::string to_string(UsedepNegate usedepNegate) {
+    switch (usedepNegate) {
+    case UsedepNegate::minus:
+        return "-";
+    case UsedepNegate::exclamation:
+        return "!";
+    default:
+        // gcc cannot see that all enum values are covered, sigh
+        __builtin_unreachable();
+    }
+}
+std::ostream &operator<<(std::ostream &out, UsedepNegate usedepNegate) {
+    return out << to_string(usedepNegate);
+}
+
 std::string to_string(UsedepSign usedepSign) {
     switch (usedepSign) {
     case UsedepSign::plus:
@@ -164,11 +179,14 @@ std::ostream &operator<<(std::ostream &out, UsedepCond usedepCond) { return out 
 
 Usedep::operator std::string() const {
     std::string ret;
-    if (negate) {
-        if (conditional.has_value()) {
+    if (negate.has_value()) {
+        switch (negate.value()) {
+        case UsedepNegate::exclamation:
             ret += "!";
-        } else {
+            break;
+        case UsedepNegate::minus:
             ret += "-";
+            break;
         }
     }
     ret += useflag;

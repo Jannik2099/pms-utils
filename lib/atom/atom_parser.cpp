@@ -57,6 +57,16 @@ struct VersionSuffixWord final : x3::symbols<atom::VersionSuffixWord> {
     // clang-format on
 };
 
+struct UsedepNegate final : x3::symbols<atom::UsedepNegate> {
+    // clang-format off
+    UsedepNegate() {
+        add
+            ("-", atom::UsedepNegate::minus)
+            ("!", atom::UsedepNegate::exclamation)
+            ;
+    }
+    // clang-format on
+};
 struct UsedepSign final : x3::symbols<atom::UsedepSign> {
     // clang-format off
     UsedepSign() {
@@ -115,7 +125,7 @@ constexpr inline auto package_dep_helper = [](auto &ctx, bool requireVerSpec) {
     boost::fusion::deque<boost::optional<atom::Blocker>, boost::optional<atom::VersionSpecifier>,
                          atom::Category, atom::Name,
                          boost::optional<boost::fusion::deque<atom::Version, bool>>,
-                         boost::optional<atom::SlotExpr>, boost::optional<std::vector<atom::Usedep>>> &attr =
+                         boost::optional<atom::SlotExpr>, boost::optional<pms_utils::atom::Usedeps>> &attr =
         x3::_attr(ctx);
     atom::PackageExpr &val = x3::_val(ctx);
     using boost::fusion::at_c;
@@ -126,7 +136,7 @@ constexpr inline auto package_dep_helper = [](auto &ctx, bool requireVerSpec) {
     val.name = at_c<3>(attr);
     boost::optional<boost::fusion::deque<atom::Version, bool>> &versionPart = at_c<4>(attr);
     val.slotExpr = at_c<5>(attr);
-    val.usedeps = at_c<6>(attr).value_or(std::vector<atom::Usedep>{});
+    val.usedeps = at_c<6>(attr).value_or(pms_utils::atom::Usedeps{});
 
     if (versionPart.has_value()) {
         const atom::Version &version = at_c<0>(versionPart.value());
@@ -178,13 +188,9 @@ PARSER_DEFINE(name, (x3::ascii::alnum | x3::char_("_")) >>
 
 PARSER_DEFINE(useflag, x3::ascii::alnum >> *(x3::ascii::alnum | x3::char_("_") | x3::char_("-") |
                                              x3::char_("+") | x3::char_("@")));
-// this looks a bit redundant, but this way we can enforce "UsedepCond needs !, not -" without further
-// semantic action
-PARSER_DEFINE(use_dep,
-              (x3::matches["!"] >> useflag() >> -(x3::lit("(") >> UsedepSign() >> x3::lit(")")) >>
-               -UsedepConditional()) |
-                  (x3::matches["-"] >> useflag() >> -(x3::lit("(") >> UsedepSign() >> x3::lit(")")) >>
-                   x3::attr(boost::optional<atom::UsedepCond>{})));
+// TODO: reinstate "UsedepCond needs !, not -"
+PARSER_DEFINE(use_dep, -UsedepNegate() >> useflag() >> -(x3::lit("(") >> UsedepSign() >> x3::lit(")")) >>
+                           -UsedepConditional())
 PARSER_DEFINE(use_deps, x3::lit("[") >> use_dep() % "," >> x3::lit("]"));
 
 // unsure about how to handle the "duplicate rules for requireVerSpec"

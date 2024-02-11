@@ -110,6 +110,10 @@ struct Category : public std::string {};
 struct Name : public std::string {};
 
 struct Useflag : public std::string {};
+enum class UsedepNegate {
+    minus,       // -use
+    exclamation, // !use
+};
 enum class UsedepSign {
     plus,  // use(+)
     minus, // use(-)
@@ -119,14 +123,14 @@ enum class UsedepCond {
     question, // use?
 };
 struct Usedep {
-    bool negate; // the - and ! variants are identical really, no need to cover them seperately
+    boost::optional<UsedepNegate> negate;
     Useflag useflag;
     boost::optional<UsedepSign> sign;
     boost::optional<UsedepCond> conditional;
 
     [[nodiscard]] explicit operator std::string() const;
 };
-using Usedeps = std::vector<Usedep>;
+struct Usedeps : public std::vector<Usedep> {};
 
 struct PackageExpr {
     boost::optional<Blocker> blocker;
@@ -162,6 +166,9 @@ std::ostream &operator<<(std::ostream &out, Blocker blocker);
 std::ostream &operator<<(std::ostream &out, const Slot &slot);
 
 std::ostream &operator<<(std::ostream &out, const SlotExpr &slotExpr);
+
+[[nodiscard]] std::string to_string(UsedepNegate usedepNegate);
+std::ostream &operator<<(std::ostream &out, UsedepNegate usedepNegate);
 
 [[nodiscard]] std::string to_string(UsedepSign usedepSign);
 std::ostream &operator<<(std::ostream &out, UsedepSign usedepSign);
