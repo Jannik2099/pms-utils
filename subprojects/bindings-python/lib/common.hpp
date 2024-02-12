@@ -73,7 +73,7 @@ static inline auto create_bindings(
     auto ret = py::enum_<T>(module_, name.data());
     mp_for_each<boost::describe::describe_enumerators<T>>(
         [&ret](auto member) { ret.value(member.name, member.value); });
-    ret.def("__repr__", [](T val) { return boost::describe::enum_to_string(val, "BAD_ENUM"); });
+    ret.def("__str__", [](T val) { return boost::describe::enum_to_string(val, "BAD_ENUM"); });
     if constexpr (!std::is_same_v<R, bool>) {
         ret.def(py::init([rule](std::string_view str) { return expr_from_str(rule(), str); }));
     }
@@ -108,7 +108,7 @@ static inline auto create_bindings(
     mp_for_each<boost::describe::describe_members<T, boost::describe::mod_public>>(
         [&ret](auto member) { ret.def_readonly(member.name, member.pointer); });
     if constexpr (requires(const T &val) { std::string(val); }) {
-        ret.def("__repr__", [](const T &val) { return std::string(val); });
+        ret.def("__str__", [](const T &val) { return std::string(val); });
     }
     if constexpr (!std::is_same_v<R, bool>) {
         ret.def(py::init([rule](std::string_view str) { return expr_from_str(rule(), str); }));

@@ -7,7 +7,6 @@
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <string_view>
 
 namespace py = pybind11;
 
@@ -60,11 +59,17 @@ void _register(py::module &_module) {
 
     auto py_SlotExpr = create_bindings<SlotExpr>(atom, parsers::slot_expr);
 
+    auto py_Name = create_bindings<Name>(atom, parsers::name);
+
+    auto py_Category = create_bindings<Category>(atom, parsers::category);
+
     auto py_UsedepSign = create_bindings<UsedepSign>(atom);
 
     auto py_UsedepCond = create_bindings<UsedepCond>(atom);
 
     auto py_Usedep = create_bindings<Usedep>(atom, parsers::use_dep);
+
+    auto py_Usedeps = create_bindings<Usedeps>(atom, parsers::use_deps);
 
     auto py_Atom = create_bindings<PackageExpr>(atom, parsers::atom, "Atom");
 }
