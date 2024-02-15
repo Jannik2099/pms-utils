@@ -230,11 +230,15 @@ std::optional<Package> Category::operator[](std::string_view package) const {
     return Package(package_path);
 }
 
-Repository::Repository(std::filesystem::path path, std::string_view name)
-    : _path(std::move(path)), _name(name) {
+Repository::Repository(std::filesystem::path path) : _path(std::move(path)) {
     if (!std::filesystem::is_directory(_path)) {
         throw std::invalid_argument(std::format("provided path {} does not exist", path.string()));
     }
+    std::ifstream stream(_path / "profiles" / "repo_name");
+    std::stringstream buf;
+    buf << stream.rdbuf();
+    // TODO: validate
+    _name = buf.str();
 }
 Repository::const_iterator Repository::begin() const noexcept { return Repository::const_iterator(*this); }
 Repository::const_iterator Repository::cbegin() const noexcept { return begin(); }

@@ -52,7 +52,7 @@ public:
     [[nodiscard]] const_iterator end() const noexcept;
     [[nodiscard]] const_iterator cend() const noexcept;
 
-    [[nodiscard]] Repository(std::filesystem::path path, std::string_view name);
+    [[nodiscard]] Repository(std::filesystem::path path);
 
     [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept { return _path; }
     [[nodiscard]] constexpr const std::string &name() const noexcept { return _name; }

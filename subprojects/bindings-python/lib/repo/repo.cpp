@@ -28,7 +28,7 @@ void _register(py::module &_module) {
         "__getitem__", [](const Category &category, std::string_view package) { return category[package]; });
 
     auto py_Repository = create_bindings<Repository>(repo)
-                             .def(py::init<std::filesystem::path, std::string_view>())
+                             .def(py::init<std::filesystem::path>())
                              .def("__getitem__", [](const Repository &repository, std::string_view category) {
                                  return repository[category];
                              });
