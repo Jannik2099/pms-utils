@@ -57,6 +57,8 @@ public:
     [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept { return _path; }
     [[nodiscard]] constexpr const std::string &name() const noexcept { return _name; }
 
+    [[nodiscard]] std::optional<Category> operator[](std::string_view category) const;
+
     BOOST_DESCRIBE_CLASS(Repository, (), (begin, cbegin, end, cend, path, name), (), (_path, _name));
 };
 
@@ -91,6 +93,8 @@ public:
     [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept { return _path; }
     [[nodiscard]] constexpr const std::string &name() const noexcept { return _name; }
 
+    [[nodiscard]] std::optional<Package> operator[](std::string_view package) const;
+
     BOOST_DESCRIBE_CLASS(Category, (), (begin, cbegin, end, cend, path, name), (), (_path, _name));
 };
 
@@ -122,6 +126,9 @@ public:
 
     [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept { return _path; }
     [[nodiscard]] constexpr const std::string &name() const noexcept { return _name; }
+
+    [[nodiscard]] std::optional<Ebuild> operator[](const atom::Version &version) const;
+    [[nodiscard]] std::optional<Ebuild> operator[](std::string_view version) const;
 
     BOOST_DESCRIBE_CLASS(Package, (), (begin, cbegin, end, cend, path, name), (), (_path, _name));
 };
