@@ -152,12 +152,28 @@ const ebuild::Metadata &Ebuild::metadata() const {
     return _metadata.value();
 }
 
-Ebuild::Ebuild(std::filesystem::path path, pms_utils::atom::Name name, pms_utils::atom::Version version)
-    : path(std::move(path)), name(std::move(name)), version(std::move(version)) {}
+Ebuild::Ebuild(std::filesystem::path _path, pms_utils::atom::Name _name, pms_utils::atom::Version _version)
+    : path(std::move(_path)), name(std::move(_name)), version(std::move(_version)) {
+    if (!std::filesystem::is_regular_file(path)) {
+        throw std::invalid_argument(std::format("provided file {} does not exist", path.string()));
+    }
+    if (path.stem() != std::format("{}-{}", std::string(name), std::string(version))) {
+        throw std::invalid_argument(std::format("filename {} did not match provided Name + Version {}-{}",
+                                                path.stem().string(), std::string(name),
+                                                std::string(version)));
+    }
+    if (path.extension() != ".ebuild") {
+        throw std::invalid_argument(std::format("provided file {} does not end in .ebuild", path.string()));
+    }
+}
 
 // END EBUILD
 
-Package::Package(std::filesystem::path path) : _path(std::move(path)), _name(_path.filename().string()) {}
+Package::Package(std::filesystem::path path) : _path(std::move(path)), _name(_path.filename().string()) {
+    if (!std::filesystem::is_directory(_path)) {
+        throw std::invalid_argument(std::format("provided path {} does not exist", path.string()));
+    }
+}
 Package::const_iterator Package::begin() const noexcept { return Package::const_iterator(*this); }
 Package::const_iterator Package::cbegin() const noexcept { return begin(); }
 Package::const_iterator Package::end() const noexcept {
@@ -167,7 +183,11 @@ Package::const_iterator Package::end() const noexcept {
 }
 Package::const_iterator Package::cend() const noexcept { return end(); }
 
-Category::Category(std::filesystem::path path) : _path(std::move(path)), _name(_path.filename().string()) {}
+Category::Category(std::filesystem::path path) : _path(std::move(path)), _name(_path.filename().string()) {
+    if (!std::filesystem::is_directory(_path)) {
+        throw std::invalid_argument(std::format("provided path {} does not exist", path.string()));
+    }
+}
 Category::const_iterator Category::begin() const noexcept { return Category::const_iterator(*this); }
 Category::const_iterator Category::cbegin() const noexcept { return begin(); }
 Category::const_iterator Category::end() const noexcept {
@@ -178,7 +198,11 @@ Category::const_iterator Category::end() const noexcept {
 Category::const_iterator Category::cend() const noexcept { return end(); }
 
 Repository::Repository(std::filesystem::path path, std::string_view name)
-    : _path(std::move(path)), _name(name) {}
+    : _path(std::move(path)), _name(name) {
+    if (!std::filesystem::is_directory(_path)) {
+        throw std::invalid_argument(std::format("provided path {} does not exist", path.string()));
+    }
+}
 Repository::const_iterator Repository::begin() const noexcept { return Repository::const_iterator(*this); }
 Repository::const_iterator Repository::cbegin() const noexcept { return begin(); }
 Repository::const_iterator Repository::end() const noexcept {
