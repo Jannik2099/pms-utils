@@ -6,7 +6,6 @@
 #include <boost/describe/members.hpp>
 #include <boost/mp11.hpp>
 #include <boost/mp11/list.hpp>
-#include <pms-utils/depend/depend.hpp>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl/filesystem.h>
@@ -113,10 +112,12 @@ static inline auto create_bindings(
     if constexpr (!std::is_same_v<R, bool>) {
         ret.def(py::init([rule](std::string_view str) { return expr_from_str(rule(), str); }));
     }
+
+    // prevent exporting __iter__ for std::string types
     if constexpr (requires(const T &val) {
                       std::begin(val);
                       std::end(val);
-                  }) {
+                  } && !std::is_base_of_v<std::string, T>) {
         ret.def(
             "__iter__", [](const T &val) { return py::make_iterator(std::begin(val), std::end(val)); },
             py::keep_alive<0, 1>());
