@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 from typing import Optional
 
 class VersionNumber(list[str]):
@@ -37,7 +37,7 @@ class Blocker(Enum):
     def __init__(self, string: str) -> None: ...
     def __repr__(self) -> str: ...
 
-class VersionSuffixWord(Enum):
+class VersionSuffixWord(IntEnum):
     alpha = 0
     beta = 1
     pre = 2

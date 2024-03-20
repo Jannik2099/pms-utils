@@ -6,6 +6,16 @@
 #include <pybind11/pybind11.h>
 
 using namespace pms_utils::bindings::python;
+namespace py = pybind11;
+
+namespace pms_utils::bindings::python::_internal {
+
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+static std::unordered_map<std::type_index, py::object> _enums;
+
+std::unordered_map<std::type_index, py::object> &enums() { return _enums; };
+
+} // namespace pms_utils::bindings::python::_internal
 
 PYBIND11_MODULE(pms_utils, _module) {
     atom::_register(_module);
