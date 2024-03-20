@@ -12,13 +12,13 @@ namespace py = pybind11;
 
 using namespace pms_utils::atom;
 
-namespace PYBIND11_NAMESPACE {
-namespace detail {
-template <typename T> struct type_caster<boost::optional<T>> : optional_caster<boost::optional<T>> {};
-} // namespace detail
-} // namespace PYBIND11_NAMESPACE
+namespace pms_utils::bindings::python {
 
-namespace pms_utils::bindings::python::atom {
+template <> struct bound_type_name<PackageExpr> {
+    constexpr static std::string_view str = "Atom";
+};
+
+namespace atom {
 
 void _register(py::module &_module) {
 
@@ -31,15 +31,9 @@ void _register(py::module &_module) {
 
     auto py_Blocker = create_bindings<Blocker>(atom, parsers::blocker);
 
-    // NOLINTBEGIN(misc-redundant-expression)
-    auto py_VersionSuffixWord = create_bindings<VersionSuffixWord>(atom, parsers::ver_suffix_word)
-                                    .def(py::self < py::self)
-                                    .def(py::self <= py::self)
-                                    .def(py::self > py::self)
-                                    .def(py::self >= py::self)
-                                    .def(py::self == py::self)
-                                    .def(py::self != py::self);
-    // NOLINTEND(misc-redundant-expression)
+    // IntEnum for ordering
+    auto py_VersionSuffixWord =
+        create_bindings<VersionSuffixWord>(atom, parsers::ver_suffix_word, "enum.IntEnum");
 
     auto py_VersionSuffix = create_bindings<VersionSuffix>(atom, parsers::ver_suffix);
 
@@ -71,7 +65,8 @@ void _register(py::module &_module) {
 
     auto py_Usedeps = create_bindings<Usedeps>(atom, parsers::use_deps);
 
-    auto py_Atom = create_bindings<PackageExpr>(atom, parsers::atom, "Atom");
+    auto py_Atom = create_bindings<PackageExpr>(atom, parsers::atom);
 }
 
-} // namespace pms_utils::bindings::python::atom
+} // namespace atom
+} // namespace pms_utils::bindings::python
