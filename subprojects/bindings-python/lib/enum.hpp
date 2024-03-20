@@ -2,6 +2,7 @@
 
 #include "internal.hpp"
 
+#include <algorithm>
 #include <boost/describe.hpp>
 #include <boost/mp11/algorithm.hpp>
 #include <pybind11/cast.h>
@@ -22,14 +23,14 @@ std::unordered_map<std::type_index, py::object> &enums();
 
 std::size_t &enum_counter();
 
-template <const char *data, std::size_t size> consteval auto str_to_py_descr() {
+template <typename T> consteval auto bound_type_name_to_descr() {
+    constexpr std::array myarr = bound_type_name_v<T>;
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
-    char arr[size + 1];
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    std::copy(data, data + size, static_cast<char *>(arr));
+    char arr[myarr.size() + 1];
+    std::ranges::copy(myarr, static_cast<char *>(arr));
 
     // descr already adds a null terminator
-    return py::detail::descr<size>(arr);
+    return py::detail::descr<myarr.size()>(arr);
 }
 
 template <typename M, typename T>
@@ -57,9 +58,7 @@ namespace detail {
 template <typename T>
     requires std::is_enum_v<T>
 struct type_caster<T> {
-    PYBIND11_TYPE_CASTER(T, (pms_utils::bindings::python::_internal::str_to_py_descr<
-                                pms_utils::bindings::python::bound_type_name_v<T>.data(),
-                                pms_utils::bindings::python::bound_type_name_v<T>.size()>()));
+    PYBIND11_TYPE_CASTER(T, pms_utils::bindings::python::_internal::bound_type_name_to_descr<T>());
 
 public:
     bool load(handle src, bool /*unused*/) {
