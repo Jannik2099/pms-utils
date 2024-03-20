@@ -77,7 +77,7 @@ jobs:
 
         echo FEATURES='"${FEATURES} test"' >> env/myenv
         echo "PYTHON_TARGETS=\"${MY_PY_TARGETS}\"" >> env/myenv
-        echo "MYMESONARGS=\"--buildtype=${{ matrix.type }} -Dwerror=true -Db_lto=true -Db_sanitize=${SANITIZER} ${args}\"" >> env/myenv
+        echo "MYMESONARGS=\"-Dbuildtype=${{ matrix.type }} -Dwerror=true -Db_lto=true -Db_sanitize=${SANITIZER} ${args}\"" >> env/myenv
         popd
 
         cp -r .github/localrepo /var/db/repos/localrepo
