@@ -18,10 +18,11 @@ namespace py = pybind11;
 
 namespace pms_utils::bindings::python::_internal {
 
+// thanks to
+// https://github.com/pybind/pybind11/issues/2332#issuecomment-741061287
+
 // maps enum type to python enum
 std::unordered_map<std::type_index, py::object> &enums();
-
-std::size_t &enum_counter();
 
 template <typename T> consteval auto bound_type_name_to_descr() {
     constexpr std::array myarr = bound_type_name_v<T>;
@@ -47,7 +48,7 @@ auto bind_enum(M &mod, std::string_view name, std::string_view enum_type) {
     py::object &spec = _internal::enums()[typeid(T)];
     spec = py::module::import("pydoc").attr("locate")(enum_type)(name, pairs,
                                                                  py::arg("module") = mod.attr("__name__"));
-    mod.attr(std::string(name).data()) = spec;
+    mod.attr(std::string(name).c_str()) = spec;
     return spec;
 }
 
