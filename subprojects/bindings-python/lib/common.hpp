@@ -11,6 +11,7 @@
 #include <boost/mp11/list.hpp>
 #include <boost/optional.hpp>
 #include <boost/variant.hpp>
+#include <pybind11/attr.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
@@ -40,19 +41,34 @@ template <> struct visit_helper<boost::variant> {
 
 namespace pms_utils::bindings::python {
 
+template <typename Func>
+static inline py::object &add_method(py::object &cls, std::string_view name, Func &&func) {
+    // pybind11 needs a c_str ;/
+    const std::string name_str(name);
+    py::cpp_function cfunc(std::forward<Func>(func), py::name(name_str.c_str()), py::is_method(cls),
+                           py::sibling(py::getattr(cls, name_str.c_str(), py::none())));
+    py::detail::add_class_method(cls, name_str.c_str(), cfunc);
+    return cls;
+}
+
 template <typename T, typename M, typename R = bool>
     requires(std::is_enum_v<T> && boost::describe::has_describe_enumerators<T>::value)
-static inline py::object create_bindings(M module_, R rule = false, std::string enum_type = "enum.Enum") {
+static inline py::object create_bindings(M module_, R rule = false,
+                                         std::string_view enum_type = "enum.Enum") {
     constexpr std::string_view name = bound_type_name<T>::str;
 
     py::object ret = _internal::bind_enum<M, T>(module_, name, enum_type);
+
+    if constexpr (requires(T val) { to_string(val); }) {
+        add_method(ret, "__str__", [](T val) { return to_string(val); });
+    }
     if constexpr (!std::is_same_v<R, bool>) {
-        const std::string function_name = std::string("_") + std::string(name) + "_init";
-        module_.def(function_name.data(), [rule](const py::object &, std::string_view arg) {
+        const std::string function_name = std::string("_") + std::string(name) + "__missing_";
+        module_.def(function_name.c_str(), [rule](const py::object &, std::string_view arg) {
             return _internal::expr_from_str(rule(), arg);
         });
         ret.attr("_missing_") =
-            py::module::import("pydoc").attr("locate")("classmethod")(module_.attr(function_name.data()));
+            py::module::import("builtins").attr("classmethod")(module_.attr(function_name.c_str()));
     }
     return ret;
 }
@@ -83,7 +99,7 @@ static inline auto create_bindings(M module_, R rule = false) {
     auto ret = pyclass(module_, std::string(name).data());
     mp_for_each<boost::describe::describe_members<T, boost::describe::mod_public>>(
         [&ret](auto member) { ret.def_readonly(member.name, member.pointer); });
-    if constexpr (requires(const T &val) { std::string(val); }) {
+    if constexpr (std::constructible_from<std::string, T>) {
         ret.def("__str__", [](const T &val) { return std::string(val); });
     }
     if constexpr (!std::is_same_v<R, bool>) {

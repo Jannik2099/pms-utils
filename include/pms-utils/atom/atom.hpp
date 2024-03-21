@@ -136,7 +136,9 @@ struct Usedep {
 
     [[nodiscard]] explicit operator std::string() const;
 };
-struct Usedeps : public std::vector<Usedep> {};
+struct Usedeps : public std::vector<Usedep> {
+    [[nodiscard]] explicit operator std::string() const;
+};
 
 struct PackageExpr {
     boost::optional<Blocker> blocker;
@@ -235,6 +237,8 @@ std::ostream &operator<<(std::ostream &out, UsedepSign usedepSign);
 std::ostream &operator<<(std::ostream &out, UsedepCond usedepCond);
 
 std::ostream &operator<<(std::ostream &out, const Usedep &usedep);
+
+std::ostream &operator<<(std::ostream &out, const Usedeps &usedeps);
 
 std::ostream &operator<<(std::ostream &out, const PackageExpr &package);
 
