@@ -202,6 +202,22 @@ Usedep::operator std::string() const {
 }
 std::ostream &operator<<(std::ostream &out, const Usedep &usedep) { return out << std::string(usedep); }
 
+Usedeps::operator std::string() const {
+    std::string ret;
+    if (empty()) {
+        return ret;
+    }
+    ret += "[";
+    for (const Usedep &usedep : *this) {
+        ret += std::string(usedep);
+        ret += ",";
+    }
+    ret.pop_back();
+    ret += "]";
+    return ret;
+}
+std::ostream &operator<<(std::ostream &out, const Usedeps &usedeps) { return out << std::string(usedeps); }
+
 PackageExpr::operator std::string() const {
     std::string ret;
     if (blocker.has_value()) {
@@ -221,15 +237,7 @@ PackageExpr::operator std::string() const {
     if (slotExpr.has_value()) {
         ret += std::string(slotExpr.value());
     }
-    if (!usedeps.empty()) {
-        ret += "[";
-        for (const Usedep &usedep : usedeps) {
-            ret += std::string(usedep);
-            ret += ",";
-        }
-        ret = ret.substr(0, ret.length() - 1);
-        ret += "]";
-    }
+    ret += std::string(usedeps);
     return ret;
 }
 
