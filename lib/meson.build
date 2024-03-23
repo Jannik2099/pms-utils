@@ -4,6 +4,7 @@ subdir('atom')
 subdir('depend')
 subdir('ebuild')
 subdir('repo')
+subdir('vdb')
 
 libpms_utils = library(
     'pms-utils',
