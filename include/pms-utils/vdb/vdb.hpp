@@ -53,8 +53,8 @@ public:
     [[nodiscard]] const_iterator cbegin() const noexcept { return begin(); };
     [[nodiscard]] const_iterator end() const noexcept { return pkgs.end(); };
     [[nodiscard]] const_iterator cend() const noexcept { return end(); };
-    [[nodiscard]] std::filesystem::path path() const noexcept { return _path; };
-    [[nodiscard]] pms_utils::atom::Category category() const noexcept { return _category; };
+    [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept { return _path; };
+    [[nodiscard]] constexpr const pms_utils::atom::Category &category() const noexcept { return _category; };
 };
 
 class Pkg {};
