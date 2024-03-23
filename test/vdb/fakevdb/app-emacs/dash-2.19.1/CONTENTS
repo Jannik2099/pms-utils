@@ -1,0 +1,16 @@
+dir /usr
+dir /usr/share
+dir /usr/share/doc
+dir /usr/share/doc/dash-2.19.1
+obj /usr/share/doc/dash-2.19.1/README.md.zst 668c6c187e8ca3ee79afedceed4fa561 1691474942
+dir /usr/share/emacs
+dir /usr/share/emacs/site-lisp
+dir /usr/share/emacs/site-lisp/dash
+obj /usr/share/emacs/site-lisp/dash/dash.el 82fea3abec1f8263be1e551088255fa8 1691474942
+obj /usr/share/emacs/site-lisp/dash/dash.elc 1580210db76c10a5e8563ff351247d60 1691474942
+obj /usr/share/emacs/site-lisp/dash/dash-functional.elc f8ceac53f54dfeff99662c20b0859ac3 1691474942
+obj /usr/share/emacs/site-lisp/dash/dash-functional.el 3c6e2bb8a07ebc6a70f337e392af3677 1691474942
+dir /usr/share/emacs/site-lisp/site-gentoo.d
+obj /usr/share/emacs/site-lisp/site-gentoo.d/50dash-gentoo.el 04178e99df9db73cd61ec7147e0ea30b 1691474942
+dir /usr/share/info
+obj /usr/share/info/dash.info.zst 70e6bc1dec99276feadb032c02116af1 1691474942
