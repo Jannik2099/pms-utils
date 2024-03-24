@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <format>
 #include <stdexcept>
+#include <string_view>
 
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace vdb {
@@ -20,12 +21,34 @@ Category::Category(std::filesystem::path path) : _path(std::move(path)) {
     if (!std::filesystem::is_directory(_path)) {
         throw std::runtime_error(std::format("invalid category in vdb: not a directory: {}", _path.string()));
     }
-    auto result = pms_utils::try_parse(_path.filename().string(), pms_utils::parsers::category());
+    auto filename = _path.filename().string();
+    auto result = pms_utils::try_parse(filename, pms_utils::parsers::category());
     if (result.status != pms_utils::ParserStatus::Success) {
-        throw std::runtime_error(
-            std::format("invalid category in vdb: failed to parse: {}", _path.filename().string()));
+        throw std::runtime_error(std::format("invalid category in vdb: failed to parse: {}", filename));
     }
     _category = result.value.value();
+    for (const auto &entry : std::filesystem::directory_iterator(_path)) {
+        Pkg pkg(entry.path());
+        pkgs.push_back(pkg);
+    }
+}
+
+Pkg::Pkg(std::filesystem::path path) : _path(std::move(path)) {
+    if (!std::filesystem::is_directory(_path)) {
+        throw std::runtime_error(std::format("invalid package in vdb: not a directory: {}", _path.string()));
+    }
+    auto filename = _path.filename().string();
+    auto name = pms_utils::try_parse(filename, pms_utils::parsers::name());
+    if (name.status != pms_utils::ParserStatus::Progress) {
+        throw std::runtime_error(std::format("invalid package in vdb: failed to parse name: {}", filename));
+    }
+    _name = name.value.value();
+    auto rest = std::string_view(filename.begin() + name.consumed + 1, filename.end());
+    auto version = pms_utils::try_parse(rest, pms_utils::parsers::package_version());
+    if (version.status != pms_utils::ParserStatus::Success) {
+        throw std::runtime_error(std::format("invalid package in vdb: failed to parse version: {}", rest));
+    }
+    _version = version.value.value();
 }
 
 } // namespace vdb

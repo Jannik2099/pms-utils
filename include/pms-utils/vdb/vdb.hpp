@@ -57,7 +57,19 @@ public:
     [[nodiscard]] constexpr const pms_utils::atom::Category &category() const noexcept { return _category; };
 };
 
-class Pkg {};
+class Pkg {
+private:
+    friend class Category;
+    Pkg(std::filesystem::path);
+    std::filesystem::path _path;
+    pms_utils::atom::Name _name;
+    pms_utils::atom::Version _version;
+
+public:
+    [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept { return _path; };
+    [[nodiscard]] constexpr const pms_utils::atom::Name &name() const noexcept { return _name; };
+    [[nodiscard]] constexpr const pms_utils::atom::Version &version() const noexcept { return _version; };
+};
 
 } // namespace vdb
 } // namespace pms_utils
