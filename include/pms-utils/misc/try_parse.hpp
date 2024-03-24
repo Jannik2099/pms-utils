@@ -1,5 +1,5 @@
 #include <boost/outcome.hpp>
-#include <ctime>
+#include <format>
 #include <iterator>
 #include <optional>
 
@@ -11,6 +11,12 @@ template <typename T, typename U> struct ParserResult {
     ParserStatus status;
     std::optional<U> result;
     T consumed;
+
+    template <typename I> std::string display(I &input) {
+        return std::format("failed to parse {}: consumed: {}: rest {}", input,
+                           std::string_view(input.begin(), input.begin() + consumed),
+                           std::string_view(input.begin() + consumed, input.end()));
+    }
 };
 
 template <typename T, typename Parser>
