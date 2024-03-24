@@ -28,9 +28,11 @@ int main(int argc, char **argv) {
     }
 
     {
-        auto result = pms_utils::try_parse(atom, pms_utils::parsers::category());
-        assert(result.status == pms_utils::ParserStatus::Fail);
-        assert(!result.result.has_value());
-        assert(result.consumed == 0);
+        auto category = pms_utils::try_parse(atom, pms_utils::parsers::category());
+        assert(category.status == pms_utils::ParserStatus::Fail);
+        assert(!category.result.has_value());
+        assert(category.consumed == 0);
+        // make sure this compiles
+        auto displayed = category.display(atom);
     }
 }
