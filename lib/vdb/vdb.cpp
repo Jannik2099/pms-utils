@@ -26,7 +26,7 @@ Category::Category(std::filesystem::path path) : _path(std::move(path)) {
     if (result.status != pms_utils::ParserStatus::Success) {
         throw std::runtime_error(std::format("invalid category in vdb: failed to parse: {}", filename));
     }
-    _category = result.value.value();
+    _category = result.result.value();
     for (const auto &entry : std::filesystem::directory_iterator(_path)) {
         Pkg pkg(entry.path());
         pkgs.push_back(pkg);
@@ -42,13 +42,13 @@ Pkg::Pkg(std::filesystem::path path) : _path(std::move(path)) {
     if (name.status != pms_utils::ParserStatus::Progress) {
         throw std::runtime_error(std::format("invalid package in vdb: failed to parse name: {}", filename));
     }
-    _name = name.value.value();
+    _name = name.result.value();
     auto rest = std::string_view(filename.begin() + name.consumed + 1, filename.end());
     auto version = pms_utils::try_parse(rest, pms_utils::parsers::package_version());
     if (version.status != pms_utils::ParserStatus::Success) {
         throw std::runtime_error(std::format("invalid package in vdb: failed to parse version: {}", rest));
     }
-    _version = version.value.value();
+    _version = version.result.value();
 }
 
 } // namespace vdb
