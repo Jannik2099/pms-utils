@@ -9,7 +9,7 @@ enum class ParserStatus { Success, Progress, Fail };
 
 template <typename T, typename U> struct ParserResult {
     ParserStatus status;
-    std::optional<U> value;
+    std::optional<U> result;
     T consumed;
 };
 
