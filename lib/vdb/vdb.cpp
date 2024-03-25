@@ -14,6 +14,21 @@ namespace vdb {
 
 std::optional<pms_utils::depend::DependExpr> load_depend(const std::filesystem::path &);
 
+std::string read_vdb_entry(const std::filesystem::path &file) {
+    std::ifstream fstream(file);
+    if (!fstream.is_open()) {
+        throw std::runtime_error(
+            std::format("failed to open file: {}: {}", file.string(), std::strerror(errno)));
+    }
+    std::stringstream stream;
+    stream << fstream.rdbuf();
+    auto buffer = stream.str();
+    if (buffer.ends_with("\n")) {
+        buffer.pop_back();
+    }
+    return buffer;
+}
+
 Vdb::Vdb(std::filesystem::path path) : _path(std::move(path)) {
     for (const auto &entry : std::filesystem::directory_iterator(_path)) {
         Category category(entry.path());
@@ -98,16 +113,11 @@ std::optional<pms_utils::depend::DependExpr> load_depend(const std::filesystem::
     if (!std::filesystem::exists(file)) {
         return std::nullopt;
     }
-    if (!std::filesystem::is_regular_file(file)) {
-        throw std::runtime_error(std::format("invalid DEPEND entry in vdb: {}: not a file", file.string()));
-    }
-    std::ifstream fstream(file);
-    std::stringstream buffer;
-    buffer << fstream.rdbuf();
-    std::string str = buffer.str();
-    auto depend_expr = pms_utils::try_parse(str, pms_utils::parsers::nodes());
+    auto depend_string = read_vdb_entry(file);
+    auto depend_expr = pms_utils::try_parse(depend_string, pms_utils::parsers::nodes());
     if (depend_expr.status != pms_utils::ParserStatus::Success) {
-        throw std::runtime_error(std::format("invalid DEPEND in vdb: {}", depend_expr.display(str)));
+        throw std::runtime_error(
+            std::format("invalid DEPEND in vdb: {}", depend_expr.display(depend_string)));
     }
     return depend_expr.result.value();
 }
