@@ -10,6 +10,7 @@ install_headers(
         'pms-utils/ebuild/ebuild_parser.hpp',
         'pms-utils/repo/repo.hpp',
         'pms-utils/vdb/vdb.hpp',
+        'pms-utils/misc/md5.hpp',
         'pms-utils/misc/try_parse.hpp',
         'pms-utils/misc/x3_utils.hpp',
     ],
