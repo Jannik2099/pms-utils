@@ -15,6 +15,7 @@ install_headers(
         'pms-utils/misc/macro-end.hpp',
         'pms-utils/misc/meta.hpp',
         'pms-utils/vdb/vdb.hpp',
+        'pms-utils/misc/md5.hpp',
         'pms-utils/misc/try_parse.hpp',
         'pms-utils/misc/x3_utils.hpp',
     ],
