@@ -11,6 +11,9 @@
 #include <string_view>
 #include <vector>
 
+//
+#include "pms-utils/misc/macro-begin.hpp"
+
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace repo {
 
@@ -22,7 +25,7 @@ public:
     std::filesystem::path path;
     pms_utils::atom::Name name;
     pms_utils::atom::Version version;
-    const ebuild::Metadata &metadata() const;
+    const ebuild::Metadata &metadata() const [[clang::lifetimebound]];
 
     Ebuild() = default;
     Ebuild(std::filesystem::path path, pms_utils::atom::Name name, pms_utils::atom::Version version);
@@ -47,15 +50,19 @@ private:
     std::string _name;
 
 public:
-    [[nodiscard]] const_iterator begin() const noexcept;
-    [[nodiscard]] const_iterator cbegin() const noexcept;
-    [[nodiscard]] const_iterator end() const noexcept;
-    [[nodiscard]] const_iterator cend() const noexcept;
+    [[nodiscard]] const_iterator begin() const noexcept [[clang::lifetimebound]];
+    [[nodiscard]] const_iterator cbegin() const noexcept [[clang::lifetimebound]];
+    [[nodiscard]] const_iterator end() const noexcept [[clang::lifetimebound]];
+    [[nodiscard]] const_iterator cend() const noexcept [[clang::lifetimebound]];
 
-    [[nodiscard]] Repository(std::filesystem::path path);
+    [[nodiscard]] explicit Repository(std::filesystem::path path);
 
-    [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept { return _path; }
-    [[nodiscard]] constexpr const std::string &name() const noexcept { return _name; }
+    [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept [[clang::lifetimebound]] {
+        return _path;
+    }
+    [[nodiscard]] constexpr const std::string &name() const noexcept [[clang::lifetimebound]] {
+        return _name;
+    }
 
     [[nodiscard]] std::optional<Category> operator[](std::string_view category) const;
 
@@ -83,15 +90,19 @@ private:
     friend Repository::Iterator;
 
 public:
-    [[nodiscard]] const_iterator begin() const noexcept;
-    [[nodiscard]] const_iterator cbegin() const noexcept;
-    [[nodiscard]] const_iterator end() const noexcept;
-    [[nodiscard]] const_iterator cend() const noexcept;
+    [[nodiscard]] const_iterator begin() const noexcept [[clang::lifetimebound]];
+    [[nodiscard]] const_iterator cbegin() const noexcept [[clang::lifetimebound]];
+    [[nodiscard]] const_iterator end() const noexcept [[clang::lifetimebound]];
+    [[nodiscard]] const_iterator cend() const noexcept [[clang::lifetimebound]];
 
     [[nodiscard]] explicit Category(std::filesystem::path path);
 
-    [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept { return _path; }
-    [[nodiscard]] constexpr const std::string &name() const noexcept { return _name; }
+    [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept [[clang::lifetimebound]] {
+        return _path;
+    }
+    [[nodiscard]] constexpr const std::string &name() const noexcept [[clang::lifetimebound]] {
+        return _name;
+    }
 
     [[nodiscard]] std::optional<Package> operator[](std::string_view package) const;
 
@@ -117,15 +128,19 @@ private:
     friend Category::Iterator;
 
 public:
-    [[nodiscard]] const_iterator begin() const noexcept;
-    [[nodiscard]] const_iterator cbegin() const noexcept;
-    [[nodiscard]] const_iterator end() const noexcept;
-    [[nodiscard]] const_iterator cend() const noexcept;
+    [[nodiscard]] const_iterator begin() const noexcept [[clang::lifetimebound]];
+    [[nodiscard]] const_iterator cbegin() const noexcept [[clang::lifetimebound]];
+    [[nodiscard]] const_iterator end() const noexcept [[clang::lifetimebound]];
+    [[nodiscard]] const_iterator cend() const noexcept [[clang::lifetimebound]];
 
     [[nodiscard]] explicit Package(std::filesystem::path path);
 
-    [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept { return _path; }
-    [[nodiscard]] constexpr const std::string &name() const noexcept { return _name; }
+    [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept [[clang::lifetimebound]] {
+        return _path;
+    }
+    [[nodiscard]] constexpr const std::string &name() const noexcept [[clang::lifetimebound]] {
+        return _name;
+    }
 
     [[nodiscard]] std::optional<Ebuild> operator[](const atom::Version &version) const;
     [[nodiscard]] std::optional<Ebuild> operator[](std::string_view version) const;
@@ -152,8 +167,8 @@ private:
     friend class Package;
 
 public:
-    [[nodiscard]] constexpr reference operator*() const noexcept { return elem; };
-    [[nodiscard]] constexpr pointer operator->() const noexcept { return &elem; };
+    [[nodiscard]] constexpr reference operator*() const noexcept [[clang::lifetimebound]] { return elem; };
+    [[nodiscard]] constexpr pointer operator->() const noexcept [[clang::lifetimebound]] { return &elem; };
 
     Iterator &operator++();
     Iterator operator++(int);
@@ -181,8 +196,8 @@ private:
     friend class Category;
 
 public:
-    [[nodiscard]] constexpr reference operator*() const noexcept { return elem; };
-    [[nodiscard]] constexpr pointer operator->() const noexcept { return &elem; };
+    [[nodiscard]] constexpr reference operator*() const noexcept [[clang::lifetimebound]] { return elem; };
+    [[nodiscard]] constexpr pointer operator->() const noexcept [[clang::lifetimebound]] { return &elem; };
 
     Iterator &operator++();
     Iterator operator++(int);
@@ -212,8 +227,8 @@ private:
     friend class Repository;
 
 public:
-    [[nodiscard]] constexpr reference operator*() const noexcept { return elem; };
-    [[nodiscard]] constexpr pointer operator->() const noexcept { return &elem; };
+    [[nodiscard]] constexpr reference operator*() const noexcept [[clang::lifetimebound]] { return elem; };
+    [[nodiscard]] constexpr pointer operator->() const noexcept [[clang::lifetimebound]] { return &elem; };
 
     Iterator &operator++();
     Iterator operator++(int);
@@ -241,3 +256,6 @@ static_assert(boost::mp11::mp_all_of<all, pms_utils::meta::is_described>{});
 
 } // namespace repo
 } // namespace pms_utils
+
+//
+#include "pms-utils/misc/macro-end.hpp"

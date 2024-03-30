@@ -17,6 +17,9 @@
 #include <type_traits>
 #include <vector>
 
+//
+#include "pms-utils/misc/macro-begin.hpp"
+
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace depend {
 
@@ -50,18 +53,18 @@ template <typename T, typename Derived = void> struct GroupExpr {
     using reference = value_type &;
     using const_iterator = Iterator;
 
-    [[nodiscard]] const_iterator begin() const noexcept {
+    [[nodiscard]] const_iterator begin() const noexcept [[clang::lifetimebound]] {
         GroupExpr::const_iterator ret(*this);
         ret.to_begin();
         return ret;
     };
-    [[nodiscard]] const_iterator cbegin() const noexcept { return begin(); };
-    [[nodiscard]] const_iterator end() const noexcept {
+    [[nodiscard]] const_iterator cbegin() const noexcept [[clang::lifetimebound]] { return begin(); };
+    [[nodiscard]] const_iterator end() const noexcept [[clang::lifetimebound]] {
         GroupExpr::const_iterator ret(*this);
         ret.to_end();
         return ret;
     };
-    [[nodiscard]] const_iterator cend() const noexcept { return end(); };
+    [[nodiscard]] const_iterator cend() const noexcept [[clang::lifetimebound]] { return end(); };
 
     BOOST_DESCRIBE_CLASS(GroupExpr, (), (conditional, nodes, begin, cbegin, end, cend), (), ());
     //  TODO: figure out reverse iterator
@@ -85,9 +88,9 @@ public:
 private:
     const group_type *ast{};
     pointer node{};
-    std::vector<std::size_t> index_ = {};
+    std::vector<std::size_t> index_;
 
-    [[nodiscard]] pointer parent_expr() const {
+    [[nodiscard]] pointer parent_expr() const [[clang::lifetimebound]] {
         if (index_.size() == 1) {
             // TODO
             throw std::out_of_range("TODO");
@@ -100,7 +103,8 @@ private:
     }
     // this returns a new iterator at the given index. It does NOT copy callbacks, nor traverse them towards
     // the new iterator
-    [[nodiscard]] static Iterator AST_at(const group_type &ast, std::span<const std::size_t> index) {
+    [[nodiscard]] static Iterator AST_at(const group_type &ast [[clang::lifetimebound]],
+                                         std::span<const std::size_t> index) {
         auto indexIter = index.begin();
         const Node *node = &ast.nodes.at(*indexIter);
         indexIter++;
@@ -210,8 +214,8 @@ public:
         return lhs <=> rhs == std::strong_ordering::equal;
     }
 
-    [[nodiscard]] constexpr reference operator*() const { return *node; }
-    [[nodiscard]] constexpr pointer operator->() const { return node; }
+    [[nodiscard]] constexpr reference operator*() const [[clang::lifetimebound]] { return *node; }
+    [[nodiscard]] constexpr pointer operator->() const [[clang::lifetimebound]] { return node; }
 
     Iterator &operator++() {
         if (!traverse_downwards()) {
@@ -261,7 +265,10 @@ public:
 
     // this exists solely because std::incrementable is a shithead and requires std::regular
     Iterator() = default;
-    explicit Iterator(const GroupExpr &ast) : ast(static_cast<const group_type *>(&ast)) { to_begin(); };
+    explicit Iterator(const GroupExpr &ast [[clang::lifetimebound]])
+        : ast(static_cast<const group_type *>(&ast)) {
+        to_begin();
+    };
 
     BOOST_DESCRIBE_CLASS(GroupExpr::Iterator, (), (callbacks, index, to_begin, to_end), (),
                          (ast, node, index_, parent_expr, AST_at, traverse_downwards, traverse_right,
@@ -365,3 +372,6 @@ std::ostream &operator<<(std::ostream &out, const GroupExpr<T, Derived> &group) 
 
 } // namespace depend
 } // namespace pms_utils
+
+//
+#include "pms-utils/misc/macro-end.hpp"
