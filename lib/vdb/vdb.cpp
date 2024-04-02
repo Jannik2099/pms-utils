@@ -12,7 +12,7 @@
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace vdb {
 
-std::optional<pms_utils::depend::DependExpr> load_depend(const std::filesystem::path &);
+pms_utils::depend::DependExpr load_depend(const std::filesystem::path &file);
 
 std::string read_vdb_entry(const std::filesystem::path &file) {
     std::ifstream fstream(file);
@@ -78,40 +78,23 @@ Pkg::Pkg(std::filesystem::path path) : _path(std::move(path)) {
     _idepend = load_depend(_path / "IDEPEND");
 }
 
-std::optional<const pms_utils::depend::DependExpr *> Pkg::depend(Pkg::DependKind depkind) const noexcept {
+const pms_utils::depend::DependExpr &Pkg::depend(Pkg::DependKind depkind) const noexcept {
+    using DependKind = pms_utils::vdb::Pkg::DependKind;
     switch (depkind) {
-    case Pkg::DependKind::DEPEND:
-        if (_depend.has_value()) {
-            return &_depend.value();
-        } else {
-            return std::nullopt;
-        }
-    case Pkg::DependKind::BDEPEND:
-        if (_bdepend.has_value()) {
-            return &_bdepend.value();
-        } else {
-            return std::nullopt;
-        }
-    case Pkg::DependKind::RDEPEND:
-        if (_rdepend.has_value()) {
-            return &_rdepend.value();
-        } else {
-            return std::nullopt;
-        }
-    case Pkg::DependKind::IDEPEND:
-        if (_idepend.has_value()) {
-            return &_idepend.value();
-        } else {
-            return std::nullopt;
-        }
-    default:
-        __builtin_unreachable();
+    case DependKind::DEPEND:
+        return _depend;
+    case DependKind::BDEPEND:
+        return _bdepend;
+    case DependKind::RDEPEND:
+        return _rdepend;
+    case DependKind::IDEPEND:
+        return _idepend;
     }
 }
 
-std::optional<pms_utils::depend::DependExpr> load_depend(const std::filesystem::path &file) {
+pms_utils::depend::DependExpr load_depend(const std::filesystem::path &file) {
     if (!std::filesystem::exists(file)) {
-        return std::nullopt;
+        return {};
     }
     auto depend_string = read_vdb_entry(file);
     auto depend_expr = pms_utils::try_parse(depend_string, pms_utils::parsers::nodes());
