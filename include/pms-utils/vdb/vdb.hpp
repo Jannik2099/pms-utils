@@ -3,6 +3,7 @@
 #include "pms-utils/atom/atom.hpp"
 #include "pms-utils/depend/depend.hpp"
 
+#include <chrono>
 #include <cstddef>
 #include <filesystem>
 #include <vector>
@@ -69,6 +70,7 @@ private:
     pms_utils::depend::DependExpr _bdepend;
     pms_utils::depend::DependExpr _rdepend;
     pms_utils::depend::DependExpr _idepend;
+    std::chrono::time_point<std::chrono::system_clock> _build_time;
 
 public:
     enum class DependKind { DEPEND, BDEPEND, RDEPEND, IDEPEND };
@@ -76,6 +78,9 @@ public:
     [[nodiscard]] constexpr const pms_utils::atom::Name &name() const noexcept { return _name; };
     [[nodiscard]] constexpr const pms_utils::atom::Version &version() const noexcept { return _version; };
     [[nodiscard]] const pms_utils::depend::DependExpr &depend(DependKind) const noexcept;
+    [[nodiscard]] std::chrono::time_point<std::chrono::system_clock> build_time() const noexcept {
+        return _build_time;
+    };
 };
 
 } // namespace vdb

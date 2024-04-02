@@ -3,6 +3,7 @@
 #include "pms-utils/misc/try_parse.hpp"
 #include "pms-utils/vdb/vdb.hpp"
 
+#include <charconv>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -13,6 +14,7 @@ namespace [[gnu::visibility("default")]] pms_utils {
 namespace vdb {
 
 pms_utils::depend::DependExpr load_depend(const std::filesystem::path &file);
+std::chrono::time_point<std::chrono::system_clock> load_build_time(const std::filesystem::path &file);
 
 std::string read_vdb_entry(const std::filesystem::path &file) {
     std::ifstream fstream(file);
@@ -76,6 +78,7 @@ Pkg::Pkg(std::filesystem::path path) : _path(std::move(path)) {
     _bdepend = load_depend(_path / "BDEPEND");
     _rdepend = load_depend(_path / "RDEPEND");
     _idepend = load_depend(_path / "IDEPEND");
+    _build_time = load_build_time(_path / "BUILD_TIME");
 }
 
 const pms_utils::depend::DependExpr &Pkg::depend(Pkg::DependKind depkind) const noexcept {
@@ -103,6 +106,16 @@ pms_utils::depend::DependExpr load_depend(const std::filesystem::path &file) {
             std::format("invalid DEPEND in vdb: {}", depend_expr.display(depend_string)));
     }
     return depend_expr.result.value();
+}
+
+std::chrono::time_point<std::chrono::system_clock> load_build_time(const std::filesystem::path &file) {
+    auto build_time = read_vdb_entry(file);
+    std::uint64_t seconds = 0;
+    auto [_, err] = std::from_chars(build_time.data(), build_time.data() + build_time.size(), seconds);
+    if (err != std::errc{}) {
+        throw std::runtime_error(std::format("invalid BUILD_TIME in vdb: {}", build_time));
+    }
+    return std::chrono::time_point<std::chrono::system_clock>(std::chrono::seconds(seconds));
 }
 
 } // namespace vdb
