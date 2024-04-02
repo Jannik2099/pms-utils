@@ -5,7 +5,6 @@
 
 #include <cstddef>
 #include <filesystem>
-#include <optional>
 #include <vector>
 
 namespace [[gnu::visibility("default")]] pms_utils {
@@ -66,17 +65,17 @@ private:
     std::filesystem::path _path;
     pms_utils::atom::Name _name;
     pms_utils::atom::Version _version;
-    std::optional<pms_utils::depend::DependExpr> _depend;
-    std::optional<pms_utils::depend::DependExpr> _bdepend;
-    std::optional<pms_utils::depend::DependExpr> _rdepend;
-    std::optional<pms_utils::depend::DependExpr> _idepend;
+    pms_utils::depend::DependExpr _depend;
+    pms_utils::depend::DependExpr _bdepend;
+    pms_utils::depend::DependExpr _rdepend;
+    pms_utils::depend::DependExpr _idepend;
 
 public:
     enum class DependKind { DEPEND, BDEPEND, RDEPEND, IDEPEND };
     [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept { return _path; };
     [[nodiscard]] constexpr const pms_utils::atom::Name &name() const noexcept { return _name; };
     [[nodiscard]] constexpr const pms_utils::atom::Version &version() const noexcept { return _version; };
-    [[nodiscard]] std::optional<const pms_utils::depend::DependExpr *> depend(DependKind) const noexcept;
+    [[nodiscard]] const pms_utils::depend::DependExpr &depend(DependKind) const noexcept;
 };
 
 } // namespace vdb
