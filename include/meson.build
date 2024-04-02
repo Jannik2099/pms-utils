@@ -17,6 +17,7 @@ install_headers(
         'pms-utils/vdb/vdb.hpp',
         'pms-utils/misc/md5.hpp',
         'pms-utils/misc/try_parse.hpp',
+        'pms-utils/misc/read_file.hpp',
         'pms-utils/misc/x3_utils.hpp',
     ],
     preserve_path: true,

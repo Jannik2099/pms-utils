@@ -1,12 +1,12 @@
 #include "pms-utils/atom/atom_parser.hpp"
 #include "pms-utils/depend/depend_parser.hpp"
+#include "pms-utils/misc/read_file.hpp"
 #include "pms-utils/misc/try_parse.hpp"
 #include "pms-utils/vdb/vdb.hpp"
 
 #include <charconv>
 #include <filesystem>
 #include <format>
-#include <fstream>
 #include <stdexcept>
 #include <string_view>
 
@@ -15,21 +15,6 @@ namespace vdb {
 
 pms_utils::depend::DependExpr load_depend(const std::filesystem::path &file);
 std::chrono::time_point<std::chrono::system_clock> load_build_time(const std::filesystem::path &file);
-
-std::string read_vdb_entry(const std::filesystem::path &file) {
-    std::ifstream fstream(file);
-    if (!fstream.is_open()) {
-        throw std::runtime_error(
-            std::format("failed to open file: {}: {}", file.string(), std::strerror(errno)));
-    }
-    std::stringstream stream;
-    stream << fstream.rdbuf();
-    auto buffer = stream.str();
-    if (buffer.ends_with("\n")) {
-        buffer.pop_back();
-    }
-    return buffer;
-}
 
 Vdb::Vdb(std::filesystem::path path) : _path(std::move(path)) {
     for (const auto &entry : std::filesystem::directory_iterator(_path)) {
@@ -99,7 +84,7 @@ pms_utils::depend::DependExpr load_depend(const std::filesystem::path &file) {
     if (!std::filesystem::exists(file)) {
         return {};
     }
-    auto depend_string = read_vdb_entry(file);
+    auto depend_string = pms_utils::read_file(file);
     auto depend_expr = pms_utils::try_parse(depend_string, pms_utils::parsers::nodes());
     if (depend_expr.status != pms_utils::ParserStatus::Success) {
         throw std::runtime_error(
@@ -109,7 +94,7 @@ pms_utils::depend::DependExpr load_depend(const std::filesystem::path &file) {
 }
 
 std::chrono::time_point<std::chrono::system_clock> load_build_time(const std::filesystem::path &file) {
-    auto build_time = read_vdb_entry(file);
+    auto build_time = pms_utils::read_file(file);
     std::uint64_t seconds = 0;
     auto [_, err] = std::from_chars(build_time.data(), build_time.data() + build_time.size(), seconds);
     if (err != std::errc{}) {
