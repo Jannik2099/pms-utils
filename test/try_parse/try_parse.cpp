@@ -3,7 +3,7 @@
 
 #include <string_view>
 
-int main(int argc, char **argv) {
+int main() {
     const std::string_view atom = "=app-editors/emacs-29.1-r1";
     const std::string_view cpv = "app-editors/emacs-29.1-r1";
 
