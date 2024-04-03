@@ -4,7 +4,7 @@
 #include <format>
 #include <iostream>
 
-int main(int argc, char **argv) {
+int main(int /*unused*/, char **argv) {
     pms_utils::vdb::Vdb vdb(argv[1]);
     for (const auto &cat : vdb) {
         for (const auto &pkg : cat) {

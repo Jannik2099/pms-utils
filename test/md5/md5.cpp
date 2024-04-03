@@ -1,11 +1,9 @@
 #include "pms-utils/misc/md5.hpp"
 
 #include <array>
-#include <iostream>
-#include <string>
 #include <string_view>
 
-int main(int argc, char **argv) {
+int main() {
     std::string_view hex = "EAC660E4F022691921A3F5942D8B7BE0";
     std::array<char, 16> bytes = {
         static_cast<char>(0xea), static_cast<char>(0xc6), static_cast<char>(0x60), static_cast<char>(0xe4),

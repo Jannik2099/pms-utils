@@ -77,6 +77,8 @@ const pms_utils::depend::DependExpr &Pkg::depend(Pkg::DependKind depkind) const 
         return _rdepend;
     case DependKind::IDEPEND:
         return _idepend;
+    default:
+        __builtin_unreachable();
     }
 }
 
