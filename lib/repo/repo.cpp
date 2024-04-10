@@ -171,7 +171,7 @@ Ebuild::Ebuild(std::filesystem::path _path, pms_utils::atom::Name _name, pms_uti
 
 Package::Package(std::filesystem::path path) : _path(std::move(path)), _name(_path.filename().string()) {
     if (!std::filesystem::is_directory(_path)) {
-        throw std::invalid_argument(std::format("provided path {} does not exist", path.string()));
+        throw std::invalid_argument(std::format("provided path {} does not exist", _path.string()));
     }
 }
 Package::const_iterator Package::begin() const noexcept { return Package::const_iterator(*this); }
@@ -203,7 +203,7 @@ std::optional<Ebuild> Package::operator[](std::string_view version) const {
 
 Category::Category(std::filesystem::path path) : _path(std::move(path)), _name(_path.filename().string()) {
     if (!std::filesystem::is_directory(_path)) {
-        throw std::invalid_argument(std::format("provided path {} does not exist", path.string()));
+        throw std::invalid_argument(std::format("provided path {} does not exist", _path.string()));
     }
 }
 Category::const_iterator Category::begin() const noexcept { return Category::const_iterator(*this); }
@@ -232,13 +232,11 @@ std::optional<Package> Category::operator[](std::string_view package) const {
 
 Repository::Repository(std::filesystem::path path) : _path(std::move(path)) {
     if (!std::filesystem::is_directory(_path)) {
-        throw std::invalid_argument(std::format("provided path {} does not exist", path.string()));
+        throw std::invalid_argument(std::format("provided path {} does not exist", _path.string()));
     }
     std::ifstream stream(_path / "profiles" / "repo_name");
-    std::stringstream buf;
-    buf << stream.rdbuf();
     // TODO: validate
-    _name = buf.str();
+    std::getline(stream, _name);
 }
 Repository::const_iterator Repository::begin() const noexcept { return Repository::const_iterator(*this); }
 Repository::const_iterator Repository::cbegin() const noexcept { return begin(); }
