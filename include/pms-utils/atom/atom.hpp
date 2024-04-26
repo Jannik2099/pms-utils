@@ -66,8 +66,8 @@ public:
     // representation for =* matching
     boost::optional<VersionRevision> revision;
 
-    // Extracts the version from any valid package string
-    explicit Version(std::string_view packageString);
+    // Constructs the version from any valid version string
+    explicit Version(std::string_view version_string);
     [[nodiscard]] explicit operator std::string() const;
 
     Version() = default;
