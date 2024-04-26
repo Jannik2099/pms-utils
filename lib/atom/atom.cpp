@@ -1,12 +1,24 @@
 #include "pms-utils/atom/atom.hpp"
 
+#include "pms-utils/atom/atom_parser.hpp"
+
 #include <compare>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace atom {
+
+Version::Version(std::string_view version_string) {
+    if (const auto *begin = version_string.begin();
+        parse(begin, version_string.end(), parsers::package_version(), *this) &&
+        begin == version_string.end()) {
+        return;
+    }
+    throw std::invalid_argument("input is not a PMS version string");
+}
 
 // BEGIN IO
 
