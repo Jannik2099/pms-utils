@@ -4,11 +4,12 @@
 #include "internal.hpp"
 
 #include <array>
-#include <boost/describe/enum_to_string.hpp>
 #include <boost/describe/enumerators.hpp>
 #include <boost/describe/members.hpp>
-#include <boost/mp11.hpp>
+#include <boost/describe/modifiers.hpp>
+#include <boost/mp11/algorithm.hpp>
 #include <boost/mp11/list.hpp>
+#include <boost/mp11/utility.hpp>
 #include <boost/optional.hpp>
 #include <boost/variant.hpp>
 #include <pybind11/attr.h>
@@ -73,7 +74,7 @@ static inline py::object create_bindings(M module_, R rule = false,
     return ret;
 }
 
-template <typename T, typename M, typename R = bool>
+template <typename T, typename H = bool, typename M, typename R = bool>
     requires(std::is_class_v<T> && boost::describe::has_describe_members<T>::value)
 static inline auto create_bindings(M module_, R rule = false) {
     constexpr std::string_view name = bound_type_name<T>::str;
@@ -87,8 +88,12 @@ static inline auto create_bindings(M module_, R rule = false) {
     // for now, only declare inheritance for CRTP
     // need to figure out a way to prevent multiple declarations when e.g. two types inherit from std::string
     using pytype = std::conditional_t<_internal::is_crtp<T>, t_plus_bases, mp_list<T>>;
+
+    // add the holder (i.e. std::shared_ptr<T>) if specified
+    using pytype2 = mp_eval_if_c<std::is_same_v<H, bool>, pytype, mp_push_back, pytype, H>;
+
     static_assert(std::is_same_v<mp_first<pytype>, T>);
-    using pyclass = mp_apply<py::class_, pytype>;
+    using pyclass = mp_apply<py::class_, pytype2>;
 
     // if we are doing CRTP, register the base type as an empty class
     if constexpr (_internal::is_crtp<T>) {
