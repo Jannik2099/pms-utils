@@ -124,7 +124,7 @@ static inline auto create_bindings(M module_, R rule = false) {
     mp_for_each<boost::describe::describe_members<T, boost::describe::mod_public>>(
         [&ret](auto member) { ret.def_readonly(member.name, member.pointer); });
     if constexpr (std::constructible_from<std::string, T>) {
-        ret.def("__str__", [](const T &val) { return std::string(val); });
+        ret.def("__repr__", [](const T &val) { return std::string(val); });
     }
     if constexpr (!std::is_same_v<R, bool>) {
         ret.def(py::init([rule](std::string_view str) { return _internal::expr_from_str(rule(), str); }));
