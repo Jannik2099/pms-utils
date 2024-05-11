@@ -52,6 +52,25 @@ static inline py::object &add_method(py::object &cls, std::string_view name, Fun
     return cls;
 }
 
+template <typename T, typename Pclass> static inline Pclass &bind_getters(Pclass &cls) {
+    using namespace boost::mp11;
+
+    mp_for_each<boost::describe::describe_members<T, boost::describe::mod_private>>([&cls](auto member) {
+        mp_for_each<boost::describe::describe_members<T, boost::describe::mod_public |
+                                                             boost::describe::mod_function>>([&cls, &member](
+                                                                                                 auto mfunc) {
+            if (std::string{mfunc.name} + '_' == member.name) {
+                if constexpr (requires(const T &val) { (val.*mfunc.pointer)(); } &&
+                              std::is_convertible_v<decltype((std::declval<const T &>().*mfunc.pointer)()),
+                                                    decltype(std::declval<const T &>().*member.pointer)>) {
+                    cls.def_property_readonly(mfunc.name, mfunc.pointer);
+                }
+            }
+        });
+    });
+    return cls;
+}
+
 template <typename T, typename M, typename R = bool>
     requires(std::is_enum_v<T> && boost::describe::has_describe_enumerators<T>::value)
 static inline py::object create_bindings(M module_, R rule = false,
@@ -120,6 +139,9 @@ static inline auto create_bindings(M module_, R rule = false) {
             "__iter__", [](const T &val) { return py::make_iterator(std::begin(val), std::end(val)); },
             py::keep_alive<0, 1>());
     }
+
+    bind_getters<T>(ret);
+
     return std::move(ret);
 }
 
