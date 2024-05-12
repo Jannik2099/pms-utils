@@ -56,7 +56,8 @@ struct VersionRevision : public std::string {};
 
 struct Version {
 private:
-    static std::strong_ordering compare_impl(const Version &lhs, const Version &rhs) noexcept;
+    static std::strong_ordering compare_impl(const Version &lhs, const Version &rhs, bool revision) noexcept;
+    static bool compare_td_impl(const Version &lhs, const Version &rhs) noexcept;
 
 public:
     VersionNumber numbers;
@@ -78,11 +79,16 @@ public:
     ~Version() = default;
 
     [[nodiscard]] friend std::strong_ordering operator<=>(const Version &lhs, const Version &rhs) noexcept {
-        return compare_impl(lhs, rhs);
+        return compare_impl(lhs, rhs, true);
     }
     // pybind11 requires this to exist as a friend
     [[nodiscard]] friend bool operator==(const Version &lhs, const Version &rhs) noexcept {
         return lhs <=> rhs == std::strong_ordering::equal;
+    }
+
+    // lhs =~ rhs (equal modulo revision)
+    [[nodiscard]] friend bool compare_td(const Version &lhs, const Version &rhs) noexcept {
+        return compare_td_impl(lhs, rhs);
     }
 };
 
