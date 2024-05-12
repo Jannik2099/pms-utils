@@ -413,7 +413,7 @@ std::strong_ordering operator<=>(VersionSuffixWord lhs, VersionSuffixWord rhs) n
     return order(lhs) <=> order(rhs);
 }
 
-std::strong_ordering Version::compare_impl(const Version &lhs, const Version &rhs) noexcept {
+std::strong_ordering Version::compare_impl(const Version &lhs, const Version &rhs, bool revision) noexcept {
     if (const auto ret1 = algorithm_3_2(lhs.numbers, rhs.numbers); ret1.has_value()) {
         return ret1.value();
     }
@@ -425,9 +425,16 @@ std::strong_ordering Version::compare_impl(const Version &lhs, const Version &rh
     if (const auto ret3 = algorithm_3_5(lhs.suffixes, rhs.suffixes); ret3.has_value()) {
         return ret3.value();
     }
-    const auto ret4 = algorithm_3_7(lhs.revision.value_or(VersionRevision("0")),
-                                    rhs.revision.value_or(VersionRevision("0")));
+    if (!revision) {
+        return std::strong_ordering::equal;
+    }
+    const auto ret4 = algorithm_3_7(lhs.revision.value_or(VersionRevision{"0"}),
+                                    rhs.revision.value_or(VersionRevision{"0"}));
     return ret4.value_or(std::strong_ordering::equal);
+}
+
+bool Version::compare_td_impl(const Version &lhs, const Version &rhs) noexcept {
+    return compare_impl(lhs, rhs, false) == std::strong_ordering::equal;
 }
 
 } // namespace atom
