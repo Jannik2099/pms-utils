@@ -13,7 +13,7 @@ namespace atom {
 
 Version::Version(std::string_view version_string) {
     if (const auto *begin = version_string.begin();
-        parse(begin, version_string.end(), parsers::package_version(), *this) &&
+        parse(begin, version_string.end(), parsers::atom::package_version(), *this) &&
         begin == version_string.end()) {
         return;
     }

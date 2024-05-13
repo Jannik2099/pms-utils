@@ -6,10 +6,12 @@ namespace parsers = pms_utils::parsers;
 
 int main() {
     bool success = true;
-    success &= try_parse("https://github.com/vim/vim/archive/v1.tar.gz", parsers::uri()).as_expected;
-    success &= try_parse("https://github.com/vim/vim/archive/v1.tar.gz", parsers::uri_elem()).as_expected;
-    success &= try_parse("https://github.com/vim/vim/archive/v1.tar.gz -> vim-1.tar.gz", parsers::uri_elem())
-                   .as_expected;
+    success &= try_parse("https://github.com/vim/vim/archive/v1.tar.gz", parsers::ebuild::uri()).as_expected;
+    success &=
+        try_parse("https://github.com/vim/vim/archive/v1.tar.gz", parsers::ebuild::uri_elem()).as_expected;
+    success &=
+        try_parse("https://github.com/vim/vim/archive/v1.tar.gz -> vim-1.tar.gz", parsers::ebuild::uri_elem())
+            .as_expected;
 
     if (!success) {
         return 1;
