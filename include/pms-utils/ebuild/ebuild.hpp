@@ -6,11 +6,7 @@
 
 #include <boost/describe/class.hpp>
 #include <boost/describe/enum.hpp>
-#include <boost/describe/enumerators.hpp>
-#include <boost/describe/members.hpp>
-#include <boost/mp11/algorithm.hpp>
 #include <boost/mp11/list.hpp>
-#include <boost/mp11/set.hpp>
 #include <boost/optional.hpp>
 #include <filesystem>
 #include <ostream>
@@ -163,8 +159,6 @@ using all = boost::mp11::mp_list<URI, uri_elem, src_uri, restrict_elem::Type, re
                                  homepage, license_elem, license, keyword, keywords, inherited_elem,
                                  inherited, iuse_elem, iuse, required_use, eapi, properties_elem::Type,
                                  properties_elem, properties, defined_phases, Metadata>;
-static_assert(boost::mp11::mp_is_set<all>{});
-static_assert(boost::mp11::mp_all_of<all, pms_utils::meta::is_described>{});
 
 } // namespace meta
 
@@ -201,3 +195,5 @@ std::ostream &operator<<(std::ostream &out, const defined_phases &defined_phases
 
 } // namespace ebuild
 } // namespace pms_utils
+
+PMS_UTILS_FOOTER(ebuild);
