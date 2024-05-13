@@ -17,11 +17,11 @@ namespace pms_utils::bindings::python::depend {
 void _register(py::module &_module) {
     py::module depend = _module.def_submodule("depend");
 
-    auto py_UseConditional = create_bindings<UseConditional>(depend, parsers::use_cond);
+    auto py_UseConditional = create_bindings<UseConditional>(depend, parsers::depend::use_cond);
 
     auto py_GroupHeaderOp = create_bindings<GroupHeaderOp>(depend);
 
-    auto py_DependExpr = create_bindings<DependExpr>(depend, parsers::nodes);
+    auto py_DependExpr = create_bindings<DependExpr>(depend, parsers::depend::nodes);
 }
 
 } // namespace pms_utils::bindings::python::depend

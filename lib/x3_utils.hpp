@@ -44,18 +44,19 @@ BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::properties, conditional, nodes);
 
 #define PARSER_DEFINE(name, rule)                                                                            \
     namespace [[gnu::visibility("default")]] _parsers {                                                      \
-    const _##name##_type _##name{#name};                                                                     \
-    const auto _##name##_def = rule;                                                                         \
-    BOOST_SPIRIT_DEFINE(_##name);                                                                            \
-    BOOST_SPIRIT_INSTANTIATE(_##name##_type, std::string_view::const_iterator,                               \
+    const name##_spirit_rule_t name##_spirit_rule{#name};                                                    \
+    const auto name##_spirit_rule_def = rule;                                                                \
+    BOOST_SPIRIT_DEFINE(name##_spirit_rule);                                                                 \
+    BOOST_SPIRIT_INSTANTIATE(name##_spirit_rule_t, std::string_view::const_iterator,                         \
                              x3::phrase_parse_context<x3::ascii::space_type>::type);                         \
-    BOOST_SPIRIT_INSTANTIATE(_##name##_type, std::string_view::const_iterator,                               \
+    BOOST_SPIRIT_INSTANTIATE(name##_spirit_rule_t, std::string_view::const_iterator,                         \
                              boost::spirit::x3::unused_type);                                                \
-    BOOST_SPIRIT_INSTANTIATE(_##name##_type, std::string::const_iterator,                                    \
+    BOOST_SPIRIT_INSTANTIATE(name##_spirit_rule_t, std::string::const_iterator,                              \
                              x3::phrase_parse_context<x3::ascii::space_type>::type);                         \
-    BOOST_SPIRIT_INSTANTIATE(_##name##_type, std::string::const_iterator, boost::spirit::x3::unused_type);   \
-    BOOST_SPIRIT_INSTANTIATE(_##name##_type, std::string::iterator,                                          \
+    BOOST_SPIRIT_INSTANTIATE(name##_spirit_rule_t, std::string::const_iterator,                              \
+                             boost::spirit::x3::unused_type);                                                \
+    BOOST_SPIRIT_INSTANTIATE(name##_spirit_rule_t, std::string::iterator,                                    \
                              x3::phrase_parse_context<x3::ascii::space_type>::type);                         \
-    BOOST_SPIRIT_INSTANTIATE(_##name##_type, std::string::iterator, boost::spirit::x3::unused_type);         \
+    BOOST_SPIRIT_INSTANTIATE(name##_spirit_rule_t, std::string::iterator, boost::spirit::x3::unused_type);   \
     }                                                                                                        \
-    _parsers::_##name##_type name() { return _parsers::_##name; }
+    _parsers::name##_spirit_rule_t name() { return _parsers::name##_spirit_rule; }

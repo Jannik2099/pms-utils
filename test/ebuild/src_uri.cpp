@@ -6,8 +6,9 @@ namespace parsers = pms_utils::parsers;
 
 int main() {
     bool success = true;
-    success &= try_parse("https://foo.com/bar/v1.tar.gz", parsers::SRC_URI()).as_expected;
-    success &= try_parse("https://foo.com/bar/v1.tar.gz -> bar-1.tar.gz", parsers::SRC_URI()).as_expected;
+    success &= try_parse("https://foo.com/bar/v1.tar.gz", parsers::ebuild::SRC_URI()).as_expected;
+    success &=
+        try_parse("https://foo.com/bar/v1.tar.gz -> bar-1.tar.gz", parsers::ebuild::SRC_URI()).as_expected;
 
     const std::string str = R"---(
         foo? ( https://foo.com/bar/v1.tar.gz -> bar-1.tar.gz )
@@ -18,7 +19,7 @@ int main() {
         )
     )---";
 
-    success &= try_parse(str, parsers::SRC_URI()).as_expected;
+    success &= try_parse(str, parsers::ebuild::SRC_URI()).as_expected;
 
     if (!success) {
         return 1;
