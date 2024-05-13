@@ -5,6 +5,7 @@
 #include "pms-utils/misc/meta.hpp"
 
 #include <boost/describe.hpp>
+#include <boost/mp11/list.hpp>
 #include <filesystem>
 #include <optional>
 #include <string>
@@ -247,8 +248,6 @@ namespace meta {
 
 using all = boost::mp11::mp_list<Ebuild, Category, Repository, Package, Package::Iterator, Category::Iterator,
                                  Repository::Iterator>;
-static_assert(boost::mp11::mp_is_set<all>{});
-static_assert(boost::mp11::mp_all_of<all, pms_utils::meta::is_described>{});
 
 } // namespace meta
 
@@ -256,6 +255,8 @@ static_assert(boost::mp11::mp_all_of<all, pms_utils::meta::is_described>{});
 
 } // namespace repo
 } // namespace pms_utils
+
+PMS_UTILS_FOOTER(repo);
 
 //
 #include "pms-utils/misc/macro-end.hpp"
