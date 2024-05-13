@@ -119,7 +119,7 @@ struct Metadata {
 
 // BEGIN DESCRIBE
 
-BOOST_DESCRIBE_STRUCT(URI, (std::string), ());
+BOOST_DESCRIBE_STRUCT(URI, (), ());
 
 BOOST_DESCRIBE_STRUCT(uri_elem, (), (uri, filename));
 BOOST_DESCRIBE_STRUCT(src_uri, (src_uri::Base), ());
@@ -130,27 +130,27 @@ BOOST_DESCRIBE_STRUCT(restrict, (restrict ::Base), ());
 
 BOOST_DESCRIBE_STRUCT(homepage, (homepage::Base), ());
 
-BOOST_DESCRIBE_STRUCT(license_elem, (std::string), ());
+BOOST_DESCRIBE_STRUCT(license_elem, (), ());
 BOOST_DESCRIBE_STRUCT(license, (license::Base), ());
 
-BOOST_DESCRIBE_STRUCT(keyword, (std::string), ());
-BOOST_DESCRIBE_STRUCT(keywords, (std::vector<keyword>), ());
+BOOST_DESCRIBE_STRUCT(keyword, (), ());
+BOOST_DESCRIBE_STRUCT(keywords, (), ());
 
-BOOST_DESCRIBE_STRUCT(inherited_elem, (std::string), ());
-BOOST_DESCRIBE_STRUCT(inherited, (std::vector<inherited_elem>), ());
+BOOST_DESCRIBE_STRUCT(inherited_elem, (), ());
+BOOST_DESCRIBE_STRUCT(inherited, (), ());
 
 BOOST_DESCRIBE_STRUCT(iuse_elem, (), (default_enabled, useflag));
-BOOST_DESCRIBE_STRUCT(iuse, (std::vector<iuse_elem>), ());
+BOOST_DESCRIBE_STRUCT(iuse, (), ());
 
 BOOST_DESCRIBE_STRUCT(required_use, (required_use::Base), ());
 
-BOOST_DESCRIBE_STRUCT(eapi, (std::string), ());
+BOOST_DESCRIBE_STRUCT(eapi, (), ());
 
 BOOST_DESCRIBE_ENUM(properties_elem::Type, UNKNOWN, interactive, live, test_network);
 BOOST_DESCRIBE_STRUCT(properties_elem, (), (string, type));
 BOOST_DESCRIBE_STRUCT(properties, (properties::Base), ());
 
-BOOST_DESCRIBE_STRUCT(defined_phases, (std::vector<phases>), ());
+BOOST_DESCRIBE_STRUCT(defined_phases, (), ());
 
 BOOST_DESCRIBE_STRUCT(Metadata, (),
                       (DEPEND, RDEPEND, SLOT, SRC_URI, RESTRICT, HOMEPAGE, LICENSE, DESCRIPTION, KEYWORDS,
