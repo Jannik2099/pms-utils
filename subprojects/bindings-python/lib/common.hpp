@@ -52,8 +52,11 @@ static inline py::object &add_method(py::object &cls, std::string_view name, Fun
     return cls;
 }
 
-template <typename T, typename Pclass> static inline Pclass &bind_getters(Pclass &cls) {
+template <typename T, typename Pclass> static inline Pclass &bind_members_and_getters(Pclass &cls) {
     using namespace boost::mp11;
+
+    mp_for_each<boost::describe::describe_members<T, boost::describe::mod_public>>(
+        [&cls](auto member) { cls.def_readonly(member.name, member.pointer); });
 
     mp_for_each<boost::describe::describe_members<T, boost::describe::mod_private>>([&cls](auto member) {
         mp_for_each<boost::describe::describe_members<T, boost::describe::mod_public |
@@ -99,30 +102,29 @@ static inline auto create_bindings(M module_, R rule = false) {
     constexpr std::string_view name = bound_type_name<T>::str;
     using namespace boost::mp11;
 
+    /* we don't expose bases right now as nothing uses them (crtp is handled separately).
+       leave these snippets here for posterity.
     // this extracts the bases from T and transforms them such that py::class_<T, ...Bases>
     using bases = boost::describe::describe_bases<T, boost::describe::mod_any_access>;
     // if no inheritance, bases is empty and thus mp_first<bases> not a valid expression
     // otherwise, bases already contains T (why?)
     using t_plus_bases = mp_eval_or<mp_list<T>, mp_first, bases>;
-    // for now, only declare inheritance for CRTP
-    // need to figure out a way to prevent multiple declarations when e.g. two types inherit from std::string
-    using pytype = std::conditional_t<_internal::is_crtp<T>, t_plus_bases, mp_list<T>>;
+    */
 
     // add the holder (i.e. std::shared_ptr<T>) if specified
-    using pytype2 = mp_eval_if_c<std::is_same_v<H, bool>, pytype, mp_push_back, pytype, H>;
+    using pytype = mp_eval_if_c<std::is_same_v<H, bool>, mp_list<T>, mp_push_back, mp_list<T>, H>;
 
     static_assert(std::is_same_v<mp_first<pytype>, T>);
-    using pyclass = mp_apply<py::class_, pytype2>;
-
-    // if we are doing CRTP, register the base type as an empty class
-    if constexpr (_internal::is_crtp<T>) {
-        using crtp_base = mp_second<pytype>;
-        py::class_<crtp_base>(module_, (std::string("_crtp_") + std::string(name)).data());
-    }
+    using pyclass = mp_apply<py::class_, pytype>;
 
     auto ret = pyclass(module_, std::string(name).data());
-    mp_for_each<boost::describe::describe_members<T, boost::describe::mod_public>>(
-        [&ret](auto member) { ret.def_readonly(member.name, member.pointer); });
+
+    // bind crtp members directly so we don't have to expose the base class
+    if constexpr (_internal::is_crtp<T>) {
+        bind_members_and_getters<typename T::Base>(ret);
+    }
+    bind_members_and_getters<T>(ret);
+
     if constexpr (std::constructible_from<std::string, T>) {
         ret.def("__repr__", [](const T &val) { return std::string(val); });
     }
@@ -139,8 +141,6 @@ static inline auto create_bindings(M module_, R rule = false) {
             "__iter__", [](const T &val) { return py::make_iterator(std::begin(val), std::end(val)); },
             py::keep_alive<0, 1>());
     }
-
-    bind_getters<T>(ret);
 
     return std::move(ret);
 }
