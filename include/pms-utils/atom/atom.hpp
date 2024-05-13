@@ -164,19 +164,19 @@ struct PackageExpr {
 
 BOOST_DESCRIBE_ENUM(VersionSpecifier, lt, le, eq, ea, td, ge, gt);
 
-BOOST_DESCRIBE_STRUCT(VersionNumber, (std::vector<std::string>), ());
+BOOST_DESCRIBE_STRUCT(VersionNumber, (), ());
 
 BOOST_DESCRIBE_ENUM(VersionSuffixWord, alpha, beta, pre, rc, p);
 
 BOOST_DESCRIBE_STRUCT(VersionSuffix, (), (word, number));
 
-BOOST_DESCRIBE_STRUCT(VersionRevision, (std::string), ());
+BOOST_DESCRIBE_STRUCT(VersionRevision, (), ());
 
 BOOST_DESCRIBE_STRUCT(Version, (), (numbers, letter, suffixes, revision));
 
 BOOST_DESCRIBE_ENUM(Blocker, weak, strong);
 
-BOOST_DESCRIBE_STRUCT(SlotNoSubslot, (std::string), ());
+BOOST_DESCRIBE_STRUCT(SlotNoSubslot, (), ());
 
 BOOST_DESCRIBE_STRUCT(Slot, (), (slot, subslot));
 
@@ -184,18 +184,18 @@ BOOST_DESCRIBE_ENUM(SlotVariant, none, star, equal);
 
 BOOST_DESCRIBE_STRUCT(SlotExpr, (), (slotVariant, slot));
 
-BOOST_DESCRIBE_STRUCT(Category, (std::string), ());
+BOOST_DESCRIBE_STRUCT(Category, (), ());
 
-BOOST_DESCRIBE_STRUCT(Name, (std::string), ());
+BOOST_DESCRIBE_STRUCT(Name, (), ());
 
-BOOST_DESCRIBE_STRUCT(Useflag, (std::string), ());
+BOOST_DESCRIBE_STRUCT(Useflag, (), ());
 
 BOOST_DESCRIBE_ENUM(UsedepNegate, minus, exclamation);
 BOOST_DESCRIBE_ENUM(UsedepSign, plus, minus);
 BOOST_DESCRIBE_ENUM(UsedepCond, eqal, question);
 
 BOOST_DESCRIBE_STRUCT(Usedep, (), (negate, useflag, sign, conditional));
-BOOST_DESCRIBE_STRUCT(Usedeps, (std::vector<Usedep>), ());
+BOOST_DESCRIBE_STRUCT(Usedeps, (), ());
 
 BOOST_DESCRIBE_STRUCT(PackageExpr, (), (blocker, category, name, verspec, version, slotExpr, usedeps));
 
