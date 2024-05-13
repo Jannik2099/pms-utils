@@ -29,3 +29,5 @@ if get_option('test')
         subdir('test')
     endif
 endif
+
+subdir('stubs')
