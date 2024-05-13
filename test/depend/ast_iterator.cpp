@@ -41,7 +41,7 @@ int main() {
                                             "foo/foo3", "bar2?",    "foo/foo4", "foo/foo5", "foo/foo6",
                                             "foo/foo7", "bar3?",    "foo/foo8"};
 
-    const auto res = try_parse(test, parsers::nodes());
+    const auto res = try_parse(test, parsers::depend::nodes());
     if (!res.as_expected) {
         return 1;
     }

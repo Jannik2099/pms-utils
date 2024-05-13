@@ -8,13 +8,15 @@
 #include "../x3_utils.hpp"
 
 namespace [[gnu::visibility("default")]] pms_utils {
-namespace parsers {
+namespace parsers::depend {
+
+namespace x3 = boost::spirit::x3;
 
 namespace {
-struct GroupHeaderOp final : x3::symbols<depend::GroupHeaderOp> {
+struct GroupHeaderOp final : x3::symbols<pms_utils::depend::GroupHeaderOp> {
     // clang-format off
     GroupHeaderOp() {
-        using enum depend::GroupHeaderOp;
+        using enum pms_utils::depend::GroupHeaderOp;
         add
             ("||", any_of)
             ("^^", exactly_one_of)
@@ -25,12 +27,12 @@ struct GroupHeaderOp final : x3::symbols<depend::GroupHeaderOp> {
 };
 } // namespace
 
-PARSER_DEFINE(use_cond, x3::matches["!"] >> useflag() >> x3::lit("?"));
+PARSER_DEFINE(use_cond, x3::matches["!"] >> parsers::atom::useflag() >> x3::lit("?"));
 PARSER_DEFINE(conds, use_cond() | GroupHeaderOp());
 
 PARSER_DEFINE(group, GroupTemplate1(node));
-PARSER_DEFINE(node, package_dep() | group());
+PARSER_DEFINE(node, atom::package_dep() | group());
 PARSER_DEFINE(nodes, GroupTemplate2(node));
 
-} // namespace parsers
+} // namespace parsers::depend
 } // namespace pms_utils

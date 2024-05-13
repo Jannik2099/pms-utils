@@ -82,7 +82,7 @@ template <template <typename, typename> typename T, typename T1, typename T2> st
     using first = T1;
     using second = T2;
 
-    explicit extract_crtp(T<T1, T2> /*unused*/){};
+    explicit extract_crtp(T<T1, T2> /*unused*/) {};
 };
 
 template <typename T>

@@ -6,25 +6,25 @@
 #include <boost/spirit/home/x3.hpp>
 
 namespace [[gnu::visibility("default")]] pms_utils {
-namespace parsers {
+namespace parsers::depend {
 
-namespace x3 = boost::spirit::x3;
-
-PARSER_RULE_T(use_cond, depend::UseConditional);
-PARSER_RULE_T(conds, depend::GroupHeader);
+PARSER_RULE_T(use_cond, pms_utils::depend::UseConditional);
+PARSER_RULE_T(conds, pms_utils::depend::GroupHeader);
 
 // myeah this is kinda icky. Suggestions welcome
 template <typename Rule> constexpr static auto GroupTemplate1(Rule rule) {
-    return -(conds() >> x3::omit[+x3::space]) >> x3::lit("(") >> x3::omit[+x3::space] >>
-           rule() % +x3::space >> x3::omit[+x3::space] >> x3::lit(")");
+    return -(conds() >> boost::spirit::x3::omit[+boost::spirit::x3::space]) >> boost::spirit::x3::lit("(") >>
+           boost::spirit::x3::omit[+boost::spirit::x3::space] >> rule() % +boost::spirit::x3::space >>
+           boost::spirit::x3::omit[+boost::spirit::x3::space] >> boost::spirit::x3::lit(")");
 }
 template <typename Rule> constexpr static auto GroupTemplate2(Rule rule) {
-    return x3::attr(boost::none) >> x3::omit[*x3::space] >> rule() % +x3::space >> x3::omit[*x3::space];
+    return boost::spirit::x3::attr(boost::none) >> boost::spirit::x3::omit[*boost::spirit::x3::space] >>
+           rule() % +boost::spirit::x3::space >> boost::spirit::x3::omit[*boost::spirit::x3::space];
 }
 
-PARSER_RULE_T(group, depend::DependExpr);
-PARSER_RULE_T(node, depend::DependExpr::Node);
-PARSER_RULE_T(nodes, depend::DependExpr);
+PARSER_RULE_T(group, pms_utils::depend::DependExpr);
+PARSER_RULE_T(node, pms_utils::depend::DependExpr::Node);
+PARSER_RULE_T(nodes, pms_utils::depend::DependExpr);
 
-} // namespace parsers
+} // namespace parsers::depend
 } // namespace pms_utils

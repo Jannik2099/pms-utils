@@ -22,7 +22,7 @@ int main() {
     default-lld? ( sys-devel/lld )
     )---";
 
-    const auto ret = try_parse(str, parsers::nodes());
+    const auto ret = try_parse(str, parsers::depend::nodes());
 
     if (!ret.as_expected) {
         return 1;

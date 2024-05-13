@@ -11,7 +11,9 @@
 #include "../x3_utils.hpp"
 
 namespace [[gnu::visibility("default")]] pms_utils {
-namespace parsers {
+namespace parsers::ebuild {
+
+namespace x3 = boost::spirit::x3;
 
 namespace {
 
@@ -41,9 +43,9 @@ constexpr inline auto filename_helper = [](auto &ctx) {
 
 constexpr auto restrict_elem_helper = [](auto &ctx) {
     std::string_view attr = x3::_attr(ctx);
-    ebuild::restrict_elem &val = x3::_val(ctx);
+    pms_utils::ebuild::restrict_elem &val = x3::_val(ctx);
     val.string = attr;
-    using enum ebuild::restrict_elem::Type;
+    using enum pms_utils::ebuild::restrict_elem::Type;
     if (attr == "mirror") {
         val.type = mirror;
     } else if (attr == "fetch") {
@@ -80,9 +82,9 @@ constexpr auto keyword_helper = [](auto &ctx) {
 
 constexpr auto properties_elem_helper = [](auto &ctx) {
     std::string_view attr = x3::_attr(ctx);
-    ebuild::properties_elem &val = x3::_val(ctx);
+    pms_utils::ebuild::properties_elem &val = x3::_val(ctx);
     val.string = attr;
-    using enum ebuild::properties_elem::Type;
+    using enum pms_utils::ebuild::properties_elem::Type;
     if (attr == "interactive") {
         val.type = interactive;
     } else if (attr == "live") {
@@ -92,10 +94,10 @@ constexpr auto properties_elem_helper = [](auto &ctx) {
     }
 };
 
-struct phases_token final : x3::symbols<ebuild::phases> {
+struct phases_token final : x3::symbols<pms_utils::ebuild::phases> {
     // clang-format off
     phases_token() {
-        using enum ebuild::phases;
+        using enum pms_utils::ebuild::phases;
         add
             ("pretend", pretend)
             ("setup", setup)
@@ -119,39 +121,56 @@ struct phases_token final : x3::symbols<ebuild::phases> {
 
 } // namespace
 
-PARSER_RULE_T(internal_filename, std::filesystem::path);
-PARSER_DEFINE(internal_filename, (+x3::graph)[filename_helper])
+namespace [[gnu::visibility("hidden")]] _internal {
 
-PARSER_RULE_T(internal_src_uri_node, ebuild::src_uri::Node);
-PARSER_RULE_T(internal_src_uri_group, ebuild::src_uri);
-PARSER_DEFINE(internal_src_uri_node, uri_elem() | internal_src_uri_group());
-PARSER_DEFINE(internal_src_uri_group, GroupTemplate1(internal_src_uri_node));
+PARSER_RULE_T(filename, std::filesystem::path);
+PARSER_DEFINE(filename, (+x3::graph)[filename_helper])
+
+PARSER_RULE_T(src_uri_node, pms_utils::ebuild::src_uri::Node);
+PARSER_RULE_T(src_uri_group, pms_utils::ebuild::src_uri);
+PARSER_DEFINE(src_uri_node, uri_elem() | src_uri_group());
+PARSER_DEFINE(src_uri_group, depend::GroupTemplate1(src_uri_node));
+
+PARSER_RULE_T(restrict_node, pms_utils::ebuild::restrict ::Node);
+PARSER_RULE_T(restrict_group, pms_utils::ebuild::restrict);
+PARSER_DEFINE(restrict_node, restrict_elem() | restrict_group());
+PARSER_DEFINE(restrict_group, depend::GroupTemplate1(restrict_node));
+
+PARSER_RULE_T(homepage_node, pms_utils::ebuild::homepage::Node);
+PARSER_RULE_T(homepage_group, pms_utils::ebuild::homepage);
+PARSER_DEFINE(homepage_node, uri() | homepage_group());
+PARSER_DEFINE(homepage_group, depend::GroupTemplate1(homepage_node));
+
+PARSER_RULE_T(license_node, pms_utils::ebuild::license::Node);
+PARSER_RULE_T(license_group, pms_utils::ebuild::license);
+PARSER_DEFINE(license_node, license_elem() | license_group());
+PARSER_DEFINE(license_group, depend::GroupTemplate1(license_node));
+
+PARSER_RULE_T(required_use_node, pms_utils::ebuild::required_use::Node);
+PARSER_RULE_T(required_use_group, pms_utils::ebuild::required_use);
+PARSER_DEFINE(required_use_node, atom::use_dep() | required_use_group());
+PARSER_DEFINE(required_use_group, depend::GroupTemplate1(required_use_node));
+
+PARSER_RULE_T(properties_node, pms_utils::ebuild::properties::Node);
+PARSER_RULE_T(properties_group, pms_utils::ebuild::properties);
+PARSER_DEFINE(properties_node, properties_elem() | properties_group());
+PARSER_DEFINE(properties_group, depend::GroupTemplate1(properties_node));
+
+} // namespace _internal
 
 PARSER_DEFINE(uri, (+(x3::alpha | x3::char_("+")) >> x3::string("://") >> +x3::graph)[uri_helper]);
 PARSER_DEFINE(uri_elem, (uri() >> -(x3::omit[+x3::space] >> x3::lit("->") >> x3::omit[+x3::space] >>
-                                    internal_filename())) |
-                            (internal_filename() >> x3::attr(boost::none)));
-PARSER_DEFINE(SRC_URI, GroupTemplate2(internal_src_uri_node));
+                                    _internal::filename())) |
+                            (_internal::filename() >> x3::attr(boost::none)));
+PARSER_DEFINE(SRC_URI, depend::GroupTemplate2(_internal::src_uri_node));
 
 PARSER_DEFINE(restrict_elem, (+x3::graph)[restrict_elem_helper]);
-PARSER_RULE_T(internal_restrict_node, ebuild::restrict ::Node);
-PARSER_RULE_T(internal_restrict_group, ebuild::restrict);
-PARSER_DEFINE(internal_restrict_node, restrict_elem() | internal_restrict_group());
-PARSER_DEFINE(internal_restrict_group, GroupTemplate1(internal_restrict_node));
-PARSER_DEFINE(RESTRICT, GroupTemplate2(internal_restrict_node));
+PARSER_DEFINE(RESTRICT, depend::GroupTemplate2(_internal::restrict_node));
 
-PARSER_RULE_T(internal_homepage_node, ebuild::homepage::Node);
-PARSER_RULE_T(internal_homepage_group, ebuild::homepage);
-PARSER_DEFINE(internal_homepage_node, uri() | internal_homepage_group());
-PARSER_DEFINE(internal_homepage_group, GroupTemplate1(internal_homepage_node))
-PARSER_DEFINE(HOMEPAGE, GroupTemplate2(internal_homepage_node));
+PARSER_DEFINE(HOMEPAGE, depend::GroupTemplate2(_internal::homepage_node));
 
 PARSER_DEFINE(license_elem, x3::char_("A-Za-z0-9_") >> *x3::char_("A-Za-z0-9+_.-") >> &(x3::space | x3::eoi));
-PARSER_RULE_T(internal_license_node, ebuild::license::Node);
-PARSER_RULE_T(internal_license_group, ebuild::license);
-PARSER_DEFINE(internal_license_node, license_elem() | internal_license_group());
-PARSER_DEFINE(internal_license_group, GroupTemplate1(internal_license_node));
-PARSER_DEFINE(LICENSE, GroupTemplate2(internal_license_node));
+PARSER_DEFINE(LICENSE, depend::GroupTemplate2(_internal::license_node));
 
 PARSER_DEFINE(keyword, ((x3::char_("-") >> x3::char_("*")) | (-x3::char_("-~") >> x3::char_("A-Za-z0-9_") >>
                                                               *x3::char_("A-Za-z0-9_-")))[keyword_helper]);
@@ -160,26 +179,18 @@ PARSER_DEFINE(KEYWORDS, keyword() % +x3::space);
 PARSER_DEFINE(inherited_elem, +x3::graph);
 PARSER_DEFINE(INHERITED, inherited_elem() % +x3::space);
 
-PARSER_DEFINE(iuse_elem, -x3::char_("+") >> useflag());
+PARSER_DEFINE(iuse_elem, -x3::char_("+") >> atom::useflag());
 PARSER_DEFINE(IUSE, iuse_elem() % +x3::space);
 
-PARSER_RULE_T(internal_required_use_node, ebuild::required_use::Node);
-PARSER_RULE_T(internal_required_use_group, ebuild::required_use);
-PARSER_DEFINE(internal_required_use_node, use_dep() | internal_required_use_group());
-PARSER_DEFINE(internal_required_use_group, GroupTemplate1(internal_required_use_node));
-PARSER_DEFINE(REQUIRED_USE, GroupTemplate2(internal_required_use_node));
+PARSER_DEFINE(REQUIRED_USE, depend::GroupTemplate2(_internal::required_use_node));
 
 PARSER_DEFINE(EAPI, x3::char_("A-Za-z0-9_") >> *x3::char_("A-Za-z0-9+_.-"));
 
 PARSER_DEFINE(properties_elem, (+x3::graph)[properties_elem_helper]);
-PARSER_RULE_T(internal_properties_node, ebuild::properties::Node);
-PARSER_RULE_T(internal_properties_group, ebuild::properties);
-PARSER_DEFINE(internal_properties_node, properties_elem() | internal_properties_group());
-PARSER_DEFINE(internal_properties_group, GroupTemplate1(internal_properties_node));
-PARSER_DEFINE(PROPERTIES, GroupTemplate2(internal_properties_node));
+PARSER_DEFINE(PROPERTIES, depend::GroupTemplate2(_internal::properties_node));
 
 PARSER_DEFINE(phases, phases_token());
 PARSER_DEFINE(DEFINED_PHASES, x3::lit("-") | (phases() % +x3::space));
 
-} // namespace parsers
+} // namespace parsers::ebuild
 } // namespace pms_utils
