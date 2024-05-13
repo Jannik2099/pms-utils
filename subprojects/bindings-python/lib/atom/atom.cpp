@@ -61,8 +61,8 @@ void _register(py::module &_module) {
 
     auto py_Useflag = create_bindings<Useflag>(atom);
 
+    auto py_UsedepNegate = create_bindings<UsedepNegate>(atom);
     auto py_UsedepSign = create_bindings<UsedepSign>(atom);
-
     auto py_UsedepCond = create_bindings<UsedepCond>(atom);
 
     auto py_Usedep = create_bindings<Usedep>(atom, parsers::atom::use_dep);
