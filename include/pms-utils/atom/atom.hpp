@@ -4,9 +4,7 @@
 
 #include <boost/describe/class.hpp>
 #include <boost/describe/enum.hpp>
-#include <boost/mp11/algorithm.hpp>
 #include <boost/mp11/list.hpp>
-#include <boost/mp11/set.hpp>
 #include <boost/optional.hpp>
 #include <boost/variant/variant.hpp>
 #include <compare>
@@ -205,8 +203,6 @@ using all =
     boost::mp11::mp_list<VersionSpecifier, VersionNumber, VersionSuffixWord, VersionSuffix, VersionRevision,
                          Version, Blocker, SlotNoSubslot, Slot, SlotVariant, SlotExpr, Category, Name,
                          Useflag, UsedepNegate, UsedepSign, UsedepCond, Usedep, Usedeps, PackageExpr>;
-static_assert(boost::mp11::mp_is_set<all>{});
-static_assert(boost::mp11::mp_all_of<all, pms_utils::meta::is_described>{});
 
 } // namespace meta
 
@@ -252,3 +248,5 @@ std::ostream &operator<<(std::ostream &out, const PackageExpr &package);
 
 } // namespace atom
 } // namespace pms_utils
+
+PMS_UTILS_FOOTER(atom);
