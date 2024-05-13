@@ -6,6 +6,7 @@ bindings_py_pyi = [files('__init__.pyi')]
 subdir('atom')
 subdir('depend')
 subdir('ebuild')
+subdir('profile')
 subdir('repo')
 
 mod_bindings_py = py_installation.extension_module(
