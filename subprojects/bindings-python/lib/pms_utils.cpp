@@ -1,6 +1,7 @@
 #include "atom/atom.hpp"
 #include "depend/depend.hpp"
 #include "ebuild/ebuild.hpp"
+#include "profile/profile.hpp"
 #include "repo/repo.hpp"
 
 #include <pybind11/pybind11.h>
@@ -22,4 +23,5 @@ PYBIND11_MODULE(pms_utils, _module) {
     depend::_register(_module);
     ebuild::_register(_module);
     repo::_register(_module);
+    profile::_register(_module);
 }

@@ -3,6 +3,7 @@
 #include "pms-utils/atom/atom.hpp"
 #include "pms-utils/depend/depend.hpp"
 #include "pms-utils/ebuild/ebuild.hpp"
+#include "pms-utils/profile/profile.hpp"
 
 #include <boost/fusion/adapted/std_tuple.hpp>
 #include <boost/fusion/adapted/struct.hpp>
@@ -27,6 +28,9 @@ BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::iuse_elem, default_enabled, useflag
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::required_use, conditional, nodes);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::properties_elem, string, type);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::ebuild::properties, conditional, nodes);
+BOOST_FUSION_ADAPT_STRUCT(pms_utils::profile::_internal::WildcardAtom, blocker, version_specifier, category,
+                          name, version, slot, repo);
+BOOST_FUSION_ADAPT_STRUCT(pms_utils::profile::_internal::package_use_elem, negate, use_elem);
 
 #ifdef BOOST_SPIRIT_INSTANTIATE
 #undef BOOST_SPIRIT_INSTANTIATE
