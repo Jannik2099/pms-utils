@@ -13,14 +13,20 @@ namespace pms_utils::bindings::python {
 
 namespace _internal {
 
+template <std::size_t... Idxs>
+constexpr auto string_view_as_array(std::string_view str, std::index_sequence<Idxs...> /*unused*/) {
+    return std::array{str[Idxs]...};
+}
+
+template <std::size_t... Idxs>
+constexpr auto array_as_descr(std::array<char, sizeof...(Idxs)> array,
+                              std::index_sequence<Idxs...> /*unused*/) {
+    return pybind11::detail::descr<sizeof...(Idxs)>{array[Idxs]...};
+}
+
 // thanks to
 // https://bitwizeshift.github.io/posts/2021/03/09/getting-an-unmangled-type-name-at-compile-time/
 namespace _type_name {
-
-template <std::size_t... Idxs>
-constexpr auto substring_as_array(std::string_view str, std::index_sequence<Idxs...> /*unused*/) {
-    return std::array{str[Idxs]...};
-}
 
 template <typename T> constexpr auto type_name_array() {
 #if defined(__clang__)
@@ -45,7 +51,7 @@ template <typename T> constexpr auto type_name_array() {
     static_assert(start < end);
 
     constexpr auto name = function.substr(start, (end - start));
-    return substring_as_array(name, std::make_index_sequence<name.size()>{});
+    return string_view_as_array(name, std::make_index_sequence<name.size()>{});
 }
 
 template <typename T> struct type_name_holder {
@@ -68,14 +74,6 @@ struct is_specialization<Ref<Args...>, Ref> : std::true_type {};
     auto pos = str.find_last_of(':');
     pos = (pos == std::string_view::npos) ? 0 : pos + 1;
     return str.substr(pos);
-}
-
-template <std::array arr> [[nodiscard]] constexpr auto unqualified_arr() {
-    constexpr std::string_view str = {arr.data(), arr.size()};
-    constexpr auto pos = str.find_last_of(':');
-    constexpr auto pos2 = (pos == std::string_view::npos) ? 0 : pos + 1;
-    constexpr std::string_view retstr = str.substr(pos2);
-    return _type_name::substring_as_array(retstr, std::make_index_sequence<retstr.size()>{});
 }
 
 template <template <typename, typename> typename T, typename T1, typename T2> struct extract_crtp {
@@ -108,14 +106,42 @@ template <typename Rule> [[nodiscard]] static inline auto expr_from_str(Rule rul
     return ret;
 }
 
+// this is essentially just a s/::/./g
+// oh the wonders of constexpr string manipulation
+template <pybind11::detail::descr descr> constexpr auto descr_qualified_fixup() {
+    constexpr std::string_view str{descr.text};
+    constexpr std::string_view lhs = str.substr(0, str.find_first_of(':'));
+    constexpr auto lhs_indices = std::make_index_sequence<lhs.size()>{};
+    constexpr auto lhs_descr = array_as_descr(string_view_as_array(str, lhs_indices), lhs_indices);
+
+    if constexpr (lhs.size() == str.size()) {
+        return lhs_descr;
+    } else {
+        constexpr std::string_view rhs_temp = str.substr(str.find_first_of(':'));
+        constexpr std::string_view rhs = rhs_temp.substr(rhs_temp.find_first_not_of(':'));
+        constexpr auto rhs_indices = std::make_index_sequence<rhs.size()>{};
+        constexpr auto rhs_descr = array_as_descr(string_view_as_array(rhs, rhs_indices), rhs_indices);
+        return lhs_descr + pybind11::detail::const_name(".") + descr_qualified_fixup<rhs_descr>();
+    }
+}
+
 } // namespace _internal
 
-template <typename T> struct bound_type_name {
-    constexpr static std::string_view str = _internal::unqualified(_internal::type_name<T>());
-};
+template <typename T> constexpr std::string_view bound_type_name_override = _internal::type_name<T>();
 
-template <typename T>
-constexpr static std::array bound_type_name_v = _internal::_type_name::substring_as_array(
-    bound_type_name<T>::str, std::make_index_sequence<bound_type_name<T>::str.size()>{});
+template <typename T> struct bound_type_name {
+    constexpr static std::string_view qualified_str = bound_type_name_override<T>;
+    constexpr static pybind11::detail::descr qualified_descr =
+        _internal::descr_qualified_fixup<_internal::array_as_descr(
+            _internal::string_view_as_array(qualified_str, std::make_index_sequence<qualified_str.size()>{}),
+            std::make_index_sequence<qualified_str.size()>{})>();
+
+    constexpr static std::string_view unqualified_str = _internal::unqualified(qualified_str);
+    constexpr static pybind11::detail::descr unqualified_descr =
+        _internal::descr_qualified_fixup<_internal::array_as_descr(
+            _internal::string_view_as_array(unqualified_str,
+                                            std::make_index_sequence<unqualified_str.size()>{}),
+            std::make_index_sequence<unqualified_str.size()>{})>();
+};
 
 } // namespace pms_utils::bindings::python

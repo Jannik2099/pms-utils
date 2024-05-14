@@ -14,12 +14,9 @@ using namespace pms_utils::ebuild;
 
 namespace pms_utils::bindings::python {
 
-template <> struct bound_type_name<restrict_elem::Type> {
-    constexpr static std::string_view str = "restrict_elem_type";
-};
-template <> struct bound_type_name<properties_elem::Type> {
-    constexpr static std::string_view str = "properties_elem_type";
-};
+template <> constexpr std::string_view bound_type_name_override<restrict_elem::Type> = "restrict_elem_type";
+template <>
+constexpr std::string_view bound_type_name_override<properties_elem::Type> = "properties_elem_type";
 
 namespace ebuild {
 
