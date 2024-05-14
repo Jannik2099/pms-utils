@@ -14,9 +14,7 @@ using namespace pms_utils::atom;
 
 namespace pms_utils::bindings::python {
 
-template <> struct bound_type_name<PackageExpr> {
-    constexpr static std::string_view str = "Atom";
-};
+template <> constexpr std::string_view bound_type_name_override<PackageExpr> = "pms_utils::atom::Atom";
 
 namespace atom {
 
