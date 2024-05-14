@@ -78,7 +78,7 @@ template <typename T, typename M, typename R = bool>
     requires(std::is_enum_v<T> && boost::describe::has_describe_enumerators<T>::value)
 static inline py::object create_bindings(M module_, R rule = false,
                                          std::string_view enum_type = "enum.Enum") {
-    constexpr std::string_view name = bound_type_name<T>::str;
+    constexpr std::string_view name = bound_type_name<T>::unqualified_str;
 
     py::object ret = _internal::bind_enum<M, T>(module_, name, enum_type);
 
@@ -99,7 +99,7 @@ static inline py::object create_bindings(M module_, R rule = false,
 template <typename T, typename H = bool, typename M, typename R = bool>
     requires(std::is_class_v<T> && boost::describe::has_describe_members<T>::value)
 static inline auto create_bindings(M module_, R rule = false) {
-    constexpr std::string_view name = bound_type_name<T>::str;
+    constexpr std::string_view name = bound_type_name<T>::unqualified_str;
     using namespace boost::mp11;
 
     /* we don't expose bases right now as nothing uses them (crtp is handled separately).
