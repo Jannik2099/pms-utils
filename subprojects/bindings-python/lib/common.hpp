@@ -3,6 +3,7 @@
 #include "enum.hpp"
 #include "internal.hpp"
 
+#include <algorithm>
 #include <array>
 #include <boost/describe/enumerators.hpp>
 #include <boost/describe/members.hpp>
@@ -12,11 +13,13 @@
 #include <boost/mp11/utility.hpp>
 #include <boost/optional.hpp>
 #include <boost/variant.hpp>
+#include <format>
 #include <pybind11/attr.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl/filesystem.h>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -92,6 +95,9 @@ static inline py::object create_bindings(M module_, R rule = false,
         });
         ret.attr("_missing_") =
             py::module::import("builtins").attr("classmethod")(module_.attr(function_name.c_str()));
+        add_method(ret, "__repr__", [](T val) {
+            return std::format("{}('{}')", bound_type_name<T>::qualified_descr.text, to_string(val));
+        });
     }
     return ret;
 }
@@ -126,10 +132,28 @@ static inline auto create_bindings(M module_, R rule = false) {
     bind_members_and_getters<T>(ret);
 
     if constexpr (std::constructible_from<std::string, T>) {
-        ret.def("__repr__", [](const T &val) { return std::string(val); });
+        ret.def("__str__", [](const T &val) { return std::string{val}; });
     }
     if constexpr (!std::is_same_v<R, bool>) {
         ret.def(py::init([rule](std::string_view str) { return _internal::expr_from_str(rule(), str); }));
+        ret.def("__repr__", [](const T &val) {
+            std::string repr{val};
+            std::string repr_trunc;
+            repr_trunc.reserve(repr.size());
+            std::ranges::replace_if(
+                repr, [](const char character) { return character == '\n' || character == '\t'; }, ' ');
+            for (const auto &word : std::views::split(repr, ' ')) {
+                if (word.empty()) {
+                    continue;
+                }
+                repr_trunc += std::string_view{word.data(), word.size()};
+                repr_trunc += ' ';
+            }
+            if (!repr_trunc.empty()) {
+                repr_trunc.pop_back();
+            }
+            return std::format("{}('{}')", bound_type_name<T>::qualified_descr.text, repr_trunc);
+        });
     }
 
     // prevent exporting __iter__ for std::string types
