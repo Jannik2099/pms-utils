@@ -83,9 +83,11 @@ template <template <typename, typename> typename T, typename T1, typename T2> st
     explicit extract_crtp(T<T1, T2> /*unused*/) {};
 };
 
+template <typename T> using crtp_base = typename T::Base;
+
 template <typename T>
 concept is_crtp = requires {
-    requires std::is_same_v<T, typename decltype(_internal::extract_crtp(typename T::Base()))::second>;
+    requires std::is_same_v<T, typename decltype(_internal::extract_crtp(crtp_base<T>{}))::second>;
 };
 
 template <typename Rule> [[nodiscard]] static inline auto expr_from_str(Rule rule, std::string_view str) {
