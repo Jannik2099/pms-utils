@@ -137,14 +137,11 @@ void Expander::version_matcher(const repo::Repository &repository, const repo::C
                 }
             }
         } else {
-            const auto ebuild = package[boost::get<atom::Version>(atom_.version.value())];
-            if (ebuild.has_value()) {
-                if (!test_version(atom_.version_specifier.value(),
-                                  boost::get<atom::Version>(atom_.version.value()), ebuild.value())
-                         .value_or(false)) {
-                    return;
+            for (const auto &ebuild : package) {
+                if (test_version(atom_.version_specifier.value(),
+                                 boost::get<atom::Version>(atom_.version.value()), ebuild)) {
+                    slot_matcher(repository, category, ebuild);
                 }
-                slot_matcher(repository, category, ebuild.value());
             }
         }
     }
