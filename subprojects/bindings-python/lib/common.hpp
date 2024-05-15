@@ -108,17 +108,15 @@ static inline auto create_bindings(M module_, R rule = false) {
     constexpr std::string_view name = bound_type_name<T>::unqualified_str;
     using namespace boost::mp11;
 
-    /* we don't expose bases right now as nothing uses them (crtp is handled separately).
-       leave these snippets here for posterity.
     // this extracts the bases from T and transforms them such that py::class_<T, ...Bases>
-    using bases = boost::describe::describe_bases<T, boost::describe::mod_any_access>;
-    // if no inheritance, bases is empty and thus mp_first<bases> not a valid expression
-    // otherwise, bases already contains T (why?)
-    using t_plus_bases = mp_eval_or<mp_list<T>, mp_first, bases>;
-    */
-
+    using base_descriptors = boost::describe::describe_bases<T, boost::describe::mod_any_access>;
+    // empty list of descriptors if no bases, thus mp_first<> is invalid
+    using bases_pre = mp_rename<mp_eval_or<mp_list<T>, mp_first, base_descriptors>, mp_list>;
+    // remove the crtp base from the inheritance set, as we do not want to bind it
+    using crtp_type = mp_eval_or<void, _internal::crtp_base, T>;
+    using t_plus_bases = mp_remove<bases_pre, crtp_type>;
     // add the holder (i.e. std::shared_ptr<T>) if specified
-    using pytype = mp_eval_if_c<std::is_same_v<H, bool>, mp_list<T>, mp_push_back, mp_list<T>, H>;
+    using pytype = mp_eval_if_c<std::is_same_v<H, bool>, t_plus_bases, mp_push_back, t_plus_bases, H>;
 
     static_assert(std::is_same_v<mp_first<pytype>, T>);
     using pyclass = mp_apply<py::class_, pytype>;
