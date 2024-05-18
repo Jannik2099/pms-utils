@@ -3,6 +3,7 @@
 #include "../common.hpp"
 #include "pms-utils/repo/repo.hpp"
 
+#include <pybind11/detail/common.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -15,7 +16,9 @@ namespace pms_utils::bindings::python::repo {
 void _register(py::module &_module) {
     py::module repo = _module.def_submodule("repo");
 
-    auto py_Ebuild = create_bindings<Ebuild>(repo).def_property_readonly("metadata", &Ebuild::metadata);
+    // pybind seems to choke on the lazy-init of Metadata? Lifetime tracking doesn't work properly
+    auto py_Ebuild = create_bindings<Ebuild>(repo).def_property_readonly("metadata", &Ebuild::metadata,
+                                                                         py::return_value_policy::copy);
 
     auto py_Package =
         create_bindings<Package>(repo)

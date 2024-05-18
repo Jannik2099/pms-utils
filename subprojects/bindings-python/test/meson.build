@@ -6,9 +6,14 @@ if pms_utils_dep.type_name() == 'pkgconfig'
     temp.append('LD_LIBRARY_PATH', pms_utils_dep.get_variable('prefix') + '/lib')
 endif
 
-test(
-    'import',
-    files('import.py'),
-    depends: mod_bindings_py,
-    env: temp,
-)
+tests = []
+
+tests += 'import'
+
+if fs.is_dir('/var/db/repos/gentoo')
+    tests += 'issue_26'
+endif
+
+foreach t : tests
+    test(t, files(t + '.py'), depends: mod_bindings_py, env: temp, timeout: 0)
+endforeach
