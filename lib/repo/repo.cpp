@@ -149,7 +149,7 @@ const ebuild::Metadata &Ebuild::metadata() const {
             continue;
         }
     }
-    _metadata = meta;
+    _metadata = std::move(meta);
     return _metadata.value();
 }
 
