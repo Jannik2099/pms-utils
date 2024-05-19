@@ -16,6 +16,10 @@ jobs:
         cc: [gcc, clang]
         sanitizer: [none, address, undefined]
         type: [debugoptimized, release]
+        exclude:
+          # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71962
+          - cc: gcc
+            sanitizer: undefined
       fail-fast: false
     runs-on: ubuntu-latest
     container: ghcr.io/jannik2099/pms-utils-gentoo-ci:latest
