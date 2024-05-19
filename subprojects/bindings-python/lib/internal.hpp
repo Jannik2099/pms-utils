@@ -65,30 +65,11 @@ template <typename T> constexpr auto type_name() -> std::string_view {
     return std::string_view{value.data(), value.size()};
 }
 
-template <typename Test, template <typename...> class Ref> struct is_specialization : std::false_type {};
-
-template <template <typename...> class Ref, typename... Args>
-struct is_specialization<Ref<Args...>, Ref> : std::true_type {};
-
 [[nodiscard]] constexpr std::string_view unqualified(std::string_view str) {
     auto pos = str.find_last_of(':');
     pos = (pos == std::string_view::npos) ? 0 : pos + 1;
     return str.substr(pos);
 }
-
-template <template <typename, typename> typename T, typename T1, typename T2> struct extract_crtp {
-    using first = T1;
-    using second = T2;
-
-    explicit extract_crtp(T<T1, T2> /*unused*/) {};
-};
-
-template <typename T> using crtp_base = typename T::Base;
-
-template <typename T>
-concept is_crtp = requires {
-    requires std::is_same_v<T, typename decltype(_internal::extract_crtp(crtp_base<T>{}))::second>;
-};
 
 template <typename Rule> [[nodiscard]] static inline auto expr_from_str(Rule rule, std::string_view str) {
     typename Rule::attribute_type ret;

@@ -2,6 +2,7 @@
 
 #include "enum.hpp"
 #include "internal.hpp"
+#include "pms-utils/misc/meta.hpp"
 
 #include <algorithm>
 #include <array>
@@ -13,8 +14,10 @@
 #include <boost/mp11/utility.hpp>
 #include <boost/optional.hpp>
 #include <boost/variant.hpp>
+#include <concepts>
 #include <format>
 #include <pybind11/attr.h>
+#include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
@@ -113,7 +116,7 @@ static inline auto create_bindings(M module_, R rule = false) {
     // empty list of descriptors if no bases, thus mp_first<> is invalid
     using bases_pre = mp_rename<mp_eval_or<mp_list<T>, mp_first, base_descriptors>, mp_list>;
     // remove the crtp base from the inheritance set, as we do not want to bind it
-    using crtp_type = mp_eval_or<void, _internal::crtp_base, T>;
+    using crtp_type = mp_eval_or<void, pms_utils::meta::_internal::crtp_base, T>;
     using t_plus_bases = mp_remove<bases_pre, crtp_type>;
     // add the holder (i.e. std::shared_ptr<T>) if specified
     using pytype = mp_eval_if_c<std::is_same_v<H, bool>, t_plus_bases, mp_push_back, t_plus_bases, H>;
@@ -124,7 +127,7 @@ static inline auto create_bindings(M module_, R rule = false) {
     auto ret = pyclass(module_, std::string(name).data());
 
     // bind crtp members directly so we don't have to expose the base class
-    if constexpr (_internal::is_crtp<T>) {
+    if constexpr (pms_utils::meta::_internal::is_crtp<T>) {
         bind_members_and_getters<typename T::Base>(ret);
     }
     bind_members_and_getters<T>(ret);
@@ -162,6 +165,19 @@ static inline auto create_bindings(M module_, R rule = false) {
         ret.def(
             "__iter__", [](const T &val) { return py::make_iterator(std::begin(val), std::end(val)); },
             py::keep_alive<0, 1>());
+    }
+
+    if constexpr (std::equality_comparable<T>) {
+        // NOLINTBEGIN(misc-redundant-expression)
+        ret.def(py::self == py::self);
+        ret.def(py::self != py::self);
+        // NOLINTEND(misc-redundant-expression)
+    }
+
+    if constexpr (requires(const T &val) {
+                      { std::hash<T>{}(val) } -> std::same_as<std::size_t>;
+                  }) {
+        ret.def("__hash__", [](const T &val) { return std::hash<T>{}(val); });
     }
 
     return std::move(ret);
