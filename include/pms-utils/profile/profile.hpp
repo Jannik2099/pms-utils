@@ -3,6 +3,7 @@
 #include "pms-utils/atom/atom.hpp"
 #include "pms-utils/repo/repo.hpp"
 
+#include <boost/container_hash/hash.hpp>
 #include <boost/describe/bases.hpp>
 #include <boost/describe/class.hpp>
 #include <boost/optional.hpp>
@@ -218,6 +219,14 @@ public:
                           CONFIG_PROTECT_, CONFIG_PROTECT_MASK_, IUSE_IMPLICIT_, USE_EXPAND_IMPLICIT_,
                           USE_EXPAND_UNPREFIXED_, ENV_UNSET_, ARCH_, filters_));
 };
+
+// BEGIN HASH
+
+inline std::size_t hash_value(const Profile &profile) {
+    return boost::hash<std::filesystem::path>{}(profile.path());
+}
+
+// END HASH
 
 // BEGIN DESCRIBE
 

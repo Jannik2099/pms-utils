@@ -4,6 +4,7 @@
 #include "pms-utils/ebuild/ebuild.hpp"
 #include "pms-utils/misc/meta.hpp"
 
+#include <boost/container_hash/hash.hpp>
 #include <boost/describe.hpp>
 #include <boost/mp11/list.hpp>
 #include <filesystem>
@@ -148,6 +149,26 @@ public:
 
     BOOST_DESCRIBE_CLASS(Package, (), (begin, cbegin, end, cend, path, name), (), (_path, _name));
 };
+
+// BEGIN HASH
+
+inline std::size_t hash_value(const Ebuild &ebuild) {
+    return boost::hash<std::filesystem::path>{}(ebuild.path);
+}
+
+inline std::size_t hash_value(const Repository &repository) {
+    return boost::hash<std::filesystem::path>{}(repository.path());
+}
+
+inline std::size_t hash_value(const Category &category) {
+    return boost::hash<std::filesystem::path>{}(category.path());
+}
+
+inline std::size_t hash_value(const Package &package) {
+    return boost::hash<std::filesystem::path>{}(package.path());
+}
+
+// END HASH
 
 // BEGIN ITERATOR
 
