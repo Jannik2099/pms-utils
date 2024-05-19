@@ -57,7 +57,7 @@ void _register(py::module &_module) {
 
     auto py_Category = create_bindings<Category>(atom, parsers::atom::category);
 
-    auto py_Useflag = create_bindings<Useflag>(atom);
+    auto py_Useflag = create_bindings<Useflag>(atom, parsers::atom::useflag);
 
     auto py_UsedepNegate = create_bindings<UsedepNegate>(atom);
     auto py_UsedepSign = create_bindings<UsedepSign>(atom);
