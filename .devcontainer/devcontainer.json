@@ -1,0 +1,24 @@
+{
+    "image": "mcr.microsoft.com/devcontainers/cpp:ubuntu-24.04",
+    "capAdd": [
+        "SYS_PTRACE"
+    ],
+    "securityOpt": [
+        "seccomp=unconfined"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "llvm-vs-code-extensions.vscode-clangd",
+                "mesonbuild.mesonbuild",
+                "sonarsource.sonarlint-vscode",
+                "github.vscode-codeql"
+            ]
+        }
+    },
+    "remoteUser": "vscode",
+    "containerEnv": {
+        "BOOST_ROOT": "/usr/local/vcpkg/installed/x64-linux/"
+    },
+    "onCreateCommand": "sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y meson muon-meson clangd lld linux-libc-dev autoconf automake autoconf-archive && vcpkg install boost-spirit boost-regex boost-mp11 boost-describe boost-optional boost-variant boost-fusion boost-container-hash"
+}
