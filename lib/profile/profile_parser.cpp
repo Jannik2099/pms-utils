@@ -5,6 +5,7 @@
 #include "pms-utils/misc/x3_utils.hpp"
 #include "pms-utils/profile/profile.hpp"
 
+#include <boost/fusion/container/deque/deque.hpp>
 #include <boost/spirit/home/x3.hpp>
 #include <boost/spirit/home/x3/auxiliary/eoi.hpp>
 #include <boost/spirit/home/x3/char/any_char.hpp>
@@ -136,6 +137,18 @@ const auto atom_helper = [](auto &ctx) {
     }
 };
 
+const auto package_use_str_helper = [](auto &ctx) {
+    const std::vector<std::string> &attr = x3::_attr(ctx);
+    std::string &val = x3::_val(ctx);
+
+    for (const auto &str : attr) {
+        val += str + ' ';
+    }
+    if (val.ends_with(' ')) {
+        val.pop_back();
+    }
+};
+
 } // namespace
 
 namespace [[gnu::visibility("hidden")]] _internal {
@@ -179,8 +192,19 @@ PARSER_DEFINE(newline_or_comment, x3::omit[x3::ascii::space | x3::char_("#") >> 
 } // namespace _internal
 
 // -x3::lit("-") folds to Unused ?!?, so we can't just use a bool attr
-PARSER_DEFINE(package_use,
-              (-x3::char_("-") >> (x3::char_("*") | atom::useflag()))[package_use_inserter] % " ");
+PARSER_DEFINE(package_use, (-x3::char_("-") >> (x3::char_("*") | atom::useflag()))[package_use_inserter] %
+                               +x3::ascii::blank);
+
+namespace _internal {
+
+PARSER_RULE_T(package_use_as_str, std::string);
+PARSER_DEFINE(package_use_as_str, (+x3::ascii::graph % +x3::ascii::blank)[package_use_str_helper]);
+
+PARSER_DEFINE(atom_plus_package_use, x3::omit[*x3::ascii::blank] >> +x3::ascii::graph >>
+                                         x3::omit[+x3::ascii::blank] >> package_use_as_str() >>
+                                         x3::omit[*x3::ascii::blank]);
+
+} // namespace _internal
 
 // variable before value to resolve $ ambiguity
 PARSER_DEFINE(make_defaults_shlex, (_internal::shlex_variable() | _internal::shlex_value()) %

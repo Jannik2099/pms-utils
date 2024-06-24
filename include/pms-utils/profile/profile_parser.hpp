@@ -14,6 +14,13 @@ namespace parsers::profile {
 
 PARSER_RULE_T(package_use, (pms_utils::profile::_internal::unordered_str_set<pms_utils::atom::Useflag>));
 
+namespace _internal {
+
+// portage is kind of a dork and allows package.foo entries to start with blanks
+PARSER_RULE_T(atom_plus_package_use, (std::tuple<std::string, std::string>));
+
+} // namespace _internal
+
 // true if variable, false if normal value
 PARSER_RULE_T(make_defaults_shlex, (std::vector<std::tuple<std::string, bool>>));
 PARSER_RULE_T(make_defaults_elem, (std::tuple<std::string, std::string>));
