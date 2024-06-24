@@ -123,15 +123,21 @@ void init_package_use_impl(
     for (const auto &line_ :
          std::views::split(lines, '\n') | std::views::filter([](auto line_) { return !std::empty(line_); })) {
         std::string_view line{line_.begin(), line_.end()};
-        const std::size_t space = line.find(' ');
-        if (space == std::string_view::npos) {
-            throw std::invalid_argument{std::format(
-                "invalid package.use-like line {}, missing space between package and useflags?", line)};
+        const auto *begin = line.begin();
+        const auto *const end = line.end();
+        std::tuple<std::string, std::string> attr;
+
+        if (!parse(begin, end, parsers::profile::_internal::atom_plus_package_use(), attr)) {
+            throw std::invalid_argument{std::format("failed to parse package.use-style line {}", line)};
         }
-        const std::string_view packageExpr = line.substr(0, space);
-        std::string_view useflags = line.substr(space + 1);
-        const std::size_t last_space = useflags.find_first_not_of(' ');
-        useflags = useflags.substr(last_space);
+        if (begin != end) {
+            throw std::invalid_argument{
+                std::format("incomplete parse on package.use-style line {}, remainder {}", line,
+                            std::string_view{begin, end})};
+        }
+
+        const std::string_view packageExpr = std::get<0>(attr);
+        const std::string_view useflags = std::get<1>(attr);
         const auto ebuilds = expand_package_expr(packageExpr, repos);
         for (const auto &ebuild : ebuilds) {
             init_use_impl(map[ebuild].*member, useflags);
