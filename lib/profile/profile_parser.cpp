@@ -223,11 +223,14 @@ PARSER_DEFINE(wildcard_name_ver, (x3::ascii::alnum | x3::char_("_") | _internal:
                                      *((x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+") |
                                         _internal::wildcard())));
 // this is essentially parsers::name with wildcard added to the character set
+// yes, this does lack !(... | _internal::wildcard()), but this is impossible to add as the portage version
+// wildcard collides with the =* version specifier
 PARSER_DEFINE(wildcard_name,
               (x3::ascii::alnum | x3::char_("_") | _internal::wildcard()) >>
-                  *((x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+") |
-                     _internal::wildcard()) -
-                    (x3::lit("-") >> wildcard_version() >> (x3::char_(":") | x3::char_("*") | x3::eoi))));
+                  *(x3::ascii::alnum | x3::char_("_") | x3::char_("+") | _internal::wildcard() |
+                    x3::char_("-") -
+                        (x3::lit("-") >> wildcard_version() >>
+                         !(x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+")))));
 
 PARSER_DEFINE(wildcard_version, atom::package_version() | _internal::wildcard_version());
 
