@@ -67,28 +67,35 @@ struct WildcardAtom {
 // namely, this covers slot and wildcard expressions
 [[nodiscard]] std::vector<std::string> expand_package_expr(std::string_view expr,
                                                            const std::vector<repo::Repository> &repos);
+[[nodiscard]] std::vector<std::string> expand_package_expr(const _internal::WildcardAtom &atom,
+                                                           const std::vector<repo::Repository> &repos);
 
 struct Filters {
     // 5.2.8
     bool masked = false;
     // 5.2.10
-    _internal::unordered_str_set<atom::Useflag> use;
+    _internal::unordered_str_set<std::string> use;
 
     // 5.2.11
-    _internal::unordered_str_set<atom::Useflag> use_mask;
-    _internal::unordered_str_set<atom::Useflag> use_force;
-    _internal::unordered_str_set<atom::Useflag> use_stable_mask;
-    _internal::unordered_str_set<atom::Useflag> use_stable_force;
+    _internal::unordered_str_set<std::string> use_mask;
+    _internal::unordered_str_set<std::string> use_force;
+    _internal::unordered_str_set<std::string> use_stable_mask;
+    _internal::unordered_str_set<std::string> use_stable_force;
 };
 
 class Profile {
 private:
+    bool is_portage_profile_ = false;
+
     std::filesystem::path path_;
     std::string name_;
+
+    // right now, just all enables repos
+    // eventually:
     // if system profile, contains the associated repo
     // if profile in a derived repo, contains associated + base
     // if user profile, contains all enabled repos
-    std::vector<repo::Repository> repos;
+    std::vector<repo::Repository> repos_;
     // TODO: flyweight
     // 5.2.1
     std::vector<std::shared_ptr<const Profile>> parents_;
@@ -108,14 +115,10 @@ private:
     // std::unordered_set<atom::PackageExpr> package_provided_;
 
     // 5.2.11
-    _internal::unordered_str_set<atom::Useflag> use_mask_;
-    _internal::unordered_str_set<atom::Useflag> use_force_;
-    _internal::unordered_str_set<atom::Useflag> use_stable_mask_;
-    _internal::unordered_str_set<atom::Useflag> use_stable_force_;
-
-    // contains the original content of use.mask and friends
-    // this is required to properly... propagate -* on profile concatenation
-    std::unordered_map<std::string, std::string, _internal::StringHash, std::equal_to<>> files_unevaluated_;
+    _internal::unordered_str_set<std::string> use_mask_;
+    _internal::unordered_str_set<std::string> use_force_;
+    _internal::unordered_str_set<std::string> use_stable_mask_;
+    _internal::unordered_str_set<std::string> use_stable_force_;
 
     // 5.3.2
     _internal::unordered_str_set<atom::Useflag> USE_;
@@ -138,8 +141,12 @@ private:
     void init_packages();
     void init_package_mask();
 
+    [[nodiscard]] Profile(const std::filesystem::path &path, std::vector<repo::Repository> repos,
+                          const std::shared_ptr<Profile> &injected_parent, bool is_portage_profile = false);
+
 public:
-    [[nodiscard]] explicit Profile(const std::filesystem::path &path);
+    [[nodiscard]] explicit Profile(const std::filesystem::path &path,
+                                   std::vector<repo::Repository> repos = {});
 
     [[nodiscard]] const std::filesystem::path &path() const [[clang::lifetimebound]] { return path_; }
     [[nodiscard]] const std::string &name() const [[clang::lifetimebound]] { return name_; }
@@ -169,10 +176,6 @@ public:
     }
     [[nodiscard]] const decltype(use_stable_force_) &use_stable_force() const [[clang::lifetimebound]] {
         return use_stable_force_;
-    }
-
-    [[nodiscard]] const decltype(files_unevaluated_) &files_unevaluated() const [[clang::lifetimebound]] {
-        return files_unevaluated_;
     }
 
     [[nodiscard]] const decltype(USE_) &USE() const [[clang::lifetimebound]] { return USE_; }
@@ -208,16 +211,16 @@ public:
 
     BOOST_DESCRIBE_CLASS(Profile, (),
                          (path, name, parents, EAPI, deprecated, make_defaults, make_defaults_unevaluated,
-                          packages, use_mask, use_force, use_stable_mask, use_stable_force, files_unevaluated,
-                          USE, USE_EXPAND, USE_EXPAND_HIDDEN, CONFIG_PROTECT, CONFIG_PROTECT_MASK,
-                          IUSE_IMPLICIT, USE_EXPAND_IMPLICIT, USE_EXPAND_UNPREFIXED, ENV_UNSET, ARCH,
-                          filters),
+                          packages, use_mask, use_force, use_stable_mask, use_stable_force, USE, USE_EXPAND,
+                          USE_EXPAND_HIDDEN, CONFIG_PROTECT, CONFIG_PROTECT_MASK, IUSE_IMPLICIT,
+                          USE_EXPAND_IMPLICIT, USE_EXPAND_UNPREFIXED, ENV_UNSET, ARCH, filters),
                          (),
-                         (path_, name_, repos, parents_, EAPI_, deprecated_, make_defaults_,
-                          make_defaults_unevaluated_, packages_, use_mask_, use_force_, use_stable_mask_,
-                          use_stable_force_, files_unevaluated_, USE_, USE_EXPAND_, USE_EXPAND_HIDDEN_,
+                         (is_portage_profile_, path_, name_, repos_, parents_, EAPI_, deprecated_,
+                          make_defaults_, make_defaults_unevaluated_, packages_, use_mask_, use_force_,
+                          use_stable_mask_, use_stable_force_, USE_, USE_EXPAND_, USE_EXPAND_HIDDEN_,
                           CONFIG_PROTECT_, CONFIG_PROTECT_MASK_, IUSE_IMPLICIT_, USE_EXPAND_IMPLICIT_,
-                          USE_EXPAND_UNPREFIXED_, ENV_UNSET_, ARCH_, filters_));
+                          USE_EXPAND_UNPREFIXED_, ENV_UNSET_, ARCH_, filters_, combine_parents,
+                          init_make_defaults, init_packages, init_package_mask));
 };
 
 // BEGIN HASH

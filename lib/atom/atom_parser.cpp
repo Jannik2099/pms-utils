@@ -186,9 +186,9 @@ PARSER_DEFINE(category,
 // Otherwise e.g. name(foo-1-1) would match fully
 PARSER_DEFINE(name, (x3::ascii::alnum | x3::char_("_")) >>
                         *(x3::ascii::alnum | x3::char_("_") | x3::char_("+") |
-                          x3::char_("-") -
-                              (x3::lit("-") >> package_version() >>
-                               !(x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+")))));
+                          (x3::char_("-") -
+                           (x3::lit("-") >> package_version() >>
+                            !(x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+"))))));
 
 PARSER_DEFINE(useflag, x3::ascii::alnum >> *(x3::ascii::alnum | x3::char_("_") | x3::char_("-") |
                                              x3::char_("+") | x3::char_("@")));
