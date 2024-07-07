@@ -85,6 +85,8 @@ struct Filters {
 
 class Profile {
 private:
+    friend class PortageProfile;
+
     bool is_portage_profile_ = false;
 
     std::filesystem::path path_;
@@ -221,6 +223,16 @@ public:
                           CONFIG_PROTECT_, CONFIG_PROTECT_MASK_, IUSE_IMPLICIT_, USE_EXPAND_IMPLICIT_,
                           USE_EXPAND_UNPREFIXED_, ENV_UNSET_, ARCH_, filters_, combine_parents,
                           init_make_defaults, init_packages, init_package_mask));
+};
+
+class PortageProfile : public Profile {
+private:
+    static Profile init_base(const std::filesystem::path &path, std::vector<repo::Repository> repos);
+
+public:
+    [[nodiscard]] explicit PortageProfile(const std::filesystem::path &path);
+
+    BOOST_DESCRIBE_CLASS(PortageProfile, (Profile), (), (), (init_base));
 };
 
 // BEGIN HASH

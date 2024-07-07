@@ -211,6 +211,30 @@ template <typename P> auto parser_helper(P parser, std::string_view str) {
     return res;
 }
 
+std::vector<repo::Repository> repos_from_portage(const std::filesystem::path &path) {
+    std::vector<repo::Repository> ret;
+    if (!std::filesystem::exists(path / "repos.conf")) {
+        return {repo::Repository{"/var/db/repos/gentoo"}};
+    }
+    for (const auto lines = read_config_files(path / "repos.conf");
+         const auto &line : std::views::split(lines, '\n')) {
+        if (line.empty()) {
+            continue;
+        }
+        std::string_view line_str{line.data(), line.size()};
+        if (line_str.starts_with("location = ")) {
+            repo::Repository repo{line_str.substr(sizeof("location = ") - 1)};
+            if (std::ranges::find(ret, repo) != ret.end()) {
+                throw std::invalid_argument{
+                    std::format("duplicate repos.conf entry {}", repo.path().string())};
+            }
+            ret.emplace_back(std::move(repo));
+        }
+    }
+
+    return ret;
+}
+
 } // namespace
 
 std::vector<std::string> expand_package_expr(std::string_view expr,
@@ -462,6 +486,19 @@ Profile::Profile(const std::filesystem::path &path, std::vector<repo::Repository
         parser_helper(parsers::profile::USE_EXPAND_UNPREFIXED(), make_defaults_["USE_EXPAND_UNPREFIXED"]);
     ENV_UNSET_ = parser_helper(parsers::profile::ENV_UNSET(), make_defaults_["ENV_UNSET"]);
 }
+
+Profile PortageProfile::init_base(const std::filesystem::path &path, std::vector<repo::Repository> repos) {
+    const std::filesystem::path user_profile_path = path / "profile";
+    const auto parent_profile = std::make_shared<Profile>(path / "make.profile");
+    std::shared_ptr<Profile> user_profile;
+    if (std::filesystem::is_directory(user_profile_path)) {
+        user_profile = std::make_shared<Profile>(Profile{user_profile_path, repos, parent_profile});
+    }
+    return {path, std::move(repos), user_profile, true};
+}
+
+PortageProfile::PortageProfile(const std::filesystem::path &path)
+    : Profile{init_base(path, repos_from_portage(path))} {}
 
 } // namespace profile
 } // namespace pms_utils
