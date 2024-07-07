@@ -182,12 +182,13 @@ PARSER_DEFINE(package_version, ver_num() >> -ver_letter() >> *ver_suffix() >> -v
 PARSER_DEFINE(category,
               (x3::ascii::alnum | x3::char_("_")) >>
                   *(x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+") | x3::char_(".")));
-// this basically means "name not followed by a -version which itself is followed by what comes after version
-// in an Atom, or end of input". Otherwise e.g. name(foo-1-1) would match fully
+// this basically means "name not followed by ( -version which itself is followed by legal atom name charset )
+// Otherwise e.g. name(foo-1-1) would match fully
 PARSER_DEFINE(name, (x3::ascii::alnum | x3::char_("_")) >>
-                        *((x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+")) -
-                          (x3::lit("-") >> package_version() >>
-                           !(x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+")))));
+                        *(x3::ascii::alnum | x3::char_("_") | x3::char_("+") |
+                          x3::char_("-") -
+                              (x3::lit("-") >> package_version() >>
+                               !(x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+")))));
 
 PARSER_DEFINE(useflag, x3::ascii::alnum >> *(x3::ascii::alnum | x3::char_("_") | x3::char_("-") |
                                              x3::char_("+") | x3::char_("@")));
