@@ -35,21 +35,26 @@ template <int N, typename... Ts> auto &get(boost::variant<Ts...> &val) {
 const auto package_use_inserter = [](auto &ctx) {
     boost::fusion::deque<boost::optional<char>, boost::variant<char, pms_utils::atom::Useflag>> &attr =
         x3::_attr(ctx);
-    pms_utils::profile::_internal::unordered_str_set<pms_utils::atom::Useflag> &val = x3::_val(ctx);
+    pms_utils::profile::_internal::unordered_str_set<std::string> &val = x3::_val(ctx);
     using boost::fusion::at_c;
 
     const bool negate = at_c<0>(attr).has_value();
     if (boost::variant<char, pms_utils::atom::Useflag> &use_elem = at_c<1>(attr); use_elem.which() == 0) {
         // if it's a wildcard, just reset the set
-        val.emplace("-*");
-        if (!negate) {
+        val.clear();
+        if (negate) {
+            val.emplace("-*");
+        } else {
             val.emplace("*");
         }
     } else {
         auto &useflag = boost::get<pms_utils::atom::Useflag>(use_elem);
+        // we need to keep track of -foo aswell, due to the way e.g. package.use.mask overrides use.mask
         if (negate) {
             val.erase(useflag);
+            val.emplace(std::string{"-"} + useflag);
         } else {
+            val.erase(std::string{"-"} + useflag);
             val.emplace(std::move(useflag));
         }
     }
@@ -115,6 +120,7 @@ const auto atom_helper = [](auto &ctx) {
 
     if (versionPart.has_value() != version_specifier.has_value()) {
         x3::_pass(ctx) = false;
+        return;
     }
     if (versionPart.has_value()) {
         val.version = std::move(at_c<0>(versionPart.value()));
@@ -124,6 +130,7 @@ const auto atom_helper = [](auto &ctx) {
             val.version->type() == typeid(std::string)) {
             // wildcard versions are only allowed on =
             x3::_pass(ctx) = false;
+            return;
         }
 
         if (asterisk) {
@@ -131,21 +138,10 @@ const auto atom_helper = [](auto &ctx) {
                 version_specifier = pms_utils::atom::VersionSpecifier::ea;
             } else {
                 x3::_pass(ctx) = false;
+                return;
             }
         }
         val.version_specifier = version_specifier.value();
-    }
-};
-
-const auto package_use_str_helper = [](auto &ctx) {
-    const std::vector<std::string> &attr = x3::_attr(ctx);
-    std::string &val = x3::_val(ctx);
-
-    for (const auto &str : attr) {
-        val += str + ' ';
-    }
-    if (val.ends_with(' ')) {
-        val.pop_back();
     }
 };
 
@@ -192,19 +188,12 @@ PARSER_DEFINE(newline_or_comment, x3::omit[x3::ascii::space | x3::char_("#") >> 
 } // namespace _internal
 
 // -x3::lit("-") folds to Unused ?!?, so we can't just use a bool attr
-PARSER_DEFINE(package_use, (-x3::char_("-") >> (x3::char_("*") | atom::useflag()))[package_use_inserter] %
-                               +x3::ascii::blank);
-
-namespace _internal {
-
-PARSER_RULE_T(package_use_as_str, std::string);
-PARSER_DEFINE(package_use_as_str, (+x3::ascii::graph % +x3::ascii::blank)[package_use_str_helper]);
-
-PARSER_DEFINE(atom_plus_package_use, x3::omit[*x3::ascii::blank] >> +x3::ascii::graph >>
-                                         x3::omit[+x3::ascii::blank] >> package_use_as_str() >>
-                                         x3::omit[*x3::ascii::blank]);
-
-} // namespace _internal
+PARSER_DEFINE(package_use_values,
+              (-x3::char_("-") >> (x3::char_("*") | atom::useflag()))[package_use_inserter] %
+                  +x3::ascii::blank);
+PARSER_DEFINE(package_use_line, x3::omit[*x3::ascii::blank] >> wildcard_atom() >>
+                                    x3::omit[+x3::ascii::blank] >> package_use_values() >>
+                                    x3::omit[*x3::ascii::blank]);
 
 // variable before value to resolve $ ambiguity
 PARSER_DEFINE(make_defaults_shlex, (_internal::shlex_variable() | _internal::shlex_value()) %
@@ -228,9 +217,9 @@ PARSER_DEFINE(wildcard_name_ver, (x3::ascii::alnum | x3::char_("_") | _internal:
 PARSER_DEFINE(wildcard_name,
               (x3::ascii::alnum | x3::char_("_") | _internal::wildcard()) >>
                   *(x3::ascii::alnum | x3::char_("_") | x3::char_("+") | _internal::wildcard() |
-                    x3::char_("-") -
-                        (x3::lit("-") >> wildcard_version() >>
-                         !(x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+")))));
+                    (x3::char_("-") -
+                     (x3::lit("-") >> wildcard_version() >>
+                      !(x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+"))))));
 
 PARSER_DEFINE(wildcard_version, atom::package_version() | _internal::wildcard_version());
 

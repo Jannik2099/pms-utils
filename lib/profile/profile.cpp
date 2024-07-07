@@ -24,6 +24,37 @@ namespace profile {
 
 namespace {
 
+// combines sacrifice into absorber
+void combine_package_use_sets(_internal::unordered_str_set<std::string> &absorber,
+                              _internal::unordered_str_set<std::string> &sacrifice) {
+    if (sacrifice.contains("*")) {
+        absorber.clear();
+        absorber.emplace("*");
+    }
+    if (sacrifice.contains("-*")) {
+        absorber.clear();
+        absorber.emplace("-*");
+    }
+
+    for (auto iter = sacrifice.begin(); iter != sacrifice.end();) {
+        // simplify once P2077R3 becomes available
+        if (const std::string_view val = *iter; val.starts_with("-")) {
+            if (auto search = absorber.find(val.substr(1)); search != absorber.end()) {
+                absorber.erase(search);
+            }
+        } else {
+            if (auto search = absorber.find(std::string{"-"}.append(val)); search != absorber.end()) {
+                absorber.erase(search);
+            }
+        }
+
+        auto previous_iter = iter;
+        // increment before extract, else the iterator is invalid
+        iter++;
+        absorber.insert(sacrifice.extract(previous_iter));
+    }
+}
+
 std::vector<std::filesystem::path> get_parent_paths(const std::filesystem::path &path) {
     std::vector<std::filesystem::path> ret;
     const auto file = path / "parent";
@@ -80,12 +111,11 @@ std::vector<std::filesystem::path> get_parent_paths(const std::filesystem::path 
     return ret;
 }
 
-std::filesystem::path find_repo(const std::filesystem::path &path) {
+std::optional<std::filesystem::path> find_repo(const std::filesystem::path &path) {
     auto my_path = path;
     while (true) {
         if (my_path == "/") {
-            throw std::invalid_argument{
-                std::format("could not find parent Repository from {}", path.string())};
+            return {};
         }
         my_path = my_path.parent_path();
         if (my_path.stem() == "profiles" && std::filesystem::is_regular_file(my_path / "repo_name")) {
@@ -104,10 +134,10 @@ void init_eapi(std::string &EAPI, const std::filesystem::path &path) {
     std::getline(fstream, EAPI);
 }
 
-void init_use_impl(_internal::unordered_str_set<atom::Useflag> &set, std::string_view line) {
+void init_use_impl(_internal::unordered_str_set<std::string> &set, std::string_view line) {
     const auto *begin = line.begin();
     const auto *const end = line.end();
-    if (!parse(begin, end, parsers::profile::package_use(), set)) {
+    if (!parse(begin, end, parsers::profile::package_use_values(), set)) {
         throw std::invalid_argument{std::format("failed to parse use-style line {}", line)};
     }
     if (begin != end) {
@@ -119,15 +149,14 @@ void init_use_impl(_internal::unordered_str_set<atom::Useflag> &set, std::string
 void init_package_use_impl(
     const std::vector<repo::Repository> &repos,
     std::unordered_map<std::string, Filters, _internal::StringHash, std::equal_to<>> &map,
-    _internal::unordered_str_set<atom::Useflag> Filters::*member, std::string_view lines) {
+    _internal::unordered_str_set<std::string> Filters::*member, std::string_view lines) {
     for (const auto &line_ :
          std::views::split(lines, '\n') | std::views::filter([](auto line_) { return !std::empty(line_); })) {
         std::string_view line{line_.begin(), line_.end()};
         const auto *begin = line.begin();
         const auto *const end = line.end();
-        std::tuple<std::string, std::string> attr;
-
-        if (!parse(begin, end, parsers::profile::_internal::atom_plus_package_use(), attr)) {
+        std::tuple<_internal::WildcardAtom, _internal::unordered_str_set<std::string>> parsed;
+        if (!parse(begin, end, parsers::profile::package_use_line(), parsed)) {
             throw std::invalid_argument{std::format("failed to parse package.use-style line {}", line)};
         }
         if (begin != end) {
@@ -135,12 +164,9 @@ void init_package_use_impl(
                 std::format("incomplete parse on package.use-style line {}, remainder {}", line,
                             std::string_view{begin, end})};
         }
-
-        const std::string_view packageExpr = std::get<0>(attr);
-        const std::string_view useflags = std::get<1>(attr);
-        const auto ebuilds = expand_package_expr(packageExpr, repos);
+        const auto ebuilds = expand_package_expr(std::get<0>(parsed), repos);
         for (const auto &ebuild : ebuilds) {
-            init_use_impl(map[ebuild].*member, useflags);
+            combine_package_use_sets(map[ebuild].*member, std::get<1>(parsed));
         }
     }
 }
@@ -150,17 +176,20 @@ void set_or_append(M &map, K &&key, V &&value)
     requires std::is_same_v<std::remove_cvref_t<K>, std::string> &&
              std::is_same_v<std::remove_cvref_t<V>, std::string>
 {
-    if (key == "USE" || key == "USE_EXPAND" || key == "USE_EXPAND_HIDDEN" || key == "CONFIG_PROTECT" ||
-        key == "CONFIG_PROTECT_MASK" || key == "IUSE_IMPLICIT" || key == "USE_EXPAND_IMPLICIT" ||
-        key == "USE_EXPAND_UNPREFIXED" || key == "ENV_UNSET") {
-        const auto iter = map.find(key);
+    // use const& up until the last usage of key / value to prevent calling non-const overloads
+    const auto &c_key = std::as_const(key);
+    const auto &c_value = std::as_const(value);
+    if (c_key == "USE" || c_key == "USE_EXPAND" || c_key == "USE_EXPAND_HIDDEN" ||
+        c_key == "CONFIG_PROTECT" || c_key == "CONFIG_PROTECT_MASK" || c_key == "IUSE_IMPLICIT" ||
+        c_key == "USE_EXPAND_IMPLICIT" || c_key == "USE_EXPAND_UNPREFIXED" || c_key == "ENV_UNSET") {
+        const auto iter = map.find(c_key);
         const std::string &prev = iter != map.end() ? iter->second : "";
         if (prev.empty()) {
             map[std::forward<K>(key)] = std::forward<V>(value);
             return;
         }
         std::string temp = prev;
-        if (!value.empty()) {
+        if (!c_value.empty()) {
             temp += " " + std::forward<V>(value);
         }
         map[std::forward<K>(key)] = std::move(temp);
@@ -186,9 +215,6 @@ template <typename P> auto parser_helper(P parser, std::string_view str) {
 
 std::vector<std::string> expand_package_expr(std::string_view expr,
                                              const std::vector<repo::Repository> &repos) {
-    if (repos.empty()) {
-        throw std::invalid_argument("expand_package_expr called with empty Repository list");
-    }
     _internal::WildcardAtom atom;
     const auto *begin = expr.begin();
     const auto *const end = expr.end();
@@ -199,6 +225,13 @@ std::vector<std::string> expand_package_expr(std::string_view expr,
         throw std::invalid_argument{
             std::format("expression {} matches wildcard syntax partially, remainder {}", expr,
                         std::string_view{begin, end})};
+    }
+    return expand_package_expr(atom, repos);
+}
+std::vector<std::string> expand_package_expr(const _internal::WildcardAtom &atom,
+                                             const std::vector<repo::Repository> &repos) {
+    if (repos.empty()) {
+        throw std::invalid_argument("expand_package_expr called with empty Repository list");
     }
 
     _internal::Expander expander{atom, repos};
@@ -215,15 +248,6 @@ void Profile::combine_parents() {
         if (parent == nullptr) {
             throw std::runtime_error("parent is nullptr");
         }
-
-        for (const auto &[key, value] : parent->files_unevaluated_) {
-            auto &val = files_unevaluated_[key];
-            if (!val.ends_with('\n')) {
-                val += '\n';
-            }
-            val += value;
-        }
-
         make_defaults_unevaluated_.insert(make_defaults_unevaluated_.end(),
                                           parent->make_defaults_unevaluated_.begin(),
                                           parent->make_defaults_unevaluated_.end());
@@ -281,20 +305,9 @@ void Profile::init_make_defaults() {
 }
 
 void Profile::init_packages() {
-    const std::filesystem::path file = path_ / "packages";
-    if (!std::filesystem::is_regular_file(file)) {
-        return;
-    }
-    std::ifstream fstream{file};
-    std::stringstream stream;
-    stream << fstream.rdbuf();
-    auto &combined_lines = files_unevaluated_["packages"];
-    if (!combined_lines.empty() && !combined_lines.ends_with('\n')) {
-        combined_lines.push_back('\n');
-    }
-    combined_lines += stream.str();
-    for (const auto &line_ : std::views::split(combined_lines, '\n') |
-                                 std::views::filter([](auto line_) { return !std::empty(line_); })) {
+    const auto lines = read_config_files(path_ / "packages");
+    for (const auto &line_ :
+         std::views::split(lines, '\n') | std::views::filter([](auto line_) { return !std::empty(line_); })) {
         std::string_view line{line_.begin(), line_.end()};
         bool negate = false;
         if (line.starts_with("#")) {
@@ -335,20 +348,15 @@ void Profile::init_packages() {
 
 void Profile::init_package_mask() {
     const auto lines = read_config_files(path_ / "package.mask");
-    auto &combined_lines = files_unevaluated_["package.mask"];
-    if (!combined_lines.empty() && !combined_lines.ends_with('\n')) {
-        combined_lines.push_back('\n');
-    }
-    combined_lines += lines;
-    for (const auto &line_ : std::views::split(combined_lines, '\n') |
-                                 std::views::filter([](auto line_) { return !std::empty(line_); })) {
+    for (const auto &line_ :
+         std::views::split(lines, '\n') | std::views::filter([](auto line_) { return !std::empty(line_); })) {
         std::string_view line{line_.begin(), line_.end()};
         bool is_masked = true;
         if (line.starts_with("-")) {
             line = line.substr(1);
             is_masked = false;
         }
-        const auto ebuilds = expand_package_expr(line, repos);
+        const auto ebuilds = expand_package_expr(line, repos_);
         for (const auto &ebuild : ebuilds) {
             const auto iter = filters_.find(ebuild);
             if (iter == filters_.end()) {
@@ -365,7 +373,12 @@ void Profile::init_package_mask() {
     }
 }
 
-Profile::Profile(const std::filesystem::path &path) {
+Profile::Profile(const std::filesystem::path &path, std::vector<repo::Repository> repos)
+    : Profile{path, std::move(repos), nullptr} {}
+
+Profile::Profile(const std::filesystem::path &path, std::vector<repo::Repository> repos,
+                 const std::shared_ptr<Profile> &injected_parent, bool is_portage_profile)
+    : is_portage_profile_{is_portage_profile} {
     if (!path.has_filename()) {
         path_ = path.parent_path();
     } else {
@@ -373,13 +386,34 @@ Profile::Profile(const std::filesystem::path &path) {
     }
     path_ = std::filesystem::canonical(path_);
 
-    for (const auto &dir : get_parent_paths(path_)) {
-        parents_.emplace_back(std::make_shared<Profile>(dir));
+    if (injected_parent != nullptr) {
+        parents_.emplace_back(injected_parent);
+    } else {
+        for (const auto &dir : get_parent_paths(path_)) {
+            parents_.emplace_back(std::make_shared<Profile>(dir));
+        }
     }
 
     // TODO
-    repos.emplace_back(find_repo(path_));
-    name_ = path_.lexically_relative(repos.back().path() / "profiles");
+    const auto my_repo = find_repo(path_);
+    if (!repos.empty()) {
+        repos_ = std::move(repos);
+    } else {
+        if (my_repo.has_value()) {
+            repo::Repository own_repo{my_repo.value()};
+            if (std::ranges::find(repos_, own_repo) == repos_.end()) {
+                repos_.emplace_back(std::move(own_repo));
+            }
+        } else {
+            throw std::invalid_argument{
+                std::format("could not find Repository belonging to Profile {}", path_.string())};
+        }
+    }
+    if (my_repo.has_value()) {
+        name_ = path_.lexically_relative(my_repo.value() / "profiles");
+    } else {
+        name_ = path_;
+    }
 
     combine_parents();
     init_make_defaults();
@@ -398,12 +432,7 @@ Profile::Profile(const std::filesystem::path &path) {
               {&Filters::use_stable_force, "package.use.stable.force"}};
          const auto &[filter_elem, path_suffix] : package_elems) {
         const auto lines = read_config_files(path_ / path_suffix);
-        auto &combined_lines = files_unevaluated_[std::string{path_suffix}];
-        if (!combined_lines.empty() && !combined_lines.ends_with('\n')) {
-            combined_lines.push_back('\n');
-        }
-        combined_lines += lines;
-        init_package_use_impl(repos, filters_, filter_elem, combined_lines);
+        init_package_use_impl(repos_, filters_, filter_elem, lines);
     }
 
     for (const std::vector<std::tuple<decltype(use_mask_) &, std::string_view>> use_elems =
@@ -413,12 +442,7 @@ Profile::Profile(const std::filesystem::path &path) {
               {use_stable_force_, "use.stable.force"}};
          const auto &[set, path_suffix] : use_elems) {
         const auto lines = read_config_files(path_ / path_suffix);
-        auto &combined_lines = files_unevaluated_[std::string{path_suffix}];
-        if (!combined_lines.empty() && !combined_lines.ends_with('\n')) {
-            combined_lines.push_back('\n');
-        }
-        combined_lines += lines;
-        for (const auto &line : std::views::split(combined_lines, '\n') |
+        for (const auto &line : std::views::split(lines, '\n') |
                                     std::views::filter([](auto line_) { return !std::empty(line_); })) {
             init_use_impl(set, std::string_view{line.begin(), line.end()});
         }

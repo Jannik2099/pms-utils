@@ -12,14 +12,9 @@
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace parsers::profile {
 
-PARSER_RULE_T(package_use, (pms_utils::profile::_internal::unordered_str_set<pms_utils::atom::Useflag>));
-
-namespace _internal {
-
-// portage is kind of a dork and allows package.foo entries to start with blanks
-PARSER_RULE_T(atom_plus_package_use, (std::tuple<std::string, std::string>));
-
-} // namespace _internal
+PARSER_RULE_T(package_use_values, (pms_utils::profile::_internal::unordered_str_set<std::string>));
+PARSER_RULE_T(package_use_line, (std::tuple<pms_utils::profile::_internal::WildcardAtom,
+                                            pms_utils::profile::_internal::unordered_str_set<std::string>>));
 
 // true if variable, false if normal value
 PARSER_RULE_T(make_defaults_shlex, (std::vector<std::tuple<std::string, bool>>));
