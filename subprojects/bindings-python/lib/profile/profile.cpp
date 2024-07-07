@@ -23,6 +23,8 @@ void _register(py::module &_module) {
     auto py_Filters = create_bindings<Filters>(profile);
     auto py_Profile =
         create_bindings<Profile, std::shared_ptr<Profile>>(profile).def(py::init<std::filesystem::path>());
+    auto py_PortageProfile = create_bindings<PortageProfile, std::shared_ptr<PortageProfile>>(profile).def(
+        py::init<std::filesystem::path>());
 }
 
 } // namespace pms_utils::bindings::python::profile
