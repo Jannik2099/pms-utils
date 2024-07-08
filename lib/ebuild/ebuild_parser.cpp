@@ -59,27 +59,6 @@ constexpr auto restrict_elem_helper = [](auto &ctx) {
     }
 };
 
-// Spirit mis-recognizes the optional, leading to empty optional emitting a -
-constexpr auto keyword_helper = [](auto &ctx) {
-    std::string &val = x3::_val(ctx);
-    boost::variant<boost::fusion::deque<char, char>,
-                   boost::fusion::deque<boost::optional<char>, char, std::string>> &attr = x3::_attr(ctx);
-    if (attr.which() == 0) {
-        val = "-*";
-        return;
-    }
-    auto &attr2 = boost::get<boost::fusion::deque<boost::optional<char>, char, std::string>>(attr);
-    using boost::fusion::at_c;
-    if (!val.empty()) {
-        return;
-    }
-    if (at_c<0>(attr2).has_value()) {
-        val = at_c<0>(attr2).value();
-    }
-    val += at_c<1>(attr2);
-    val += at_c<2>(attr2);
-};
-
 constexpr auto properties_elem_helper = [](auto &ctx) {
     std::string_view attr = x3::_attr(ctx);
     pms_utils::ebuild::properties_elem &val = x3::_val(ctx);
@@ -174,9 +153,11 @@ PARSER_DEFINE(license_elem,
               x3::char_("A-Za-z0-9_") >> *x3::char_("A-Za-z0-9+_.-") >> &(x3::ascii::space | x3::eoi));
 PARSER_DEFINE(LICENSE, depend::GroupTemplate2(_internal::license_node));
 
-PARSER_DEFINE(keyword, ((x3::char_("-") >> x3::char_("*")) | (-x3::char_("-~") >> x3::char_("A-Za-z0-9_") >>
-                                                              *x3::char_("A-Za-z0-9_-")))[keyword_helper]);
-PARSER_DEFINE(KEYWORDS, keyword() % +x3::space);
+// - is already inserted after backtracking, and Spirit does not seem to wipe the string?
+// hence manually turn -* into *
+PARSER_DEFINE(keyword, (-x3::char_("~-") >> x3::char_("A-Za-z0-9_") >> *x3::char_("A-Za-z0-9_-")) |
+                           (x3::lit("-*") >> x3::attr(pms_utils::ebuild::keyword{"*"})));
+PARSER_DEFINE(KEYWORDS, keyword() % +x3::ascii::space);
 
 PARSER_DEFINE(inherited_elem, +x3::ascii::graph);
 PARSER_DEFINE(INHERITED, inherited_elem() % +x3::ascii::space);
