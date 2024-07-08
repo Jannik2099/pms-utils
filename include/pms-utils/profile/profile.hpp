@@ -142,6 +142,12 @@ private:
     void init_make_defaults();
     void init_packages();
     void init_package_mask();
+    [[nodiscard]] std::optional<bool> algorithm_5_1_force(std::string_view package,
+                                                          const atom::Useflag &useflag, bool is_stable,
+                                                          const Filters *filter) const;
+    [[nodiscard]] std::optional<bool> algorithm_5_1_mask(std::string_view package,
+                                                         const atom::Useflag &useflag, bool is_stable,
+                                                         const Filters *filter) const;
 
     [[nodiscard]] Profile(const std::filesystem::path &path, std::vector<repo::Repository> repos,
                           const std::shared_ptr<Profile> &injected_parent, bool is_portage_profile = false);
@@ -211,18 +217,21 @@ public:
 
     [[nodiscard]] const decltype(filters_) &filters() const [[clang::lifetimebound]] { return filters_; }
 
-    BOOST_DESCRIBE_CLASS(Profile, (),
-                         (path, name, parents, EAPI, deprecated, make_defaults, make_defaults_unevaluated,
-                          packages, use_mask, use_force, use_stable_mask, use_stable_force, USE, USE_EXPAND,
-                          USE_EXPAND_HIDDEN, CONFIG_PROTECT, CONFIG_PROTECT_MASK, IUSE_IMPLICIT,
-                          USE_EXPAND_IMPLICIT, USE_EXPAND_UNPREFIXED, ENV_UNSET, ARCH, filters),
-                         (),
-                         (is_portage_profile_, path_, name_, repos_, parents_, EAPI_, deprecated_,
-                          make_defaults_, make_defaults_unevaluated_, packages_, use_mask_, use_force_,
-                          use_stable_mask_, use_stable_force_, USE_, USE_EXPAND_, USE_EXPAND_HIDDEN_,
-                          CONFIG_PROTECT_, CONFIG_PROTECT_MASK_, IUSE_IMPLICIT_, USE_EXPAND_IMPLICIT_,
-                          USE_EXPAND_UNPREFIXED_, ENV_UNSET_, ARCH_, filters_, combine_parents,
-                          init_make_defaults, init_packages, init_package_mask));
+    [[nodiscard]] _internal::unordered_str_set<atom::Useflag>
+    effective_useflags(const atom::PackageExpr &atom) const;
+
+    BOOST_DESCRIBE_CLASS(
+        Profile, (),
+        (path, name, parents, EAPI, deprecated, make_defaults, make_defaults_unevaluated, packages, use_mask,
+         use_force, use_stable_mask, use_stable_force, USE, USE_EXPAND, USE_EXPAND_HIDDEN, CONFIG_PROTECT,
+         CONFIG_PROTECT_MASK, IUSE_IMPLICIT, USE_EXPAND_IMPLICIT, USE_EXPAND_UNPREFIXED, ENV_UNSET, ARCH,
+         filters, effective_useflags),
+        (),
+        (is_portage_profile_, path_, name_, repos_, parents_, EAPI_, deprecated_, make_defaults_,
+         make_defaults_unevaluated_, packages_, use_mask_, use_force_, use_stable_mask_, use_stable_force_,
+         USE_, USE_EXPAND_, USE_EXPAND_HIDDEN_, CONFIG_PROTECT_, CONFIG_PROTECT_MASK_, IUSE_IMPLICIT_,
+         USE_EXPAND_IMPLICIT_, USE_EXPAND_UNPREFIXED_, ENV_UNSET_, ARCH_, filters_, combine_parents,
+         init_make_defaults, init_packages, init_package_mask, algorithm_5_1_force, algorithm_5_1_mask));
 };
 
 class PortageProfile : public Profile {

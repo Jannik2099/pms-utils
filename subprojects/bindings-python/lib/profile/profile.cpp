@@ -21,8 +21,9 @@ void _register(py::module &_module) {
             expand_package_expr));
 
     auto py_Filters = create_bindings<Filters>(profile);
-    auto py_Profile =
-        create_bindings<Profile, std::shared_ptr<Profile>>(profile).def(py::init<std::filesystem::path>());
+    auto py_Profile = create_bindings<Profile, std::shared_ptr<Profile>>(profile)
+                          .def(py::init<std::filesystem::path>())
+                          .def("effective_useflags", &Profile::effective_useflags);
     auto py_PortageProfile = create_bindings<PortageProfile, std::shared_ptr<PortageProfile>>(profile).def(
         py::init<std::filesystem::path>());
 }

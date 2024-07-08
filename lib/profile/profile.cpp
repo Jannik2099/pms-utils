@@ -233,6 +233,23 @@ std::vector<repo::Repository> repos_from_portage(const std::filesystem::path &pa
     return ret;
 }
 
+void algo_5_1_helper(const _internal::unordered_str_set<std::string> &set, const atom::Useflag &useflag,
+                     std::optional<bool> &val) {
+    if (set.contains("*")) {
+        val = true;
+    } else if (set.contains("-*")) {
+        val = false;
+    }
+    if (set.contains(useflag)) {
+        val = true;
+        return;
+    }
+    if (set.contains("-" + useflag)) {
+        val = false;
+        return;
+    }
+}
+
 } // namespace
 
 std::vector<std::string> expand_package_expr(std::string_view expr,
@@ -393,6 +410,111 @@ void Profile::init_package_mask() {
             }
         }
     }
+}
+
+// NOLINTNEXTLINE(misc-no-recursion)
+std::optional<bool> Profile::algorithm_5_1_force(std::string_view package, const atom::Useflag &useflag,
+                                                 bool is_stable, const Filters *filter) const {
+    std::optional<bool> forced;
+    for (const auto &parent : parents()) {
+        const auto iter = parent->filters().find(package);
+        const Filters *parent_filter = iter != parent->filters().end() ? &iter->second : nullptr;
+        const auto parent_forced = parent->algorithm_5_1_force(package, useflag, is_stable, parent_filter);
+        if (parent_forced.has_value()) {
+            forced = parent_forced.value();
+        }
+    }
+    algo_5_1_helper(use_force(), useflag, forced);
+    if (is_stable) {
+        algo_5_1_helper(use_stable_force(), useflag, forced);
+    }
+    if (filter != nullptr) {
+        algo_5_1_helper(filter->use_force, useflag, forced);
+        if (is_stable) {
+            algo_5_1_helper(filter->use_stable_force, useflag, forced);
+        }
+    }
+
+    return forced;
+}
+
+// NOLINTNEXTLINE(misc-no-recursion)
+std::optional<bool> Profile::algorithm_5_1_mask(std::string_view package, const atom::Useflag &useflag,
+                                                bool is_stable, const Filters *filter) const {
+    std::optional<bool> masked;
+    for (const auto &parent : parents()) {
+        const auto iter = parent->filters().find(package);
+        const Filters *parent_filter = iter != parent->filters().end() ? &iter->second : nullptr;
+        const auto parent_masked = parent->algorithm_5_1_mask(package, useflag, is_stable, parent_filter);
+        if (parent_masked.has_value()) {
+            masked = parent_masked.value();
+        }
+    }
+    algo_5_1_helper(use_mask(), useflag, masked);
+    if (is_stable) {
+        algo_5_1_helper(use_stable_mask(), useflag, masked);
+    }
+    if (filter != nullptr) {
+        algo_5_1_helper(filter->use_mask, useflag, masked);
+        if (is_stable) {
+            algo_5_1_helper(filter->use_stable_mask, useflag, masked);
+        }
+    }
+
+    return masked;
+}
+
+_internal::unordered_str_set<atom::Useflag> Profile::effective_useflags(const atom::PackageExpr &atom) const {
+    _internal::unordered_str_set<atom::Useflag> ret;
+
+    // TODO: get ebuild from repo priorities, masks etc.
+    const auto ebuild = repos_.at(0)[atom.category].value()[atom.name].value()[atom.version.value()].value();
+    const auto &ebuild_useflags = ebuild.metadata().IUSE;
+    const auto &arch = ARCH();
+    const bool is_stable = std::ranges::find_if(ebuild_useflags, [&arch](const auto &elem) {
+                               return elem.useflag == arch;
+                           }) != std::ranges::end(ebuild_useflags);
+    for (const auto &flag : ebuild_useflags) {
+        std::optional<bool> do_flag;
+        if (flag.default_enabled) {
+            do_flag = true;
+        }
+        if (USE().contains(flag.useflag)) {
+            do_flag = true;
+        } else if (USE().contains('-' + flag.useflag)) {
+            do_flag = false;
+        }
+        if (IUSE_IMPLICIT().contains(flag.useflag)) {
+            do_flag = true;
+        }
+        const auto package_str = std::string{atom} + "::" + repos_.at(0).name();
+        const auto iter = filters().find(package_str);
+        const Filters *filter = iter != filters().end() ? &iter->second : nullptr;
+        if (filter != nullptr) {
+            if (filter->use.contains(flag.useflag)) {
+                do_flag = true;
+            } else if (filter->use.contains('-' + flag.useflag)) {
+                do_flag = false;
+            }
+        }
+        if (algorithm_5_1_force(package_str, flag.useflag, is_stable, filter).value_or(false)) {
+            do_flag = true;
+        }
+        if (algorithm_5_1_mask(package_str, flag.useflag, is_stable, filter).value_or(false)) {
+            do_flag = false;
+        }
+
+        if (!do_flag.has_value()) {
+            continue;
+        }
+        if (do_flag.value()) {
+            ret.emplace(flag.useflag);
+        } else {
+            ret.erase(flag.useflag);
+        }
+    }
+
+    return ret;
 }
 
 Profile::Profile(const std::filesystem::path &path, std::vector<repo::Repository> repos)
