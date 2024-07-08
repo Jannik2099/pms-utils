@@ -26,7 +26,7 @@ namespace {
 
 // combines sacrifice into absorber
 void combine_package_use_sets(_internal::unordered_str_set<std::string> &absorber,
-                              _internal::unordered_str_set<std::string> &sacrifice) {
+                              const _internal::unordered_str_set<std::string> &sacrifice) {
     if (sacrifice.contains("*")) {
         absorber.clear();
         absorber.emplace("*");
@@ -48,10 +48,8 @@ void combine_package_use_sets(_internal::unordered_str_set<std::string> &absorbe
             }
         }
 
-        auto previous_iter = iter;
-        // increment before extract, else the iterator is invalid
+        absorber.emplace(*iter);
         iter++;
-        absorber.insert(sacrifice.extract(previous_iter));
     }
 }
 
