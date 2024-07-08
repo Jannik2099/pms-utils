@@ -13,13 +13,16 @@ PARSER_RULE_T(conds, pms_utils::depend::GroupHeader);
 
 // myeah this is kinda icky. Suggestions welcome
 template <typename Rule> constexpr static auto GroupTemplate1(Rule rule) {
-    return -(conds() >> boost::spirit::x3::omit[+boost::spirit::x3::space]) >> boost::spirit::x3::lit("(") >>
-           boost::spirit::x3::omit[+boost::spirit::x3::space] >> rule() % +boost::spirit::x3::space >>
-           boost::spirit::x3::omit[+boost::spirit::x3::space] >> boost::spirit::x3::lit(")");
+    return -(conds() >> boost::spirit::x3::omit[+boost::spirit::x3::ascii::space]) >>
+           boost::spirit::x3::lit("(") >> boost::spirit::x3::omit[+boost::spirit::x3::ascii::space] >>
+           rule() % +boost::spirit::x3::ascii::space >>
+           boost::spirit::x3::omit[+boost::spirit::x3::ascii::space] >> boost::spirit::x3::lit(")");
 }
 template <typename Rule> constexpr static auto GroupTemplate2(Rule rule) {
-    return boost::spirit::x3::attr(boost::none) >> boost::spirit::x3::omit[*boost::spirit::x3::space] >>
-           rule() % +boost::spirit::x3::space >> boost::spirit::x3::omit[*boost::spirit::x3::space];
+    return boost::spirit::x3::attr(boost::none) >>
+           boost::spirit::x3::omit[*boost::spirit::x3::ascii::space] >>
+           rule() % +boost::spirit::x3::ascii::space >>
+           boost::spirit::x3::omit[*boost::spirit::x3::ascii::space];
 }
 
 PARSER_RULE_T(group, pms_utils::depend::DependExpr);

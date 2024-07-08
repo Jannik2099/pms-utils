@@ -124,7 +124,7 @@ struct phases_token final : x3::symbols<pms_utils::ebuild::phases> {
 namespace [[gnu::visibility("hidden")]] _internal {
 
 PARSER_RULE_T(filename, std::filesystem::path);
-PARSER_DEFINE(filename, (+x3::graph)[filename_helper])
+PARSER_DEFINE(filename, (+x3::ascii::graph)[filename_helper])
 
 PARSER_RULE_T(src_uri_node, pms_utils::ebuild::src_uri::Node);
 PARSER_RULE_T(src_uri_group, pms_utils::ebuild::src_uri);
@@ -158,39 +158,41 @@ PARSER_DEFINE(properties_group, depend::GroupTemplate1(properties_node));
 
 } // namespace _internal
 
-PARSER_DEFINE(uri, (+(x3::alpha | x3::char_("+")) >> x3::string("://") >> +x3::graph)[uri_helper]);
-PARSER_DEFINE(uri_elem, (uri() >> -(x3::omit[+x3::space] >> x3::lit("->") >> x3::omit[+x3::space] >>
-                                    _internal::filename())) |
+PARSER_DEFINE(uri,
+              (+(x3::ascii::alpha | x3::char_("+")) >> x3::string("://") >> +x3::ascii::graph)[uri_helper]);
+PARSER_DEFINE(uri_elem, (uri() >> -(x3::omit[+x3::ascii::space] >> x3::lit("->") >>
+                                    x3::omit[+x3::ascii::space] >> _internal::filename())) |
                             (_internal::filename() >> x3::attr(boost::none)));
 PARSER_DEFINE(SRC_URI, depend::GroupTemplate2(_internal::src_uri_node));
 
-PARSER_DEFINE(restrict_elem, (+x3::graph)[restrict_elem_helper]);
+PARSER_DEFINE(restrict_elem, (+x3::ascii::graph)[restrict_elem_helper]);
 PARSER_DEFINE(RESTRICT, depend::GroupTemplate2(_internal::restrict_node));
 
 PARSER_DEFINE(HOMEPAGE, depend::GroupTemplate2(_internal::homepage_node));
 
-PARSER_DEFINE(license_elem, x3::char_("A-Za-z0-9_") >> *x3::char_("A-Za-z0-9+_.-") >> &(x3::space | x3::eoi));
+PARSER_DEFINE(license_elem,
+              x3::char_("A-Za-z0-9_") >> *x3::char_("A-Za-z0-9+_.-") >> &(x3::ascii::space | x3::eoi));
 PARSER_DEFINE(LICENSE, depend::GroupTemplate2(_internal::license_node));
 
 PARSER_DEFINE(keyword, ((x3::char_("-") >> x3::char_("*")) | (-x3::char_("-~") >> x3::char_("A-Za-z0-9_") >>
                                                               *x3::char_("A-Za-z0-9_-")))[keyword_helper]);
 PARSER_DEFINE(KEYWORDS, keyword() % +x3::space);
 
-PARSER_DEFINE(inherited_elem, +x3::graph);
-PARSER_DEFINE(INHERITED, inherited_elem() % +x3::space);
+PARSER_DEFINE(inherited_elem, +x3::ascii::graph);
+PARSER_DEFINE(INHERITED, inherited_elem() % +x3::ascii::space);
 
 PARSER_DEFINE(iuse_elem, -x3::char_("+") >> atom::useflag());
-PARSER_DEFINE(IUSE, iuse_elem() % +x3::space);
+PARSER_DEFINE(IUSE, iuse_elem() % +x3::ascii::space);
 
 PARSER_DEFINE(REQUIRED_USE, depend::GroupTemplate2(_internal::required_use_node));
 
 PARSER_DEFINE(EAPI, x3::char_("A-Za-z0-9_") >> *x3::char_("A-Za-z0-9+_.-"));
 
-PARSER_DEFINE(properties_elem, (+x3::graph)[properties_elem_helper]);
+PARSER_DEFINE(properties_elem, (+x3::ascii::graph)[properties_elem_helper]);
 PARSER_DEFINE(PROPERTIES, depend::GroupTemplate2(_internal::properties_node));
 
 PARSER_DEFINE(phases, phases_token());
-PARSER_DEFINE(DEFINED_PHASES, x3::lit("-") | (phases() % +x3::space));
+PARSER_DEFINE(DEFINED_PHASES, x3::lit("-") | (phases() % +x3::ascii::space));
 
 } // namespace parsers::ebuild
 } // namespace pms_utils
