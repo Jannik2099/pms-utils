@@ -59,7 +59,7 @@ template <typename T> struct type_name_holder {
 
 } // namespace _type_name
 
-template <typename T> constexpr auto type_name() -> std::string_view {
+template <typename T> [[nodiscard]] constexpr std::string_view type_name() {
     constexpr auto &value = _type_name::type_name_holder<T>::value;
     return std::string_view{value.data(), value.size()};
 }
