@@ -14,13 +14,13 @@ namespace parsers = pms_utils::parsers;
 bool try_parse_helper(const pms_utils::profile::_internal::WildcardAtom &atom) {
     const auto res = try_parse(std::string{atom}, parsers::profile::wildcard_atom());
     if (!res.as_expected) {
-        std::cout << "failed to parse input: " << atom << std::endl;
+        std::cerr << "failed to parse input: " << atom << '\n';
         return false;
     }
     using boost::describe::operators::operator==;
     using boost::describe::operators::operator!=;
     if (res.result != atom) {
-        std::cout << "serialization error:\n\tinput " << atom << "\n\tparsed " << res.result << std::endl;
+        std::cerr << "serialization error:\n\tinput " << atom << "\n\tparsed " << res.result << '\n';
         return false;
     }
     return true;
