@@ -292,7 +292,7 @@ std::optional<std::strong_ordering> algorithm_3_2(const VersionNumber &left, con
     for (std::size_t i = 1; i < std::min(left.size(), right.size()); i++) {
         const auto ret = algorithm_3_3(left[i], right[i]);
         if (ret.has_value()) {
-            return ret.value();
+            return ret;
         }
     }
 
@@ -347,7 +347,7 @@ std::optional<std::strong_ordering> algorithm_3_5(const std::vector<VersionSuffi
     for (std::size_t i = 0; i < std::min(left.size(), right.size()); i++) {
         const auto ret = algorithm_3_6(left[i], right[i]);
         if (ret.has_value()) {
-            return ret.value();
+            return ret;
         }
     }
     if (left.size() < right.size()) {
