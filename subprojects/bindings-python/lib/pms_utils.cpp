@@ -14,8 +14,10 @@ namespace py = pybind11;
 
 namespace pms_utils::bindings::python::_internal {
 
+namespace {
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-static std::unordered_map<std::type_index, py::object> _enums;
+std::unordered_map<std::type_index, py::object> _enums;
+} // namespace
 
 std::unordered_map<std::type_index, py::object> &enums() { return _enums; };
 
