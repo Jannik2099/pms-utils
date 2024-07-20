@@ -45,8 +45,9 @@ BOOST_FUSION_ADAPT_STRUCT(pms_utils::profile::_internal::package_use_elem, negat
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define BOOST_SPIRIT_INSTANTIATE(rule_type, Iterator, Context)                                               \
     template __attribute__((visibility("default"))) bool parse_rule<Iterator, Context>(                      \
-        ::boost::spirit::x3::detail::rule_id<rule_type::id>, Iterator & first, Iterator const &last,         \
-        Context const &context, rule_type::attribute_type &);
+        ::boost::spirit::x3::detail::rule_id<rule_type::id>,                                                 \
+        Iterator & first, /* NOLINT(bugprone-macro-parentheses) */                                           \
+        Iterator const &last, Context const &context, rule_type::attribute_type &);
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PARSER_DEFINE(name, rule)                                                                            \
