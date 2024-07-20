@@ -218,7 +218,7 @@ public:
         return lhs.index_.size() <=> rhs.index_.size();
     }
     [[nodiscard]] friend constexpr bool operator==(const Iterator &lhs, const Iterator &rhs) noexcept {
-        return lhs <=> rhs == std::strong_ordering::equal;
+        return (lhs <=> rhs) == std::strong_ordering::equal;
     }
 
     [[nodiscard]] constexpr reference operator*() const [[clang::lifetimebound]] { return *node; }
