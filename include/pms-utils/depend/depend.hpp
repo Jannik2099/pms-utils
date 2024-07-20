@@ -31,7 +31,7 @@ namespace [[gnu::visibility("default")]] pms_utils {
 namespace depend {
 
 struct UseConditional {
-    bool negate;
+    bool negate{};
     atom::Useflag useflag;
 
     [[nodiscard]] explicit operator std::string() const;

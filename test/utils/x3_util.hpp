@@ -8,7 +8,7 @@
 #include <string_view>
 
 template <typename T> struct parse_result {
-    T result;
+    T result{};
     bool success{};
     std::string consumed;
     std::string remainder;
