@@ -9,6 +9,7 @@
 #include <boost/mp11/list.hpp> // IWYU pragma: keep
 #include <boost/optional/optional.hpp>
 #include <boost/variant/variant.hpp>
+#include <cstdint>
 #include <filesystem>
 #include <iosfwd>
 #include <string>
@@ -32,7 +33,7 @@ struct src_uri : public depend::GroupExpr<uri_elem, src_uri> {
 
 struct restrict_elem {
     std::string string;
-    enum class Type { UNKNOWN, mirror, fetch, strip, userpriv, test };
+    enum class Type : std::uint8_t { UNKNOWN, mirror, fetch, strip, userpriv, test };
     Type type = restrict_elem::Type::UNKNOWN;
 
     [[nodiscard]] explicit operator std::string() const;
@@ -78,7 +79,7 @@ struct eapi : public std::string {};
 
 struct properties_elem {
     std::string string;
-    enum class Type { UNKNOWN, interactive, live, test_network };
+    enum class Type : std::uint8_t { UNKNOWN, interactive, live, test_network };
     Type type = properties_elem::Type::UNKNOWN;
 
     [[nodiscard]] explicit operator std::string() const;
@@ -87,8 +88,8 @@ struct properties : public depend::GroupExpr<properties_elem, properties> {
     using Base = depend::GroupExpr<properties_elem, properties>;
 };
 
-BOOST_DEFINE_ENUM_CLASS(phases, pretend, setup, unpack, prepare, configure, compile, test, install, preinst,
-                        postinst, prerm, postrm, config, info, nofetch);
+BOOST_DEFINE_FIXED_ENUM_CLASS(phases, std::uint8_t, pretend, setup, unpack, prepare, configure, compile, test,
+                              install, preinst, postinst, prerm, postrm, config, info, nofetch);
 struct defined_phases : public std::vector<phases> {
     [[nodiscard]] explicit operator std::string() const;
 };
