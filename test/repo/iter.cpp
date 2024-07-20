@@ -19,7 +19,7 @@ int main() {
     }
 
     std::set<std::filesystem::path> ebuilds_found;
-    for (Repository repo(REPO); const Category &category : repo) {
+    for (const Repository repo{REPO}; const Category &category : repo) {
         for (const Package &package : category) {
             for (const Ebuild &ebuild : package) {
                 ebuilds_found.insert(ebuild.path);

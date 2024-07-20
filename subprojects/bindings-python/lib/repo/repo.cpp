@@ -16,7 +16,7 @@ using namespace pms_utils::repo;
 namespace pms_utils::bindings::python::repo {
 
 void _register(py::module &_module) {
-    py::module repo = _module.def_submodule("repo");
+    const py::module repo = _module.def_submodule("repo");
 
     // pybind seems to choke on the lazy-init of Metadata? Lifetime tracking doesn't work properly
     auto py_Ebuild = create_bindings<Ebuild>(repo).def_property_readonly("metadata", &Ebuild::metadata,

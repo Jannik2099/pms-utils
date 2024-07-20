@@ -42,10 +42,7 @@ struct package_use_elem {
 struct StringHash {
     using is_transparent = void;
 
-    std::size_t operator()(std::string_view view) const {
-        std::hash<std::string_view> hasher;
-        return hasher(view);
-    }
+    std::size_t operator()(std::string_view view) const { return std::hash<std::string_view>{}(view); }
 };
 
 template <typename T>

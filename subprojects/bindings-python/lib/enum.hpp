@@ -35,7 +35,7 @@ std::unordered_map<std::type_index, py::object> &enums();
 template <typename M, typename T>
     requires std::is_enum_v<T> && boost::describe::has_describe_enumerators<T>::value
 auto bind_enum(M &mod, std::string_view name, std::string_view enum_type) {
-    py::gil_scoped_acquire gil;
+    const py::gil_scoped_acquire gil;
 
     using namespace boost::mp11;
     using enum_t = std::underlying_type_t<T>;
@@ -61,7 +61,7 @@ struct type_caster<T> {
 
 public:
     bool load(handle src, bool /*unused*/) {
-        if (py::object cls = pms_utils::bindings::python::_internal::enums().at(typeid(T));
+        if (const py::object cls = pms_utils::bindings::python::_internal::enums().at(typeid(T));
             pybind11::isinstance(src, cls)) {
             PyObject *tmp = PyNumber_Index(src.attr("value").ptr());
             if (tmp != nullptr) {
@@ -73,8 +73,8 @@ public:
         }
         return false;
     }
-    static handle cast(decltype(value) obj, return_value_policy /*unused*/, handle /*unused*/) {
-        py::object cls = pms_utils::bindings::python::_internal::enums().at(typeid(T));
+    static handle cast(const decltype(value) &obj, return_value_policy /*unused*/, handle /*unused*/) {
+        const py::object cls = pms_utils::bindings::python::_internal::enums().at(typeid(T));
         return cls(std::underlying_type_t<T>(obj)).inc_ref();
     }
 };

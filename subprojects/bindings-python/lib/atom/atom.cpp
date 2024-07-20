@@ -21,7 +21,7 @@ namespace atom {
 
 void _register(py::module &_module) {
 
-    py::module atom = _module.def_submodule("atom");
+    const py::module atom = _module.def_submodule("atom");
 
     // TODO
     // Version number components should be exposed as ints as python uses VarInts

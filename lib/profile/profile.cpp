@@ -226,7 +226,7 @@ std::vector<repo::Repository> repos_from_portage(const std::filesystem::path &pa
         if (line.empty()) {
             continue;
         }
-        std::string_view line_str{line.data(), line.size()};
+        const std::string_view line_str{line.data(), line.size()};
         if (line_str.starts_with("location = ")) {
             repo::Repository repo{line_str.substr(sizeof("location = ") - 1)};
             if (std::ranges::find(ret, repo) != ret.end()) {
@@ -304,7 +304,7 @@ void Profile::combine_parents() {
 
 void Profile::init_make_defaults() {
     if (const auto file = path_ / "make.defaults"; std::filesystem::is_regular_file(file)) {
-        std::ifstream fstream{file};
+        const std::ifstream fstream{file};
         std::stringstream stream;
         stream << fstream.rdbuf();
         const std::string_view content = stream.view();

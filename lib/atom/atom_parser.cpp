@@ -112,7 +112,7 @@ constexpr inline auto slot_expr_helper = [](auto &ctx) {
     case 1: {
         auto &var2 = boost::get<boost::fusion::deque<boost::optional<pms_utils::atom::Slot>, bool>>(attr);
         const boost::optional<pms_utils::atom::Slot> &slot = at_c<0>(var2);
-        bool equal = at_c<1>(var2);
+        const bool equal = at_c<1>(var2);
 
         val.slot = slot;
         val.slotVariant = equal ? pms_utils::atom::SlotVariant::equal : pms_utils::atom::SlotVariant::none;
@@ -152,7 +152,7 @@ constexpr inline auto package_dep_helper = [](auto &ctx, bool requireVerSpec) {
 
     if (versionPart.has_value()) {
         const pms_utils::atom::Version &version = at_c<0>(versionPart.value());
-        bool asterisk = at_c<1>(versionPart.value());
+        const bool asterisk = at_c<1>(versionPart.value());
 
         if (!version_specifier.has_value() && requireVerSpec) {
             // TODO
