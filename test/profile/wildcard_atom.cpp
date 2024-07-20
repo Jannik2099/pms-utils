@@ -26,6 +26,7 @@ bool try_parse_helper(const pms_utils::profile::_internal::WildcardAtom &atom) {
     return true;
 }
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 int main() {
 
     bool success = true;
