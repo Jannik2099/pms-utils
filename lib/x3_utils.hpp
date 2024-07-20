@@ -42,11 +42,13 @@ BOOST_FUSION_ADAPT_STRUCT(pms_utils::profile::_internal::package_use_elem, negat
 // I genuinely do not care as it is not even remotely worth the effort
 // gcc-style attribute because a C++ attribute is not allowed in this context
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define BOOST_SPIRIT_INSTANTIATE(rule_type, Iterator, Context)                                               \
     template __attribute__((visibility("default"))) bool parse_rule<Iterator, Context>(                      \
         ::boost::spirit::x3::detail::rule_id<rule_type::id>, Iterator & first, Iterator const &last,         \
         Context const &context, rule_type::attribute_type &);
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PARSER_DEFINE(name, rule)                                                                            \
     namespace [[gnu::visibility("default")]] _parsers {                                                      \
     const name##_spirit_rule_t name##_spirit_rule{#name};                                                    \
