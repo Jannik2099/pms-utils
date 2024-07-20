@@ -70,6 +70,8 @@ bool metadata_parser(std::string_view line, std::string_view name, Member &membe
 
 } // namespace
 
+// not sure how to better organize, suggestions welcome
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 const ebuild::Metadata &Ebuild::metadata() const {
     if (_metadata.has_value()) {
         return _metadata.value();
