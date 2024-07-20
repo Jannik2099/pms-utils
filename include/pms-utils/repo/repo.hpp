@@ -5,8 +5,9 @@
 #include "pms-utils/misc/meta.hpp"
 
 #include <boost/container_hash/hash.hpp>
-#include <boost/describe.hpp>
-#include <boost/mp11/list.hpp>
+#include <boost/describe/class.hpp>
+#include <boost/mp11/list.hpp> // IWYU pragma: keep
+#include <cstddef>
 #include <filesystem>
 #include <optional>
 #include <string>

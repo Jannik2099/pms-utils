@@ -1,16 +1,20 @@
 #include "../utils/misc.hpp"
 #include "pms-utils/repo/repo.hpp"
 
-#include <boost/mp11.hpp>
+#include <boost/describe/members.hpp>
+#include <boost/describe/modifiers.hpp>
+#include <boost/mp11/algorithm.hpp>
 #include <chrono>
 #include <cstddef>
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <pms-utils/ebuild/ebuild.hpp>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 using namespace pms_utils;

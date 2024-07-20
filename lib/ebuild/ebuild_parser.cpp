@@ -5,7 +5,22 @@
 #include "pms-utils/ebuild/ebuild.hpp"
 #include "pms-utils/misc/x3_utils.hpp"
 
-#include <boost/spirit/home/x3.hpp>
+#include <boost/fusion/container/deque/deque.hpp>
+#include <boost/none.hpp>
+#include <boost/spirit/home/x3.hpp> // IWYU pragma: keep
+#include <boost/spirit/home/x3/auxiliary/attr.hpp>
+#include <boost/spirit/home/x3/auxiliary/eoi.hpp>
+#include <boost/spirit/home/x3/char/char.hpp>
+#include <boost/spirit/home/x3/char/char_class.hpp>
+#include <boost/spirit/home/x3/directive/omit.hpp>
+#include <boost/spirit/home/x3/string/literal_string.hpp>
+#include <boost/spirit/home/x3/string/symbols.hpp>
+#include <boost/variant/get.hpp>
+#include <boost/variant/variant.hpp>
+#include <filesystem>
+#include <string>
+#include <string_view>
+#include <vector>
 
 // comment to prevent reordering
 #include "../x3_utils.hpp"

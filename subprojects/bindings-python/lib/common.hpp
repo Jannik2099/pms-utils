@@ -6,22 +6,27 @@
 
 #include <algorithm>
 #include <array>
+#include <boost/describe/bases.hpp>
 #include <boost/describe/enumerators.hpp>
 #include <boost/describe/members.hpp>
 #include <boost/describe/modifiers.hpp>
 #include <boost/mp11/algorithm.hpp>
 #include <boost/mp11/list.hpp>
 #include <boost/mp11/utility.hpp>
-#include <boost/optional.hpp>
-#include <boost/variant.hpp>
+#include <boost/optional/optional.hpp>
+#include <boost/variant/variant.hpp>
 #include <concepts>
+#include <cstddef>
 #include <format>
+#include <functional>
 #include <pybind11/attr.h>
+#include <pybind11/cast.h>
+#include <pybind11/detail/common.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
 #include <pybind11/stl.h>
-#include <pybind11/stl/filesystem.h>
+#include <pybind11/stl/filesystem.h> // IWYU pragma: keep
 #include <ranges>
 #include <string>
 #include <string_view>

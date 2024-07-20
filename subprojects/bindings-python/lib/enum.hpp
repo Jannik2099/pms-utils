@@ -2,16 +2,25 @@
 
 #include "internal.hpp"
 
-#include <boost/describe.hpp>
+#include <abstract.h>
+#include <boost/describe/enumerators.hpp>
 #include <boost/mp11/algorithm.hpp>
+#include <longobject.h>
+#include <object.h>
 #include <pybind11/cast.h>
+#include <pybind11/detail/common.h>
 #include <pybind11/gil.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
-#include <pybind11/stl.h>
+#include <pyerrors.h>
+#include <pytypedefs.h>
+#include <string>
+#include <string_view>
 #include <type_traits>
 #include <typeindex>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 namespace py = pybind11;
 

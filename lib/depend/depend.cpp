@@ -1,5 +1,9 @@
 #include "pms-utils/depend/depend.hpp"
 
+#include <boost/variant/static_visitor.hpp>
+#include <ostream>
+#include <string>
+
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace depend {
 

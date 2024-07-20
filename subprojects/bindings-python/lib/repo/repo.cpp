@@ -1,11 +1,13 @@
 #include "repo.hpp"
 
 #include "../common.hpp"
+#include "pms-utils/atom/atom.hpp"
 #include "pms-utils/repo/repo.hpp"
 
+#include <filesystem>
 #include <pybind11/detail/common.h>
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <string_view>
 
 namespace py = pybind11;
 

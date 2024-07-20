@@ -2,11 +2,12 @@
 #include "ebuild.hpp"
 
 #include "../common.hpp"
+#include "../subprojects/bindings-python/lib/internal.hpp"
 #include "pms-utils/ebuild/ebuild.hpp"
 #include "pms-utils/ebuild/ebuild_parser.hpp"
 
 #include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <string_view>
 
 namespace py = pybind11;
 

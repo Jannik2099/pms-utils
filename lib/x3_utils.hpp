@@ -5,10 +5,11 @@
 #include "pms-utils/ebuild/ebuild.hpp"
 #include "pms-utils/profile/profile.hpp"
 
-#include <boost/fusion/adapted/std_tuple.hpp>
-#include <boost/fusion/adapted/struct.hpp>
+#include <boost/fusion/adapted/std_tuple.hpp> // IWYU pragma: keep
+#include <boost/fusion/adapted/struct.hpp>    // IWYU pragma: keep
 #include <boost/fusion/adapted/struct/adapt_struct.hpp>
-#include <boost/spirit/home/x3.hpp>
+#include <boost/spirit/home/x3.hpp> // IWYU pragma: keep
+#include <boost/spirit/home/x3/nonterminal/rule.hpp>
 
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::atom::Slot, slot, subslot);
 BOOST_FUSION_ADAPT_STRUCT(pms_utils::atom::VersionSuffix, word, number);

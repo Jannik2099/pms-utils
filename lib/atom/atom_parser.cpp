@@ -2,7 +2,16 @@
 
 #include "pms-utils/atom/atom.hpp"
 
-#include <boost/spirit/home/x3.hpp>
+#include <boost/fusion/container/deque/deque.hpp>
+#include <boost/optional/optional.hpp>
+#include <boost/spirit/home/x3.hpp> // IWYU pragma: keep
+#include <boost/spirit/home/x3/char/char.hpp>
+#include <boost/spirit/home/x3/char/char_class.hpp>
+#include <boost/spirit/home/x3/directive/matches.hpp>
+#include <boost/spirit/home/x3/string/literal_string.hpp>
+#include <boost/spirit/home/x3/string/symbols.hpp>
+#include <boost/variant/get.hpp>
+#include <boost/variant/variant.hpp>
 #include <stdexcept>
 
 // comment to prevent reordering

@@ -3,7 +3,11 @@
 #include "depend.hpp"
 #include "pms-utils/misc/x3_utils.hpp"
 
-#include <boost/spirit/home/x3.hpp>
+#include <boost/none.hpp>
+#include <boost/spirit/home/x3/auxiliary/attr.hpp>
+#include <boost/spirit/home/x3/char/char_class.hpp>
+#include <boost/spirit/home/x3/directive/omit.hpp>
+#include <boost/spirit/home/x3/string/literal_string.hpp>
 
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace parsers::depend {

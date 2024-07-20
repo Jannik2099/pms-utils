@@ -6,10 +6,11 @@
 
 #include <boost/describe/class.hpp>
 #include <boost/describe/enum.hpp>
-#include <boost/mp11/list.hpp>
-#include <boost/optional.hpp>
+#include <boost/mp11/list.hpp> // IWYU pragma: keep
+#include <boost/optional/optional.hpp>
+#include <boost/variant/variant.hpp>
 #include <filesystem>
-#include <ostream>
+#include <iosfwd>
 #include <string>
 #include <vector>
 

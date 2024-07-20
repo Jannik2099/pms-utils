@@ -6,14 +6,20 @@
 #include "pms-utils/ebuild/ebuild.hpp"
 #include "pms-utils/ebuild/ebuild_parser.hpp"
 
-#include <boost/fusion/adapted.hpp>
-#include <boost/spirit/home/x3.hpp>
+#include <boost/fusion/adapted/struct/adapt_struct.hpp>
+#include <boost/spirit/home/x3/core/parse.hpp>
+#include <boost/spirit/home/x3/nonterminal/rule.hpp>
+#include <boost/spirit/home/x3/string/literal_string.hpp>
+#include <cstring>
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <optional>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace x3 = boost::spirit::x3;
 

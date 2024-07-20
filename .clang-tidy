@@ -1,3 +1,6 @@
-Checks: '-*, bugprone-*, cppcoreguidelines-*, -cppcoreguidelines-avoid-magic-numbers,  -cppcoreguidelines-non-private-member-variables-in-classes, misc-*, -misc-non-private-member-variables-in-classes, modernize-*, -modernize-use-trailing-return-type, performance-*, portability-*, readability-*, -readability-magic-numbers, clang-*'
+Checks: "-*, bugprone-*, cppcoreguidelines-*, -cppcoreguidelines-avoid-magic-numbers,  -cppcoreguidelines-non-private-member-variables-in-classes, misc-*, -misc-non-private-member-variables-in-classes, modernize-*, -modernize-use-trailing-return-type, performance-*, portability-*, readability-*, -readability-magic-numbers, clang-*"
 HeaderFilterRegex: '.*\.hpp'
-FormatStyle: 'file'
+FormatStyle: "file"
+ExtraArgsBefore: ["-DPMS_UTILS_CLANG_TIDY"]
+CheckOptions:
+  misc-include-cleaner.IgnoreHeaders: "[gc]\\+\\+.*/bits/.*;boost/.*/detail/.*"

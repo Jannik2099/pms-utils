@@ -6,13 +6,21 @@
 #include "pms-utils/profile/profile.hpp"
 
 #include <boost/fusion/container/deque/deque.hpp>
-#include <boost/spirit/home/x3.hpp>
-#include <boost/spirit/home/x3/auxiliary/eoi.hpp>
-#include <boost/spirit/home/x3/char/any_char.hpp>
+#include <boost/optional/optional.hpp>
+#include <boost/spirit/home/x3.hpp> // IWYU pragma: keep
+#include <boost/spirit/home/x3/auxiliary/attr.hpp>
+#include <boost/spirit/home/x3/auxiliary/eol.hpp>
+#include <boost/spirit/home/x3/char/char.hpp>
 #include <boost/spirit/home/x3/char/char_class.hpp>
-#include <boost/spirit/home/x3/core/action.hpp>
-#include <boost/spirit/home/x3/core/call.hpp>
+#include <boost/spirit/home/x3/directive/matches.hpp>
+#include <boost/spirit/home/x3/directive/omit.hpp>
+#include <boost/spirit/home/x3/string/literal_string.hpp>
 #include <boost/spirit/home/x3/support/unused.hpp>
+#include <boost/variant/variant.hpp>
+#include <cstddef>
+#include <string>
+#include <tuple>
+#include <utility>
 
 // comment to prevent reordering
 #include "../x3_utils.hpp"

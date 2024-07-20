@@ -2,11 +2,16 @@
 
 #include "pms-utils/atom/atom_parser.hpp"
 
+#include <algorithm>
+#include <boost/spirit/home/x3/core/parse.hpp>
 #include <compare>
+#include <cstddef>
+#include <iostream>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace atom {

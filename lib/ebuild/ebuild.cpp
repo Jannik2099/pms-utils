@@ -1,6 +1,7 @@
 #include "pms-utils/ebuild/ebuild.hpp"
 
 #include <boost/variant/static_visitor.hpp>
+#include <filesystem>
 #include <format>
 #include <ostream>
 #include <string>
