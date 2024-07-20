@@ -1,6 +1,7 @@
 #pragma once
 
-#include <boost/spirit/home/x3.hpp>
+#include <boost/spirit/home/x3.hpp> // IWYU pragma: keep
+#include <boost/spirit/home/x3/nonterminal/rule.hpp>
 
 // the C macro language is truly a piece of shit to behold
 // this allows us to pass foo<T1, T2> as a macro arg

@@ -4,9 +4,11 @@
 #include "pms-utils/misc/x3_utils.hpp"
 #include "pms-utils/profile/profile.hpp"
 
-#include <boost/variant.hpp>
+#include <boost/variant/variant.hpp>
+#include <filesystem>
 #include <string>
 #include <tuple>
+#include <unordered_set>
 #include <vector>
 
 namespace [[gnu::visibility("default")]] pms_utils {

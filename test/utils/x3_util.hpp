@@ -1,7 +1,6 @@
 #pragma once
 
-#include <boost/spirit/home/x3.hpp>
-#include <boost/spirit/home/x3/nonterminal/rule.hpp>
+#include <boost/spirit/home/x3/core/parse.hpp> // IWYU pragma: keep
 #include <format>
 #include <iostream>
 #include <sstream>

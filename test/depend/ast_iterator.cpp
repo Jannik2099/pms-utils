@@ -3,8 +3,11 @@
 #include "pms-utils/depend/depend_parser.hpp"
 #include "x3_util.hpp"
 
+#include <boost/variant/static_visitor.hpp>
 #include <format>
+#include <iostream>
 #include <string>
+#include <vector>
 
 using namespace pms_utils;
 using namespace depend;

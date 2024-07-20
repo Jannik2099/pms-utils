@@ -7,16 +7,23 @@
 #include "profile_wildcard.hpp"
 
 #include <algorithm>
+#include <boost/spirit/home/x3/core/parse.hpp>
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <functional>
 #include <memory>
+#include <optional>
 #include <ranges>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <type_traits>
+#include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 namespace [[gnu::visibility("default")]] pms_utils {

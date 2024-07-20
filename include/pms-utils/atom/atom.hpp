@@ -4,11 +4,10 @@
 
 #include <boost/describe/class.hpp>
 #include <boost/describe/enum.hpp>
-#include <boost/mp11/list.hpp>
-#include <boost/optional.hpp>
-#include <boost/variant/variant.hpp>
+#include <boost/mp11/list.hpp> // IWYU pragma: keep
+#include <boost/optional/optional.hpp>
 #include <compare>
-#include <iostream>
+#include <iosfwd>
 #include <string>
 #include <string_view>
 #include <vector>

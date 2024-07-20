@@ -3,12 +3,16 @@
 #include <boost/container_hash/hash.hpp>
 #include <boost/describe/enumerators.hpp>
 #include <boost/describe/members.hpp>
-#include <boost/describe/modifiers.hpp>
-#include <boost/describe/operators.hpp>
+#include <boost/describe/modifiers.hpp> // IWYU pragma: keep
+#include <boost/describe/operators.hpp> // IWYU pragma: keep
 #include <boost/mp11/algorithm.hpp>
+#include <boost/mp11/list.hpp> // IWYU pragma: keep
+#include <boost/mp11/set.hpp>  // IWYU pragma: keep
 #include <boost/mp11/utility.hpp>
-#include <boost/optional.hpp>
+#include <boost/optional/optional.hpp>
 #include <concepts>
+#include <cstddef>
+#include <functional>
 #include <type_traits>
 
 namespace pms_utils::meta::_internal {

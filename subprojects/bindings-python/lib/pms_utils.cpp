@@ -4,7 +4,10 @@
 #include "profile/profile.hpp"
 #include "repo/repo.hpp"
 
-#include <pybind11/pybind11.h>
+#include <pybind11/detail/common.h>
+#include <pybind11/pytypes.h>
+#include <typeindex>
+#include <unordered_map>
 
 using namespace pms_utils::bindings::python;
 namespace py = pybind11;

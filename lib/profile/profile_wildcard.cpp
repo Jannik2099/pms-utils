@@ -1,9 +1,23 @@
 #include "profile_wildcard.hpp"
 
+#include "pms-utils/atom/atom.hpp"
+#include "pms-utils/profile/profile.hpp"
+#include "pms-utils/repo/repo.hpp"
+
+#include <algorithm>
+#include <boost/regex/v5/match_flags.hpp>
+#include <boost/regex/v5/regex_fwd.hpp>
+#include <boost/regex/v5/regex_match.hpp>
+#include <boost/regex/v5/regex_replace.hpp>
+#include <boost/variant/get.hpp>
 #include <compare>
 #include <format>
+#include <optional>
 #include <stdexcept>
+#include <string>
+#include <string_view>
 #include <type_traits>
+#include <vector>
 
 namespace pms_utils::profile::_internal {
 

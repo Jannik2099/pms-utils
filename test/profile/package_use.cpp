@@ -1,5 +1,7 @@
 #include "pms-utils/profile/profile_parser.hpp"
 
+#include <ostream>
+
 using namespace pms_utils;
 
 // down to hell we go

@@ -4,7 +4,12 @@
 #include "pms-utils/profile/profile.hpp"
 #include "pms-utils/repo/repo.hpp"
 
+#include <filesystem>
+#include <memory>
 #include <pybind11/pybind11.h>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace py = pybind11;
 

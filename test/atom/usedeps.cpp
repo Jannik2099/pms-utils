@@ -1,6 +1,8 @@
 #include "pms-utils/atom/atom.hpp"
 #include "pms-utils/atom/atom_parser.hpp"
 
+#include <boost/spirit/home/x3/core/parse.hpp>
+#include <iostream>
 #include <string>
 
 using namespace pms_utils::atom;

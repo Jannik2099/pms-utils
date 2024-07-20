@@ -1,8 +1,12 @@
 #include "pms-utils/depend/depend_parser.hpp"
 
 #include "pms-utils/atom/atom_parser.hpp"
+#include "pms-utils/depend/depend.hpp"
 
-#include <boost/spirit/home/x3.hpp>
+#include <boost/spirit/home/x3.hpp> // IWYU pragma: keep
+#include <boost/spirit/home/x3/directive/matches.hpp>
+#include <boost/spirit/home/x3/string/literal_string.hpp>
+#include <boost/spirit/home/x3/string/symbols.hpp>
 
 // comment to prevent reordering
 #include "../x3_utils.hpp"

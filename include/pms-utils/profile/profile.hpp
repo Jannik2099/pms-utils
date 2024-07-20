@@ -1,20 +1,24 @@
 #pragma once
 
 #include "pms-utils/atom/atom.hpp"
+#include "pms-utils/misc/meta.hpp"
 #include "pms-utils/repo/repo.hpp"
 
 #include <boost/container_hash/hash.hpp>
-#include <boost/describe/bases.hpp>
 #include <boost/describe/class.hpp>
-#include <boost/optional.hpp>
-#include <boost/regex.hpp>
-#include <boost/variant.hpp>
+#include <boost/mp11/list.hpp> // IWYU pragma: keep
+#include <boost/optional/optional.hpp>
+#include <boost/variant/variant.hpp>
+#include <cstddef>
 #include <filesystem>
 #include <functional>
 #include <memory>
+#include <optional>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>

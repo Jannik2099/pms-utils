@@ -3,7 +3,8 @@
 #include "pms-utils/profile/profile.hpp"
 #include "pms-utils/repo/repo.hpp"
 
-#include <boost/regex.hpp>
+#include <boost/regex.hpp> // IWYU pragma: keep
+#include <boost/regex/v5/regex_fwd.hpp>
 #include <optional>
 #include <string>
 #include <vector>

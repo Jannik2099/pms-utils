@@ -3,10 +3,9 @@
 #include <array>
 #include <cstddef>
 #include <pybind11/detail/descr.h>
-#include <pybind11/pybind11.h>
 #include <stdexcept>
+#include <string>
 #include <string_view>
-#include <type_traits>
 #include <utility>
 
 namespace pms_utils::bindings::python {

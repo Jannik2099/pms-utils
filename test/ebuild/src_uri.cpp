@@ -1,6 +1,8 @@
 #include "pms-utils/ebuild/ebuild_parser.hpp"
 #include "x3_util.hpp"
 
+#include <string>
+
 using namespace pms_utils::ebuild;
 namespace parsers = pms_utils::parsers;
 

@@ -4,6 +4,9 @@
 #include "x3_util.hpp"
 
 #include <boost/describe/operators.hpp>
+#include <iostream>
+#include <ostream>
+#include <string>
 
 namespace parsers = pms_utils::parsers;
 
