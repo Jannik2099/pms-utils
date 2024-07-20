@@ -91,7 +91,7 @@ template <typename Rule> [[nodiscard]] static inline auto expr_from_str(Rule rul
 // this is essentially just a s/::/./g
 // oh the wonders of constexpr string manipulation
 template <pybind11::detail::descr descr> constexpr auto descr_qualified_fixup() {
-    constexpr std::string_view str{descr.text};
+    constexpr std::string_view str{static_cast<const char *>(descr.text)};
     constexpr std::string_view lhs = str.substr(0, str.find_first_of(':'));
     constexpr auto lhs_indices = std::make_index_sequence<lhs.size()>{};
     constexpr auto lhs_descr = array_as_descr(string_view_as_array(str, lhs_indices), lhs_indices);
