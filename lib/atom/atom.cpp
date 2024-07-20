@@ -63,9 +63,7 @@ VersionNumber::operator std::string() const {
     }
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const VersionNumber &versionNumber) {
-    return out << std::string(versionNumber);
-}
+std::ostream &VersionNumber::ostream_impl(std::ostream &out) const { return out << std::string(*this); }
 
 std::string to_string(VersionSuffixWord versionSuffixWord) {
     switch (versionSuffixWord) {
@@ -90,9 +88,7 @@ std::ostream &operator<<(std::ostream &out, VersionSuffixWord versionSuffixWord)
 }
 
 VersionSuffix::operator std::string() const { return to_string(word) + number; }
-std::ostream &operator<<(std::ostream &out, const VersionSuffix &suffix) {
-    return out << std::string(suffix);
-}
+std::ostream &VersionSuffix::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 Version::operator std::string() const {
     std::string ret;
@@ -108,7 +104,7 @@ Version::operator std::string() const {
     }
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const Version &version) { return out << std::string(version); }
+std::ostream &Version::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 std::string to_string(Blocker blocker) {
     switch (blocker) {
@@ -131,7 +127,7 @@ Slot::operator std::string() const {
     }
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const Slot &slot) { return out << std::string(slot); }
+std::ostream &Slot::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 SlotExpr::operator std::string() const {
     std::string ret;
@@ -152,7 +148,7 @@ SlotExpr::operator std::string() const {
     }
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const SlotExpr &slotExpr) { return out << std::string(slotExpr); }
+std::ostream &SlotExpr::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 std::string to_string(UsedepNegate usedepNegate) {
     switch (usedepNegate) {
@@ -217,7 +213,7 @@ Usedep::operator std::string() const {
     }
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const Usedep &usedep) { return out << std::string(usedep); }
+std::ostream &Usedep::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 Usedeps::operator std::string() const {
     std::string ret;
@@ -233,7 +229,7 @@ Usedeps::operator std::string() const {
     ret += "]";
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const Usedeps &usedeps) { return out << std::string(usedeps); }
+std::ostream &Usedeps::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 PackageExpr::operator std::string() const {
     std::string ret;
@@ -257,10 +253,7 @@ PackageExpr::operator std::string() const {
     ret += std::string(usedeps);
     return ret;
 }
-
-std::ostream &operator<<(std::ostream &out, const PackageExpr &package) {
-    return out << std::string(package);
-}
+std::ostream &PackageExpr::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 // END IO
 

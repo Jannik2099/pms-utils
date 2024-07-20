@@ -21,10 +21,17 @@ namespace ebuild {
 struct URI : public std::string {};
 
 struct uri_elem {
+private:
+    std::ostream &ostream_impl(std::ostream &out) const;
+
+public:
     boost::variant<URI, std::filesystem::path> uri;
     boost::optional<std::filesystem::path> filename;
 
     [[nodiscard]] explicit operator std::string() const;
+    friend std::ostream &operator<<(std::ostream &out, const uri_elem &uri_elem) {
+        return uri_elem.ostream_impl(out);
+    }
 };
 
 struct src_uri : public depend::GroupExpr<uri_elem, src_uri> {
@@ -32,11 +39,18 @@ struct src_uri : public depend::GroupExpr<uri_elem, src_uri> {
 };
 
 struct restrict_elem {
+private:
+    std::ostream &ostream_impl(std::ostream &out) const;
+
+public:
     std::string string;
     enum class Type : std::uint8_t { UNKNOWN, mirror, fetch, strip, userpriv, test };
     Type type = restrict_elem::Type::UNKNOWN;
 
     [[nodiscard]] explicit operator std::string() const;
+    friend std::ostream &operator<<(std::ostream &out, const restrict_elem &restrict_elem) {
+        return restrict_elem.ostream_impl(out);
+    }
 };
 struct restrict : public depend::GroupExpr<restrict_elem, restrict> {
     using Base = depend::GroupExpr<restrict_elem, restrict>;
@@ -53,22 +67,48 @@ struct license : public depend::GroupExpr<license_elem, license> {
 
 struct keyword : public std::string {};
 struct keywords : public std::vector<keyword> {
+private:
+    std::ostream &ostream_impl(std::ostream &out) const;
+
+public:
     [[nodiscard]] explicit operator std::string() const;
+    friend std::ostream &operator<<(std::ostream &out, const keywords &keywords) {
+        return keywords.ostream_impl(out);
+    }
 };
 
 struct inherited_elem : public std::string {};
 struct inherited : public std::vector<inherited_elem> {
+private:
+    std::ostream &ostream_impl(std::ostream &out) const;
+
+public:
     [[nodiscard]] explicit operator std::string() const;
+    friend std::ostream &operator<<(std::ostream &out, const inherited &inherited) {
+        return inherited.ostream_impl(out);
+    }
 };
 
 struct iuse_elem {
+private:
+    std::ostream &ostream_impl(std::ostream &out) const;
+
+public:
     bool default_enabled = false;
     atom::Useflag useflag;
 
     [[nodiscard]] explicit operator std::string() const;
+    friend std::ostream &operator<<(std::ostream &out, const iuse_elem &iuse_elem) {
+        return iuse_elem.ostream_impl(out);
+    }
 };
 struct iuse : public std::vector<iuse_elem> {
+private:
+    std::ostream &ostream_impl(std::ostream &out) const;
+
+public:
     [[nodiscard]] explicit operator std::string() const;
+    friend std::ostream &operator<<(std::ostream &out, const iuse &iuse) { return iuse.ostream_impl(out); }
 };
 
 struct required_use : public depend::GroupExpr<atom::Usedep, required_use> {
@@ -78,11 +118,18 @@ struct required_use : public depend::GroupExpr<atom::Usedep, required_use> {
 struct eapi : public std::string {};
 
 struct properties_elem {
+private:
+    std::ostream &ostream_impl(std::ostream &out) const;
+
+public:
     std::string string;
     enum class Type : std::uint8_t { UNKNOWN, interactive, live, test_network };
     Type type = properties_elem::Type::UNKNOWN;
 
     [[nodiscard]] explicit operator std::string() const;
+    friend std::ostream &operator<<(std::ostream &out, const properties_elem &properties_elem) {
+        return properties_elem.ostream_impl(out);
+    }
 };
 struct properties : public depend::GroupExpr<properties_elem, properties> {
     using Base = depend::GroupExpr<properties_elem, properties>;
@@ -91,7 +138,14 @@ struct properties : public depend::GroupExpr<properties_elem, properties> {
 BOOST_DEFINE_FIXED_ENUM_CLASS(phases, std::uint8_t, pretend, setup, unpack, prepare, configure, compile, test,
                               install, preinst, postinst, prerm, postrm, config, info, nofetch);
 struct defined_phases : public std::vector<phases> {
+private:
+    std::ostream &ostream_impl(std::ostream &out) const;
+
+public:
     [[nodiscard]] explicit operator std::string() const;
+    friend std::ostream &operator<<(std::ostream &out, const defined_phases &defined_phases) {
+        return defined_phases.ostream_impl(out);
+    }
 };
 
 struct Metadata {
@@ -168,30 +222,14 @@ using all = boost::mp11::mp_list<URI, uri_elem, src_uri, restrict_elem::Type, re
 
 // BEGIN IO
 
-std::ostream &operator<<(std::ostream &out, const uri_elem &uri_elem);
-
-std::ostream &operator<<(std::ostream &out, const restrict_elem &restrict_elem);
-
 [[nodiscard]] std::string to_string(restrict_elem::Type type);
 std::ostream &operator<<(std::ostream &out, restrict_elem::Type type);
-
-std::ostream &operator<<(std::ostream &out, const keywords &keywords);
-
-std::ostream &operator<<(std::ostream &out, const inherited &inherited);
-
-std::ostream &operator<<(std::ostream &out, const iuse_elem &iuse_elem);
-
-std::ostream &operator<<(std::ostream &out, const iuse &iuse);
-
-std::ostream &operator<<(std::ostream &out, const properties_elem &properties_elem);
 
 [[nodiscard]] std::string to_string(properties_elem::Type type);
 std::ostream &operator<<(std::ostream &out, properties_elem::Type type);
 
 [[nodiscard]] std::string to_string(phases _phases);
 std::ostream &operator<<(std::ostream &out, phases _phases);
-
-std::ostream &operator<<(std::ostream &out, const defined_phases &defined_phases);
 
 // END IO
 
