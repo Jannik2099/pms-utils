@@ -428,7 +428,7 @@ std::optional<bool> Profile::algorithm_5_1_force(std::string_view package, const
         const Filters *parent_filter = iter != parent->filters().end() ? &iter->second : nullptr;
         const auto parent_forced = parent->algorithm_5_1_force(package, useflag, is_stable, parent_filter);
         if (parent_forced.has_value()) {
-            forced = parent_forced.value();
+            forced = parent_forced;
         }
     }
     algo_5_1_helper(use_force(), useflag, forced);
@@ -454,7 +454,7 @@ std::optional<bool> Profile::algorithm_5_1_mask(std::string_view package, const 
         const Filters *parent_filter = iter != parent->filters().end() ? &iter->second : nullptr;
         const auto parent_masked = parent->algorithm_5_1_mask(package, useflag, is_stable, parent_filter);
         if (parent_masked.has_value()) {
-            masked = parent_masked.value();
+            masked = parent_masked;
         }
     }
     algo_5_1_helper(use_mask(), useflag, masked);
