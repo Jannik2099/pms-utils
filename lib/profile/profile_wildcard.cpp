@@ -26,7 +26,7 @@ namespace {
 // ebuilds can contain regex chars like +, so we need to regex-escape them
 std::string regex_escape(const std::string &str) {
     static const boost::regex regex_regex(R"---([.^$|()\[\]{}*+?\\])---");
-    static constexpr std::string replacement(R"---(\\&)---");
+    constexpr static std::string replacement(R"---(\\&)---");
     std::string ret;
     ret = boost::regex_replace(str, regex_regex, replacement, boost::match_default | boost::format_sed);
     return ret;

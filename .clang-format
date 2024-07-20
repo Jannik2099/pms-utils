@@ -6,3 +6,5 @@ AccessModifierOffset: -4
 
 ColumnLimit: 110
 InsertNewlineAtEOF: True
+QualifierAlignment: Custom
+QualifierOrder: ["friend", "constexpr", "static", "inline", "const", "type"]

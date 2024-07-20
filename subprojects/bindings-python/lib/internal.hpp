@@ -54,7 +54,7 @@ template <typename T> constexpr auto type_name_array() {
 }
 
 template <typename T> struct type_name_holder {
-    static constexpr auto value = type_name_array<T>();
+    constexpr static auto value = type_name_array<T>();
 };
 
 } // namespace _type_name
