@@ -475,6 +475,7 @@ _internal::unordered_str_set<atom::Useflag> Profile::effective_useflags(const at
     _internal::unordered_str_set<atom::Useflag> ret;
 
     // TODO: get ebuild from repo priorities, masks etc.
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     const auto ebuild = repos_.at(0)[atom.category].value()[atom.name].value()[atom.version.value()].value();
     const auto &ebuild_useflags = ebuild.metadata().IUSE;
     const auto &arch = ARCH();
