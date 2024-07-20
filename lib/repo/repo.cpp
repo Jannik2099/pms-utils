@@ -23,6 +23,7 @@
 
 namespace x3 = boost::spirit::x3;
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PARSER_DEF(name, type)                                                                               \
     const inline auto name = x3::rule<struct name##_struc, type> { #name }
 
