@@ -45,7 +45,7 @@ enum class VersionSuffixWord : std::uint8_t {
 [[nodiscard]] std::strong_ordering operator<=>(VersionSuffixWord lhs, VersionSuffixWord rhs) noexcept;
 
 struct VersionSuffix {
-    VersionSuffixWord word;
+    VersionSuffixWord word{};
     std::string number;
 
     [[nodiscard]] explicit operator std::string() const;
@@ -110,7 +110,7 @@ enum class SlotVariant : std::uint8_t {
     equal, // :slot= or :=
 };
 struct SlotExpr {
-    SlotVariant slotVariant;
+    SlotVariant slotVariant{};
     boost::optional<Slot> slot;
 
     [[nodiscard]] explicit operator std::string() const;
