@@ -11,7 +11,7 @@ int main() {
     constexpr auto REPO = "/var/db/repos/gentoo";
 
     std::set<std::filesystem::path> ebuilds;
-    for (const std::filesystem::directory_entry &elem : std::filesystem::recursive_directory_iterator(REPO)) {
+    for (const std::filesystem::directory_entry &elem : std::filesystem::recursive_directory_iterator{REPO}) {
         if (elem.path().has_extension() && elem.path().extension() == ".ebuild" &&
             elem.path().filename() != "skel.ebuild") {
             ebuilds.insert(elem);

@@ -46,7 +46,7 @@ std::string to_string(const GroupHeader &groupHeader) {
         };
         std::string operator()(GroupHeaderOp groupHeaderOp) const { return to_string(groupHeaderOp); };
     };
-    return boost::apply_visitor(visitor(), groupHeader);
+    return boost::apply_visitor(visitor{}, groupHeader);
 }
 
 // END IO

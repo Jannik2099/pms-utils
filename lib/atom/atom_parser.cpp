@@ -119,14 +119,14 @@ constexpr inline auto slot_expr_helper = [](auto &ctx) {
 
         if (!equal && !slot.has_value()) {
             // TODO
-            throw std::runtime_error("TODO");
+            throw std::runtime_error{"TODO"};
         }
         break;
     }
 
     default:
         // TODO
-        throw std::runtime_error("TODO");
+        throw std::runtime_error{"TODO"};
         break;
     }
 };
@@ -173,8 +173,8 @@ constexpr inline auto package_dep_helper = [](auto &ctx, bool requireVerSpec) {
 
 } // namespace
 
-PARSER_DEFINE(version_specifier, VerSpec());
-PARSER_DEFINE(blocker, Blocker());
+PARSER_DEFINE(version_specifier, VerSpec{});
+PARSER_DEFINE(blocker, Blocker{});
 PARSER_DEFINE(slot_no_subslot,
               (x3::ascii::alnum | x3::char_("_")) >>
                   *(x3::ascii::alnum | x3::char_("_") | x3::char_("-") | x3::char_("+") | x3::char_(".")));
@@ -183,7 +183,7 @@ PARSER_DEFINE(slot_expr, x3::lit(":") >> (x3::char_("*") | (-slot() >> x3::match
 
 PARSER_DEFINE(ver_num, +x3::digit % '.');
 PARSER_DEFINE(ver_letter, x3::ascii::lower);
-PARSER_DEFINE(ver_suffix_word, VersionSuffixWord());
+PARSER_DEFINE(ver_suffix_word, VersionSuffixWord{});
 PARSER_DEFINE(ver_suffix, ver_suffix_word() >> *x3::digit);
 PARSER_DEFINE(ver_rev, x3::lit("-r") >> +x3::digit);
 PARSER_DEFINE(package_version, ver_num() >> -ver_letter() >> *ver_suffix() >> -ver_rev());
@@ -202,8 +202,8 @@ PARSER_DEFINE(name, (x3::ascii::alnum | x3::char_("_")) >>
 PARSER_DEFINE(useflag, x3::ascii::alnum >> *(x3::ascii::alnum | x3::char_("_") | x3::char_("-") |
                                              x3::char_("+") | x3::char_("@")));
 // TODO: reinstate "UsedepCond needs !, not -"
-PARSER_DEFINE(use_dep, -UsedepNegate() >> useflag() >> -(x3::lit("(") >> UsedepSign() >> x3::lit(")")) >>
-                           -UsedepConditional())
+PARSER_DEFINE(use_dep, -UsedepNegate{} >> useflag() >> -(x3::lit("(") >> UsedepSign{} >> x3::lit(")")) >>
+                           -UsedepConditional{})
 PARSER_DEFINE(use_deps, x3::lit("[") >> use_dep() % "," >> x3::lit("]"));
 
 // unsure about how to handle the "duplicate rules for requireVerSpec"

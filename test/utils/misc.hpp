@@ -16,7 +16,7 @@
             temp.push_back(elem);
         }
     }
-    std::istringstream iss(temp);
+    std::istringstream iss{temp};
     std::string ret;
     ret.reserve(temp.size());
     for (std::string key; std::getline(iss >> std::ws, key, ' ');) {

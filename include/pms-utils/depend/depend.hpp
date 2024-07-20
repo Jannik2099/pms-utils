@@ -74,13 +74,13 @@ template <typename T, typename Derived = void> struct GroupExpr {
     using const_iterator = Iterator;
 
     [[nodiscard]] const_iterator begin() const noexcept [[clang::lifetimebound]] {
-        GroupExpr::const_iterator ret(*this);
+        GroupExpr::const_iterator ret{*this};
         ret.to_begin();
         return ret;
     };
     [[nodiscard]] const_iterator cbegin() const noexcept [[clang::lifetimebound]] { return begin(); };
     [[nodiscard]] const_iterator end() const noexcept [[clang::lifetimebound]] {
-        GroupExpr::const_iterator ret(*this);
+        GroupExpr::const_iterator ret{*this};
         ret.to_end();
         return ret;
     };
@@ -113,7 +113,7 @@ private:
     [[nodiscard]] pointer parent_expr() const [[clang::lifetimebound]] {
         if (index_.size() == 1) {
             // TODO
-            throw std::out_of_range("TODO");
+            throw std::out_of_range{"TODO"};
         }
         auto index2 = index_;
         index2.pop_back();
@@ -246,7 +246,7 @@ public:
                 }
                 if (!traverse_upwards()) {
                     // TODO
-                    throw std::runtime_error("TODO");
+                    throw std::runtime_error{"TODO"};
                 }
             }
         }
@@ -271,7 +271,7 @@ public:
                     return *this;
                 }
                 // TODO
-                throw std::runtime_error("TODO");
+                throw std::runtime_error{"TODO"};
             }
         }
 
@@ -286,7 +286,7 @@ public:
     // this exists solely because std::incrementable is a shithead and requires std::regular
     Iterator() = default;
     explicit Iterator(const GroupExpr &ast [[clang::lifetimebound]])
-        : ast(static_cast<const group_type *>(&ast)) {
+        : ast{static_cast<const group_type *>(&ast)} {
         to_begin();
     };
 
@@ -330,7 +330,7 @@ template <typename T, typename Derived> GroupExpr<T, Derived>::operator std::str
         ret += to_string(conditional.value()) + " ";
     }
     std::string spacing;
-    Iterator iter(*this);
+    Iterator iter{*this};
     iter.callbacks.downwards = [&ret, &spacing]() {
         ret += "(\n";
         spacing += "\t";
@@ -373,7 +373,7 @@ std::string to_string(const typename GroupExpr<T, Derived>::group_type::Node &no
             return std::string{groupExpr};
         }
     };
-    return boost::apply_visitor(visitor(), node);
+    return boost::apply_visitor(visitor{}, node);
 }
 
 // END IO

@@ -45,8 +45,8 @@ auto bind_enum(M &mod, std::string_view name, std::string_view enum_type) {
 
     py::object &spec = _internal::enums()[typeid(T)];
     spec = py::module::import("pydoc").attr("locate")(enum_type)(name, pairs,
-                                                                 py::arg("module") = mod.attr("__name__"));
-    mod.attr(std::string(name).c_str()) = spec;
+                                                                 py::arg{"module"} = mod.attr("__name__"));
+    mod.attr(std::string{name}.c_str()) = spec;
     return spec;
 }
 

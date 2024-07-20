@@ -33,7 +33,7 @@ bool check_file(const Ebuild &ebuild, Metrics &metrics) {
     const std::filesystem::path categorypath = ebuild.path.parent_path().parent_path();
     const std::filesystem::path repopath = categorypath.parent_path();
     const std::filesystem::path cachefile = repopath / "metadata" / "md5-cache" / categorypath.filename() /
-                                            std::string(ebuild.name + "-" + std::string(ebuild.version));
+                                            std::string{ebuild.name + "-" + std::string{ebuild.version}};
 
     const auto before = std::chrono::steady_clock::now();
     const ebuild::Metadata &metadata = ebuild.metadata();
@@ -46,7 +46,7 @@ bool check_file(const Ebuild &ebuild, Metrics &metrics) {
         using Md = boost::describe::describe_members<ebuild::Metadata, boost::describe::mod_any_access>;
         boost::mp11::mp_for_each<Md>([&](auto member) {
             const std::string match =
-                member.name == "INHERITED" ? "INHERIT=" : std::string(member.name) + '=';
+                member.name == "INHERITED" ? "INHERIT=" : std::string{member.name} + '=';
             if (line.starts_with(match)) {
                 metrics.found[member.name] += 1;
                 std::string control = line.substr(match.size());

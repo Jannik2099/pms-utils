@@ -80,7 +80,7 @@ template <typename T>
 std::size_t hash_value(const T &param) {
     using type = boost::mp11::mp_at_c<T, 0>;
     if (param.has_value()) {
-        return boost::hash<type>()(param.value());
+        return boost::hash<type>{}(param.value());
     }
     return 0;
 }
@@ -137,7 +137,7 @@ std::size_t hash_value(const T &param) {
         requires boost::mp11::mp_set_contains<pms_utils::namespace_::meta::_internal::all_plus_crtp,         \
                                               T>::value                                                      \
     struct hash<T> {                                                                                         \
-        std::size_t operator()(const T &expr) const { return boost::hash<T>()(expr); }                       \
+        std::size_t operator()(const T &expr) const { return boost::hash<T>{}(expr); }                       \
     };                                                                                                       \
     } /* namespace std */                                                                                    \
     static_assert(                                                                                           \

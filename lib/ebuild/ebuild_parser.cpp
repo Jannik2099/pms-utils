@@ -187,7 +187,7 @@ PARSER_DEFINE(EAPI, x3::char_("A-Za-z0-9_") >> *x3::char_("A-Za-z0-9+_.-"));
 PARSER_DEFINE(properties_elem, (+x3::ascii::graph)[properties_elem_helper]);
 PARSER_DEFINE(PROPERTIES, depend::GroupTemplate2(_internal::properties_node));
 
-PARSER_DEFINE(phases, phases_token());
+PARSER_DEFINE(phases, phases_token{});
 PARSER_DEFINE(DEFINED_PHASES, x3::lit("-") | (phases() % +x3::ascii::space));
 
 } // namespace parsers::ebuild
