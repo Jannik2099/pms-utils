@@ -29,6 +29,28 @@
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace profile {
 
+namespace _internal {
+std::ostream &WildcardAtom::ostream_impl(std::ostream &out) const {
+    if (version_specifier.has_value()) {
+        out << version_specifier.value();
+    }
+    out << category << "/" << name;
+    if (version.has_value()) {
+        out << "-" << version.value();
+        if (version_specifier.value() == pms_utils::atom::VersionSpecifier::ea) {
+            out << "*";
+        }
+    }
+    if (slot.has_value()) {
+        out << ":" << slot.value();
+    }
+    if (repo.has_value()) {
+        out << "::" << repo.value();
+    }
+    return out;
+}
+} // namespace _internal
+
 namespace {
 
 // combines sacrifice into absorber

@@ -20,13 +20,10 @@ uri_elem::operator std::string() const {
     }
     return ret;
 }
-
-std::ostream &operator<<(std::ostream &out, const uri_elem &uri_elem) { return out << std::string(uri_elem); }
+std::ostream &uri_elem::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 restrict_elem::operator std::string() const { return string; }
-std::ostream &operator<<(std::ostream &out, const restrict_elem &restrict_elem) {
-    return out << std::string(restrict_elem);
-}
+std::ostream &restrict_elem::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 [[nodiscard]] std::string to_string(restrict_elem::Type type) {
     using enum restrict_elem::Type;
@@ -60,7 +57,7 @@ keywords::operator std::string() const {
     }
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const keywords &keywords) { return out << std::string(keywords); }
+std::ostream &keywords::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 inherited::operator std::string() const {
     std::string ret;
@@ -72,9 +69,7 @@ inherited::operator std::string() const {
     }
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const inherited &inherited) {
-    return out << std::string(inherited);
-}
+std::ostream &inherited::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 iuse_elem::operator std::string() const {
     std::string ret;
@@ -84,9 +79,7 @@ iuse_elem::operator std::string() const {
     ret += useflag;
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const iuse_elem &iuse_elem) {
-    return out << std::string(iuse_elem);
-}
+std::ostream &iuse_elem::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 iuse::operator std::string() const {
     std::string ret;
@@ -98,12 +91,10 @@ iuse::operator std::string() const {
     }
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const iuse &iuse) { return out << std::string(iuse); }
+std::ostream &iuse::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 properties_elem::operator std::string() const { return string; }
-std::ostream &operator<<(std::ostream &out, const properties_elem &properties_elem) {
-    return out << std::string(properties_elem);
-}
+std::ostream &properties_elem::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 [[nodiscard]] std::string to_string(properties_elem::Type type) {
     using enum properties_elem::Type;
@@ -175,9 +166,7 @@ defined_phases::operator std::string() const {
     }
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const defined_phases &defined_phases) {
-    return out << std::string(defined_phases);
-}
+std::ostream &defined_phases::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 } // namespace ebuild
 } // namespace pms_utils

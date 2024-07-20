@@ -18,9 +18,7 @@ UseConditional::operator std::string() const {
     ret += "?";
     return ret;
 }
-std::ostream &operator<<(std::ostream &out, const UseConditional &conditional) {
-    return out << std::string(conditional);
-}
+std::ostream &UseConditional::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 std::string to_string(GroupHeaderOp groupHeaderOp) {
     switch (groupHeaderOp) {

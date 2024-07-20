@@ -31,10 +31,19 @@ namespace [[gnu::visibility("default")]] pms_utils {
 namespace depend {
 
 struct UseConditional {
+private:
+    std::ostream &ostream_impl(std::ostream &out) const;
+
+public:
     bool negate{};
     atom::Useflag useflag;
 
     [[nodiscard]] explicit operator std::string() const;
+    friend std::ostream &operator<<(std::ostream &out, const UseConditional &conditional) {
+        return conditional.ostream_impl(out);
+    }
+
+    BOOST_DESCRIBE_CLASS(UseConditional, (), (negate, useflag), (), (ostream_impl));
 };
 
 enum class GroupHeaderOp : std::uint8_t {
@@ -51,6 +60,10 @@ template <typename T, typename Derived = void> struct GroupExpr {
     std::vector<Node> nodes;
 
     [[nodiscard]] explicit operator std::string() const;
+
+    friend std::ostream &operator<<(std::ostream &out, const GroupExpr &group) {
+        return out << std::string{group};
+    }
 
     class Iterator;
 
@@ -288,8 +301,6 @@ static_assert(std::bidirectional_iterator<DependExpr::Iterator>);
 
 // BEGIN DESCRIBE
 
-BOOST_DESCRIBE_STRUCT(UseConditional, (), (negate, useflag));
-
 BOOST_DESCRIBE_ENUM(GroupHeaderOp, any_of, exactly_one_of, at_most_one_of);
 
 BOOST_DESCRIBE_STRUCT(GroupHeader, (), ());
@@ -312,9 +323,6 @@ std::ostream &operator<<(std::ostream &out, const UseConditional &conditional);
 std::ostream &operator<<(std::ostream &out, GroupHeaderOp groupHeaderOp);
 
 [[nodiscard]] std::string to_string(const GroupHeader &groupHeader);
-
-template <typename T, typename Derived>
-std::ostream &operator<<(std::ostream &out, const GroupExpr<T, Derived> &group);
 
 template <typename T, typename Derived> GroupExpr<T, Derived>::operator std::string() const {
     std::string ret;
@@ -366,11 +374,6 @@ std::string to_string(const typename GroupExpr<T, Derived>::group_type::Node &no
         }
     };
     return boost::apply_visitor(visitor(), node);
-}
-
-template <typename T, typename Derived>
-std::ostream &operator<<(std::ostream &out, const GroupExpr<T, Derived> &group) {
-    return out << std::string(group);
 }
 
 // END IO

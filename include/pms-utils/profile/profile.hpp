@@ -50,6 +50,10 @@ template <typename T>
 using unordered_str_set = std::unordered_set<T, StringHash, std::equal_to<>>;
 
 struct WildcardAtom {
+private:
+    std::ostream &ostream_impl(std::ostream &out) const;
+
+public:
     boost::optional<atom::Blocker> blocker;
     boost::optional<atom::VersionSpecifier> version_specifier;
     std::string category;
@@ -60,6 +64,10 @@ struct WildcardAtom {
     boost::optional<std::string> repo;
 
     explicit operator std::string() const;
+    friend std::ostream &operator<<(std::ostream &out,
+                                    const pms_utils::profile::_internal::WildcardAtom &atom) {
+        return atom.ostream_impl(out);
+    }
 };
 
 } // namespace _internal
@@ -277,25 +285,6 @@ using all = boost::mp11::mp_list<Filters>;
 
 // BEGIN IO
 
-inline std::ostream &operator<<(std::ostream &out, const pms_utils::profile::_internal::WildcardAtom &atom) {
-    if (atom.version_specifier.has_value()) {
-        out << atom.version_specifier.value();
-    }
-    out << atom.category << "/" << atom.name;
-    if (atom.version.has_value()) {
-        out << "-" << atom.version.value();
-        if (atom.version_specifier.value() == pms_utils::atom::VersionSpecifier::ea) {
-            out << "*";
-        }
-    }
-    if (atom.slot.has_value()) {
-        out << ":" << atom.slot.value();
-    }
-    if (atom.repo.has_value()) {
-        out << "::" << atom.repo.value();
-    }
-    return out;
-}
 inline pms_utils::profile::_internal::WildcardAtom::operator std::string() const {
     std::stringstream stream;
     stream << *this;
