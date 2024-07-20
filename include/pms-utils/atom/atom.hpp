@@ -7,6 +7,7 @@
 #include <boost/mp11/list.hpp> // IWYU pragma: keep
 #include <boost/optional/optional.hpp>
 #include <compare>
+#include <cstdint>
 #include <iosfwd>
 #include <string>
 #include <string_view>
@@ -17,7 +18,7 @@ namespace atom {
 
 // BEGIN ast types
 
-enum class VersionSpecifier {
+enum class VersionSpecifier : std::uint8_t {
     lt, // <
     le, // <=
     eq, // =
@@ -33,7 +34,7 @@ struct VersionNumber : public std::vector<std::string> {
 
 using VersionLetter = char;
 
-enum class VersionSuffixWord {
+enum class VersionSuffixWord : std::uint8_t {
     alpha,
     beta,
     pre,
@@ -89,7 +90,7 @@ public:
     }
 };
 
-enum class Blocker {
+enum class Blocker : std::uint8_t {
     weak,   // !
     strong, // !!
 };
@@ -103,7 +104,7 @@ struct Slot {
     [[nodiscard]] explicit operator std::string() const;
 };
 
-enum class SlotVariant {
+enum class SlotVariant : std::uint8_t {
     none,  // :slot
     star,  // :*
     equal, // :slot= or :=
@@ -119,15 +120,15 @@ struct Category : public std::string {};
 struct Name : public std::string {};
 
 struct Useflag : public std::string {};
-enum class UsedepNegate {
+enum class UsedepNegate : std::uint8_t {
     minus,       // -use
     exclamation, // !use
 };
-enum class UsedepSign {
+enum class UsedepSign : std::uint8_t {
     plus,  // use(+)
     minus, // use(-)
 };
-enum class UsedepCond {
+enum class UsedepCond : std::uint8_t {
     eqal,     // use=
     question, // use?
 };

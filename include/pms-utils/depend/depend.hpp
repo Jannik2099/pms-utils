@@ -13,6 +13,7 @@
 #include <cassert>
 #include <compare>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <ostream>
@@ -36,7 +37,7 @@ struct UseConditional {
     [[nodiscard]] explicit operator std::string() const;
 };
 
-enum class GroupHeaderOp {
+enum class GroupHeaderOp : std::uint8_t {
     any_of,         // ||
     exactly_one_of, // ^^
     at_most_one_of, // ??
