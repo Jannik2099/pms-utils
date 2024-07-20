@@ -52,7 +52,7 @@ using already_hashable = std::bool_constant<requires(const T &val) {
 // static_assert(mp_all_of<meta::all, already_equatable>::value);
 // does not show which type fails the requirement.
 
-template <typename Ts> consteval bool equatable_chk() {
+template <typename Ts> [[nodiscard]] consteval bool equatable_chk() {
     boost::mp11::mp_for_each<boost::mp11::mp_transform<boost::mp11::mp_identity, Ts>>([]<typename T>(T) {
         using type = typename T::type;
         static_assert(std::equality_comparable<type>);
@@ -60,7 +60,7 @@ template <typename Ts> consteval bool equatable_chk() {
     return true;
 }
 
-template <typename Ts> consteval bool hashable_chk() {
+template <typename Ts> [[nodiscard]] consteval bool hashable_chk() {
     boost::mp11::mp_for_each<boost::mp11::mp_transform<boost::mp11::mp_identity, Ts>>([]<typename T>(T) {
         using type = typename T::type;
         static_assert(requires(const type &val) {
