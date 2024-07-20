@@ -80,6 +80,8 @@ std::optional<bool> test_version(atom::VersionSpecifier verspec, const atom::Ver
 Expander::Expander(const WildcardAtom &atom, const std::vector<repo::Repository> &repositories)
     : atom_(atom), repositories_(repositories) {
 
+    // Boost.Regex flags lack the flag_enum attribute
+    // NOLINTBEGIN(clang-analyzer-optin.core.EnumCastOutOfRange)
     static const boost::regex wildcard_re(R"---((\\\*))---");
     const bool category_is_wildcard = atom_.category.find('*') != std::string::npos;
     const bool name_is_wildcard = atom_.name.find('*') != std::string::npos;
@@ -91,6 +93,7 @@ Expander::Expander(const WildcardAtom &atom, const std::vector<repo::Repository>
                                            boost::match_default | boost::format_sed) +
                       "$";
     }
+
     if (name_is_wildcard) {
         name_re = "^" +
                   boost::regex_replace(regex_escape(atom_.name), wildcard_re, ".*",
@@ -103,6 +106,7 @@ Expander::Expander(const WildcardAtom &atom, const std::vector<repo::Repository>
                                           wildcard_re, ".*", boost::match_default | boost::format_sed) +
                      "$";
     }
+    // NOLINTEND(clang-analyzer-optin.core.EnumCastOutOfRange)
 
     if (atom_.repo.has_value()) {
         category_matcher(repo_matcher());
