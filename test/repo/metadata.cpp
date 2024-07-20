@@ -16,6 +16,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 
 using namespace pms_utils;
 using namespace pms_utils::repo;
@@ -44,28 +45,29 @@ bool check_file(const Ebuild &ebuild, Metrics &metrics) {
     std::ifstream stream(cachefile);
     for (std::string line; std::getline(stream, line);) {
         using Md = boost::describe::describe_members<ebuild::Metadata, boost::describe::mod_any_access>;
-        boost::mp11::mp_for_each<Md>([&](auto member) {
-            const std::string match =
-                member.name == "INHERITED" ? "INHERIT=" : std::string{member.name} + '=';
-            if (line.starts_with(match)) {
-                metrics.found[member.name] += 1;
-                std::string control = line.substr(match.size());
-                metrics.bytes[member.name] += control.size();
-                control = trim_string(control);
-                std::ostringstream ostr;
-                ostr << metadata.*member.pointer;
-                const std::string result(trim_string(ostr.view()));
-                const auto control_hash = std::hash<std::string>{}(control);
-                const auto result_hash = std::hash<std::string>{}(result);
-                if (control_hash != result_hash) {
-                    success = false;
-                    std::cerr << std::format("hash mismatch {} {}\n\tinput: {}\n\tparsed: {}\n", match,
-                                             cachefile.string(), control, result);
-                } else {
-                    metrics.parsed[member.name] += 1;
+        boost::mp11::mp_for_each<Md>(
+            [&line_ = std::as_const(line), &metadata, &metrics, &success, &cachefile](auto member) {
+                const std::string match =
+                    member.name == "INHERITED" ? "INHERIT=" : std::string{member.name} + '=';
+                if (line_.starts_with(match)) {
+                    metrics.found[member.name] += 1;
+                    std::string control = line_.substr(match.size());
+                    metrics.bytes[member.name] += control.size();
+                    control = trim_string(control);
+                    std::ostringstream ostr;
+                    ostr << metadata.*member.pointer;
+                    const std::string result(trim_string(ostr.view()));
+                    const auto control_hash = std::hash<std::string>{}(control);
+                    const auto result_hash = std::hash<std::string>{}(result);
+                    if (control_hash != result_hash) {
+                        success = false;
+                        std::cerr << std::format("hash mismatch {} {}\n\tinput: {}\n\tparsed: {}\n", match,
+                                                 cachefile.string(), control, result);
+                    } else {
+                        metrics.parsed[member.name] += 1;
+                    }
                 }
-            }
-        });
+            });
     }
     return success;
 }
@@ -85,7 +87,7 @@ int main() {
 
     std::size_t total_bytes{};
     using Md = boost::describe::describe_members<ebuild::Metadata, boost::describe::mod_any_access>;
-    boost::mp11::mp_for_each<Md>([&](auto member) {
+    boost::mp11::mp_for_each<Md>([&metrics, &total_bytes](auto member) {
         std::cout << std::format("parsed {} out of {} {} expressions\n", metrics.parsed[member.name],
                                  metrics.found[member.name], member.name);
         std::cout << std::format("consumed {} KiB of {} expressions\n", metrics.bytes[member.name] >> 10,
