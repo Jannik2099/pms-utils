@@ -54,9 +54,9 @@ int main() {
     {
         auto index = check.begin();
         for (auto iter = ast.begin(); iter != ast.end(); iter++) {
-            if (boost::apply_visitor(Myvisitor(), *iter) != *index) {
+            if (boost::apply_visitor(Myvisitor{}, *iter) != *index) {
                 std::cerr << std::format("iterator error\nexpected\n\t{}\ngot\n\t{}\n", *index,
-                                         boost::apply_visitor(Myvisitor(), *iter));
+                                         boost::apply_visitor(Myvisitor{}, *iter));
                 error = true;
             }
             index++;
@@ -66,9 +66,9 @@ int main() {
         auto index = check.rbegin();
         // TODO: use reverse iterator
         for (auto iter = --ast.end(); iter != ast.begin(); iter--) {
-            if (boost::apply_visitor(Myvisitor(), *iter) != *index) {
+            if (boost::apply_visitor(Myvisitor{}, *iter) != *index) {
                 std::cerr << std::format("reverse iterator error\nexpected\n\t{}\ngot\n\t{}\n", *index,
-                                         boost::apply_visitor(Myvisitor(), *iter));
+                                         boost::apply_visitor(Myvisitor{}, *iter));
                 error = true;
             }
             index++;

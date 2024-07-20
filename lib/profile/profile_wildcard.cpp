@@ -25,8 +25,8 @@ namespace {
 
 // ebuilds can contain regex chars like +, so we need to regex-escape them
 std::string regex_escape(const std::string &str) {
-    static const boost::regex regex_regex(R"---([.^$|()\[\]{}*+?\\])---");
-    constexpr static std::string replacement(R"---(\\&)---");
+    static const boost::regex regex_regex{R"---([.^$|()\[\]{}*+?\\])---"};
+    constexpr static std::string replacement{R"---(\\&)---"};
     std::string ret;
     ret = boost::regex_replace(str, regex_regex, replacement, boost::match_default | boost::format_sed);
     return ret;
@@ -69,20 +69,20 @@ std::optional<bool> test_version(atom::VersionSpecifier verspec, const atom::Ver
     case td:
     default:
         // explicitly cast to underlying to avoid any to_string overloads
-        throw std::out_of_range(
+        throw std::out_of_range{
             std::format("invalid atom::VersionSpecifier {}",
-                        static_cast<std::underlying_type_t<atom::VersionSpecifier>>(verspec)));
+                        static_cast<std::underlying_type_t<atom::VersionSpecifier>>(verspec))};
     }
 }
 
 } // namespace
 
 Expander::Expander(const WildcardAtom &atom, const std::vector<repo::Repository> &repositories)
-    : atom_(atom), repositories_(repositories) {
+    : atom_{atom}, repositories_{repositories} {
 
     // Boost.Regex flags lack the flag_enum attribute
     // NOLINTBEGIN(clang-analyzer-optin.core.EnumCastOutOfRange)
-    static const boost::regex wildcard_re(R"---((\\\*))---");
+    static const boost::regex wildcard_re{R"---((\\\*))---"};
     const bool category_is_wildcard = atom_.category.find('*') != std::string::npos;
     const bool name_is_wildcard = atom_.name.find('*') != std::string::npos;
     const bool version_is_wildcard =
@@ -122,7 +122,7 @@ const repo::Repository &Expander::repo_matcher() const {
         repositories_, [this](const repo::Repository &repo) { return repo.name() == atom_.repo.value(); });
     if (repo_pos == repositories_.end()) {
         // TODO: unknown repo specified
-        throw std::runtime_error(std::format("unknown repo {}", atom_.repo.value()));
+        throw std::runtime_error{std::format("unknown repo {}", atom_.repo.value())};
     }
     return *repo_pos;
 }
@@ -130,13 +130,13 @@ const repo::Repository &Expander::repo_matcher() const {
 void Expander::slot_matcher(const repo::Repository &repository, const repo::Category &category,
                             const repo::Ebuild &ebuild) {
     if (!atom_.slot.has_value()) {
-        atoms_.emplace_back(std::format("{}/{}-{}::{}", category.name(), std::string(ebuild.name),
-                                        std::string(ebuild.version), repository.name()));
+        atoms_.emplace_back(std::format("{}/{}-{}::{}", category.name(), std::string{ebuild.name},
+                                        std::string{ebuild.version}, repository.name()));
     } else {
         if (atom_.slot->slot == ebuild.metadata().SLOT.slot &&
             (atom_.slot->subslot.empty() || atom_.slot->subslot == ebuild.metadata().SLOT.subslot)) {
-            atoms_.emplace_back(std::format("{}/{}-{}::{}", category.name(), std::string(ebuild.name),
-                                            std::string(ebuild.version), repository.name()));
+            atoms_.emplace_back(std::format("{}/{}-{}::{}", category.name(), std::string{ebuild.name},
+                                            std::string{ebuild.version}, repository.name()));
         }
     }
 }

@@ -106,7 +106,7 @@ std::vector<std::filesystem::path> get_parent_paths(const std::filesystem::path 
     if (std::filesystem::is_regular_file(path)) {
         return {path};
     }
-    for (const auto &file : std::filesystem::directory_iterator(path)) {
+    for (const auto &file : std::filesystem::directory_iterator{path}) {
         if (!file.is_regular_file()) {
             continue;
         }
@@ -124,7 +124,7 @@ std::vector<std::filesystem::path> get_parent_paths(const std::filesystem::path 
 [[nodiscard]] std::string read_config_files(const std::filesystem::path &path) {
     std::string ret;
     for (const std::vector<std::filesystem::path> files = get_config_files(path); const auto &file : files) {
-        std::ifstream stream(file);
+        std::ifstream stream{file};
         for (std::string line; std::getline(stream, line);) {
             if (line.empty()) {
                 continue;
@@ -299,7 +299,7 @@ std::vector<std::string> expand_package_expr(std::string_view expr,
 std::vector<std::string> expand_package_expr(const _internal::WildcardAtom &atom,
                                              const std::vector<repo::Repository> &repos) {
     if (repos.empty()) {
-        throw std::invalid_argument("expand_package_expr called with empty Repository list");
+        throw std::invalid_argument{"expand_package_expr called with empty Repository list"};
     }
 
     _internal::Expander expander{atom, repos};
@@ -314,7 +314,7 @@ std::vector<std::string> expand_package_expr(const _internal::WildcardAtom &atom
 void Profile::combine_parents() {
     for (const auto &parent : parents_) {
         if (parent == nullptr) {
-            throw std::runtime_error("parent is nullptr");
+            throw std::runtime_error{"parent is nullptr"};
         }
         make_defaults_unevaluated_.insert(make_defaults_unevaluated_.end(),
                                           parent->make_defaults_unevaluated_.begin(),

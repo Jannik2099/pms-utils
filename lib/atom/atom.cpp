@@ -22,7 +22,7 @@ Version::Version(std::string_view version_string) {
         begin == version_string.end()) {
         return;
     }
-    throw std::invalid_argument("input is not a PMS version string");
+    throw std::invalid_argument{"input is not a PMS version string"};
 }
 
 // BEGIN IO
@@ -63,7 +63,7 @@ VersionNumber::operator std::string() const {
     }
     return ret;
 }
-std::ostream &VersionNumber::ostream_impl(std::ostream &out) const { return out << std::string(*this); }
+std::ostream &VersionNumber::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
 std::string to_string(VersionSuffixWord versionSuffixWord) {
     switch (versionSuffixWord) {
@@ -92,12 +92,12 @@ std::ostream &VersionSuffix::ostream_impl(std::ostream &out) const { return out 
 
 Version::operator std::string() const {
     std::string ret;
-    ret += std::string(numbers);
+    ret += std::string{numbers};
     if (letter.has_value()) {
         ret += letter.value();
     }
     for (const VersionSuffix &suffix : suffixes) {
-        ret += std::string(suffix);
+        ret += std::string{suffix};
     }
     if (revision.has_value()) {
         ret += "-r" + revision.value();
@@ -133,7 +133,7 @@ SlotExpr::operator std::string() const {
     std::string ret;
     ret = ":";
     if (slot.has_value()) {
-        ret += std::string(slot.value());
+        ret += std::string{slot.value()};
     }
     switch (slotVariant) {
         using enum pms_utils::atom::SlotVariant;
@@ -185,7 +185,7 @@ std::string to_string(UsedepCond usedepCond) {
     case UsedepCond::question:
         return "?";
     default:
-        throw std::runtime_error("unknown enum value");
+        throw std::runtime_error{"unknown enum value"};
     }
 }
 std::ostream &operator<<(std::ostream &out, UsedepCond usedepCond) { return out << to_string(usedepCond); }
@@ -222,7 +222,7 @@ Usedeps::operator std::string() const {
     }
     ret += "[";
     for (const Usedep &usedep : *this) {
-        ret += std::string(usedep);
+        ret += std::string{usedep};
         ret += ",";
     }
     ret.pop_back();
@@ -242,15 +242,15 @@ PackageExpr::operator std::string() const {
     ret += category + "/" + name;
     if (version.has_value()) {
         ret += "-";
-        ret += std::string(version.value());
+        ret += std::string{version.value()};
         if (verspec.has_value() && verspec.value() == VersionSpecifier::ea) {
             ret += "*";
         }
     }
     if (slotExpr.has_value()) {
-        ret += std::string(slotExpr.value());
+        ret += std::string{slotExpr.value()};
     }
-    ret += std::string(usedeps);
+    ret += std::string{usedeps};
     return ret;
 }
 std::ostream &PackageExpr::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
@@ -415,8 +415,8 @@ std::strong_ordering Version::compare_impl(const Version &lhs, const Version &rh
     if (const auto ret1 = algorithm_3_2(lhs.numbers, rhs.numbers); ret1.has_value()) {
         return ret1.value();
     }
-    const std::string arg1 = lhs.letter.has_value() ? std::string(1, lhs.letter.value()) : "";
-    const std::string arg2 = rhs.letter.has_value() ? std::string(1, rhs.letter.value()) : "";
+    const std::string arg1 = lhs.letter.has_value() ? std::string{1, lhs.letter.value()} : "";
+    const std::string arg2 = rhs.letter.has_value() ? std::string{1, rhs.letter.value()} : "";
     if (const auto ret2 = algorithm_3_4(arg1, arg2); ret2.has_value()) {
         return ret2.value();
     }

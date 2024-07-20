@@ -57,8 +57,8 @@ template <typename Func>
 static inline py::object &add_method(py::object &cls, std::string_view name, Func &&func) {
     // pybind11 needs a c_str ;/
     const std::string name_str{name};
-    const py::cpp_function cfunc{std::forward<Func>(func), py::name(name_str.c_str()), py::is_method(cls),
-                                 py::sibling(py::getattr(cls, name_str.c_str(), py::none()))};
+    const py::cpp_function cfunc{std::forward<Func>(func), py::name{name_str.c_str()}, py::is_method{cls},
+                                 py::sibling{py::getattr(cls, name_str.c_str(), py::none{})}};
     py::detail::add_class_method(cls, name_str.c_str(), cfunc);
     return cls;
 }
@@ -99,7 +99,7 @@ static inline py::object create_bindings(M module_, R rule = false,
         add_method(ret, "__str__", [](T val) { return to_string(val); });
     }
     if constexpr (!std::is_same_v<R, bool>) {
-        const std::string function_name = std::string("_") + std::string(name) + "__missing_";
+        const std::string function_name = std::string{"_"} + std::string{name} + "__missing_";
         module_.def(function_name.c_str(), [rule](const py::object &, std::string_view arg) {
             return _internal::expr_from_str(rule(), arg);
         });
@@ -131,7 +131,7 @@ static inline auto create_bindings(M module_, R rule = false) {
     static_assert(std::is_same_v<mp_first<pytype>, T>);
     using pyclass = mp_apply<py::class_, pytype>;
 
-    auto ret = pyclass(module_, std::string(name).data());
+    auto ret = pyclass{module_, std::string{name}.data()};
 
     // bind crtp members directly so we don't have to expose the base class
     if constexpr (pms_utils::meta::_internal::is_crtp<T>) {
@@ -171,7 +171,7 @@ static inline auto create_bindings(M module_, R rule = false) {
                   } && !std::is_base_of_v<std::string, T>) {
         ret.def(
             "__iter__", [](const T &val) { return py::make_iterator(std::begin(val), std::end(val)); },
-            py::keep_alive<0, 1>());
+            py::keep_alive<0, 1>{});
     }
 
     if constexpr (std::equality_comparable<T>) {

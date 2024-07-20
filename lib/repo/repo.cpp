@@ -63,7 +63,7 @@ bool metadata_parser(std::string_view line, std::string_view name, Member &membe
         if (begin == end) {
             return true;
         }
-        member = Member();
+        member = Member{};
     }
     return false;
 }
@@ -80,8 +80,8 @@ const ebuild::Metadata &Ebuild::metadata() const {
     const std::filesystem::path category = path.parent_path().parent_path();
     const std::filesystem::path repopath = category.parent_path();
     const std::filesystem::path cachefile = repopath / "metadata" / "md5-cache" / category.filename() /
-                                            std::string(name + "-" + std::string(version));
-    std::ifstream stream(cachefile);
+                                            std::string{name + "-" + std::string{version}};
+    std::ifstream stream{cachefile};
     for (std::string line; std::getline(stream, line);) {
         bool parsed = false;
         parsed = metadata_parser(line, "DEPEND=", meta.DEPEND, parsers::depend::nodes);
@@ -163,31 +163,31 @@ const ebuild::Metadata &Ebuild::metadata() const {
 }
 
 Ebuild::Ebuild(std::filesystem::path _path, pms_utils::atom::Name _name, pms_utils::atom::Version _version)
-    : path(std::move(_path)), name(std::move(_name)), version(std::move(_version)) {
+    : path{std::move(_path)}, name{std::move(_name)}, version{std::move(_version)} {
     if (!std::filesystem::is_regular_file(path)) {
-        throw std::invalid_argument(std::format("provided file {} does not exist", path.string()));
+        throw std::invalid_argument{std::format("provided file {} does not exist", path.string())};
     }
-    if (path.stem() != std::format("{}-{}", std::string(name), std::string(version))) {
-        throw std::invalid_argument(std::format("filename {} did not match provided Name + Version {}-{}",
-                                                path.stem().string(), std::string(name),
-                                                std::string(version)));
+    if (path.stem() != std::format("{}-{}", std::string{name}, std::string{version})) {
+        throw std::invalid_argument{std::format("filename {} did not match provided Name + Version {}-{}",
+                                                path.stem().string(), std::string{name},
+                                                std::string{version})};
     }
     if (path.extension() != ".ebuild") {
-        throw std::invalid_argument(std::format("provided file {} does not end in .ebuild", path.string()));
+        throw std::invalid_argument{std::format("provided file {} does not end in .ebuild", path.string())};
     }
 }
 
 // END EBUILD
 
-Package::Package(std::filesystem::path path) : _path(std::move(path)), _name(_path.filename().string()) {
+Package::Package(std::filesystem::path path) : _path{std::move(path)}, _name{_path.filename().string()} {
     if (!std::filesystem::is_directory(_path)) {
-        throw std::invalid_argument(std::format("provided path {} does not exist", _path.string()));
+        throw std::invalid_argument{std::format("provided path {} does not exist", _path.string())};
     }
 }
-Package::const_iterator Package::begin() const noexcept { return Package::const_iterator(*this); }
+Package::const_iterator Package::begin() const noexcept { return Package::const_iterator{*this}; }
 Package::const_iterator Package::cbegin() const noexcept { return begin(); }
 Package::const_iterator Package::end() const noexcept {
-    Package::const_iterator ret(*this);
+    Package::const_iterator ret{*this};
     ret.iter = std::filesystem::end(ret.iter);
     return ret;
 }
@@ -195,7 +195,7 @@ Package::const_iterator Package::cend() const noexcept { return end(); }
 
 std::optional<Ebuild> Package::operator[](const atom::Version &version) const {
     const std::filesystem::path ebuild_path =
-        _path / std::format("{}-{}.ebuild", std::string(_name), std::string(version));
+        _path / std::format("{}-{}.ebuild", std::string{_name}, std::string{version});
     if (!std::filesystem::is_regular_file(ebuild_path)) {
         return {};
     }
@@ -206,20 +206,20 @@ std::optional<Ebuild> Package::operator[](std::string_view version) const {
     const auto *const end = version.end();
     atom::Version ver;
     if (!parse(begin, end, parsers::atom::package_version(), ver) || begin != end) {
-        throw std::invalid_argument(std::format("argument {} is not a valid Version expression", version));
+        throw std::invalid_argument{std::format("argument {} is not a valid Version expression", version)};
     }
     return (*this)[ver];
 }
 
-Category::Category(std::filesystem::path path) : _path(std::move(path)), _name(_path.filename().string()) {
+Category::Category(std::filesystem::path path) : _path{std::move(path)}, _name{_path.filename().string()} {
     if (!std::filesystem::is_directory(_path)) {
-        throw std::invalid_argument(std::format("provided path {} does not exist", _path.string()));
+        throw std::invalid_argument{std::format("provided path {} does not exist", _path.string())};
     }
 }
-Category::const_iterator Category::begin() const noexcept { return Category::const_iterator(*this); }
+Category::const_iterator Category::begin() const noexcept { return Category::const_iterator{*this}; }
 Category::const_iterator Category::cbegin() const noexcept { return begin(); }
 Category::const_iterator Category::end() const noexcept {
-    Category::const_iterator ret(*this);
+    Category::const_iterator ret{*this};
     ret.iter = std::filesystem::end(ret.iter);
     return ret;
 }
@@ -230,33 +230,33 @@ std::optional<Package> Category::operator[](std::string_view package) const {
     const auto *const end = package.end();
     atom::Name package_name;
     if (!parse(begin, end, parsers::atom::name(), package_name) || begin != end) {
-        throw std::invalid_argument(
-            std::format("argument {} is not a valid Package Name expression", package));
+        throw std::invalid_argument{
+            std::format("argument {} is not a valid Package Name expression", package)};
     }
-    const std::filesystem::path package_path = _path / std::string(package_name);
+    const std::filesystem::path package_path = _path / std::string{package_name};
     if (!std::filesystem::is_directory(package_path)) {
         return {};
     }
-    return Package(package_path);
+    return Package{package_path};
 }
 
-Repository::Repository(std::filesystem::path path) : _path(std::move(path)) {
+Repository::Repository(std::filesystem::path path) : _path{std::move(path)} {
     if (!std::filesystem::is_directory(_path)) {
-        throw std::invalid_argument(std::format("provided path {} does not exist", _path.string()));
+        throw std::invalid_argument{std::format("provided path {} does not exist", _path.string())};
     }
     const auto repo_name_file = _path / "profiles" / "repo_name";
     if (!std::filesystem::is_regular_file(repo_name_file)) {
         throw std::invalid_argument{
             std::format("Repository {} does not appear valid, missing profiles/repo_name", _path.string())};
     }
-    std::ifstream stream(repo_name_file);
+    std::ifstream stream{repo_name_file};
     // TODO: validate
     std::getline(stream, _name);
 }
-Repository::const_iterator Repository::begin() const noexcept { return Repository::const_iterator(*this); }
+Repository::const_iterator Repository::begin() const noexcept { return Repository::const_iterator{*this}; }
 Repository::const_iterator Repository::cbegin() const noexcept { return begin(); }
 Repository::const_iterator Repository::end() const noexcept {
-    Repository::const_iterator ret(*this);
+    Repository::const_iterator ret{*this};
     ret.index = ret.categories.size();
     return ret;
 }
@@ -267,14 +267,14 @@ std::optional<Category> Repository::operator[](std::string_view category) const 
     const auto *const end = category.end();
     atom::Category category_name;
     if (!parse(begin, end, parsers::atom::category(), category_name) || begin != end) {
-        throw std::invalid_argument(
-            std::format("argument {} is not a valid Package Name expression", category));
+        throw std::invalid_argument{
+            std::format("argument {} is not a valid Package Name expression", category)};
     }
-    const std::filesystem::path category_path = _path / std::string(category_name);
+    const std::filesystem::path category_path = _path / std::string{category_name};
     if (!std::filesystem::is_directory(category_path)) {
         return {};
     }
-    return Category(category_path);
+    return Category{category_path};
 }
 
 // BEGIN ITERATOR
@@ -289,24 +289,24 @@ Ebuild Package::Iterator::make_value() const {
 
     if (!parse(begin, end, ebuild_plus_version, res)) {
         // TODO
-        throw std::runtime_error(std::format("failed to parse ebuild {}", iter->path().string()));
+        throw std::runtime_error{std::format("failed to parse ebuild {}", iter->path().string())};
     }
     if (begin != end) {
         // TODO
-        throw std::runtime_error(std::format(
+        throw std::runtime_error{std::format(
             "failed to fully parse ebuild {}\n\tconsumed: {}\n\tremaining: {}", iter->path().string(),
-            std::string_view(pathstr.begin(), begin), std::string_view(begin, end)));
+            std::string_view{pathstr.begin(), begin}, std::string_view{begin, end})};
     }
     if (res.name != path.filename().string()) {
         // TODO
-        throw std::runtime_error(std::format("ebuild name {} did not match package name {}",
-                                             std::string_view(res.name), path.filename().string()));
+        throw std::runtime_error{std::format("ebuild name {} did not match package name {}",
+                                             std::string_view{res.name}, path.filename().string())};
     }
     return Ebuild{iter->path(), res.name, res.version};
 }
 
-Package::Iterator::Iterator(const Package &package) : path(package.path()) {
-    iter = std::filesystem::directory_iterator(path);
+Package::Iterator::Iterator(const Package &package) : path{package.path()} {
+    iter = std::filesystem::directory_iterator{path};
     while (iter != std::filesystem::end(iter) && iter->path().extension() != ".ebuild") {
         iter++;
     }
@@ -337,9 +337,9 @@ Package::Iterator Package::Iterator::operator++(int) {
 bool Package::Iterator::operator==(const Iterator &rhs) const {
     if (path != rhs.path) {
         // TODO
-        throw std::runtime_error(
+        throw std::runtime_error{
             std::format("attempted to compare Package iterators of different paths:\n{}\t{}", path.string(),
-                        rhs.path.string()));
+                        rhs.path.string())};
     }
     return iter == rhs.iter;
 }
@@ -349,7 +349,7 @@ bool Package::Iterator::operator==(const Iterator &rhs) const {
 // BEGIN CATEGORY
 
 Category::Iterator::value_type Category::Iterator::init_value() {
-    iter = std::filesystem::directory_iterator(path);
+    iter = std::filesystem::directory_iterator{path};
     while (iter != std::filesystem::end(iter)) {
         if (!iter->is_directory()) {
             iter++;
@@ -373,10 +373,10 @@ Category::Iterator::value_type Category::Iterator::init_value() {
     if (iter == std::filesystem::end(iter)) {
         return {};
     }
-    return Package(*iter);
+    return Package{*iter};
 }
 
-Category::Iterator::Iterator(const Category &category) : path(category.path()), elem(init_value()) {}
+Category::Iterator::Iterator(const Category &category) : path{category.path()}, elem{init_value()} {}
 
 Category::Iterator &Category::Iterator::operator++() {
     iter++;
@@ -384,7 +384,7 @@ Category::Iterator &Category::Iterator::operator++() {
         iter++;
     }
     if (iter != std::filesystem::end(iter) && iter->is_directory()) {
-        elem = Package(*iter);
+        elem = Package{*iter};
     }
     return *this;
 }
@@ -398,9 +398,9 @@ Category::Iterator Category::Iterator::operator++(int) {
 bool Category::Iterator::operator==(const Iterator &rhs) const {
     if (path != rhs.path) {
         // TODO
-        throw std::runtime_error(
+        throw std::runtime_error{
             std::format("attempted to compare Category iterators of different paths:\n{}\t{}", path.string(),
-                        rhs.path.string()));
+                        rhs.path.string())};
     }
 
     return iter == rhs.iter;
@@ -415,9 +415,9 @@ std::vector<std::filesystem::path> Repository::Iterator::init_categories() const
     const std::filesystem::path catfile = path / "profiles" / "categories";
     if (!std::filesystem::is_regular_file(catfile)) {
         // TODO
-        throw std::runtime_error(std::format("categories file {} does not exist", catfile.string()));
+        throw std::runtime_error{std::format("categories file {} does not exist", catfile.string())};
     }
-    std::ifstream fstream(catfile);
+    std::ifstream fstream{catfile};
 
     for (std::string line; std::getline(fstream, line);) {
         auto begin = line.begin();
@@ -425,12 +425,12 @@ std::vector<std::filesystem::path> Repository::Iterator::init_categories() const
         std::string parsed;
         if (!parse(begin, end, pms_utils::parsers::atom::category(), parsed) || begin != end) {
             // TODO
-            throw std::runtime_error(std::format("malformed line in categories file: {}", line));
+            throw std::runtime_error{std::format("malformed line in categories file: {}", line)};
         }
         const std::filesystem::path category = path / parsed;
         if (!std::filesystem::is_directory(category)) {
             // TODO
-            throw std::runtime_error(std::format("category {} does not exist", category.string()));
+            throw std::runtime_error{std::format("category {} does not exist", category.string())};
         }
         ret.push_back(category);
     }
@@ -441,16 +441,16 @@ Repository::Iterator::value_type Repository::Iterator::init_value() const {
     if (index >= categories.size()) {
         return {};
     }
-    return Category(categories.at(index));
+    return Category{categories.at(index)};
 }
 
 Repository::Iterator::Iterator(const Repository &repository)
-    : path(repository.path()), categories(init_categories()), elem(init_value()) {}
+    : path{repository.path()}, categories{init_categories()}, elem{init_value()} {}
 
 Repository::Iterator &Repository::Iterator::operator++() {
     index++;
     if (index < categories.size()) {
-        elem = Category(categories.at(index));
+        elem = Category{categories.at(index)};
     }
     return *this;
 }
@@ -464,9 +464,9 @@ Repository::Iterator Repository::Iterator::operator++(int) {
 bool Repository::Iterator::operator==(const Iterator &rhs) const {
     if (path != rhs.path) {
         // TODO
-        throw std::runtime_error(
+        throw std::runtime_error{
             std::format("attempted to compare Repository iterators of different paths:\n{}\t{}",
-                        path.string(), rhs.path.string()));
+                        path.string(), rhs.path.string())};
     }
     return index == rhs.index;
 }

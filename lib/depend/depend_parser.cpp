@@ -32,7 +32,7 @@ struct GroupHeaderOp final : x3::symbols<pms_utils::depend::GroupHeaderOp> {
 } // namespace
 
 PARSER_DEFINE(use_cond, x3::matches["!"] >> parsers::atom::useflag() >> x3::lit("?"));
-PARSER_DEFINE(conds, use_cond() | GroupHeaderOp());
+PARSER_DEFINE(conds, use_cond() | GroupHeaderOp{});
 
 PARSER_DEFINE(group, GroupTemplate1(node));
 PARSER_DEFINE(node, atom::package_dep() | group());

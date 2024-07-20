@@ -10,11 +10,12 @@ namespace [[gnu::visibility("default")]] pms_utils {
 namespace ebuild {
 
 uri_elem::operator std::string() const {
-    struct Visitor : public boost::static_visitor<std::string> {
+    class Visitor : private boost::static_visitor<std::string> {
+    public:
         std::string operator()(const URI &_uri) const { return _uri; }
         std::string operator()(const std::filesystem::path &path) const { return path.string(); }
     };
-    std::string ret = boost::apply_visitor(Visitor(), uri);
+    std::string ret = boost::apply_visitor(Visitor{}, uri);
     if (filename.has_value()) {
         ret += std::format(" -> {}", filename.value().string());
     }
@@ -84,7 +85,7 @@ std::ostream &iuse_elem::ostream_impl(std::ostream &out) const { return out << s
 iuse::operator std::string() const {
     std::string ret;
     for (const auto &elem : *this) {
-        ret += std::string(elem) + " ";
+        ret += std::string{elem} + " ";
     }
     if (!ret.empty()) {
         ret.pop_back();
