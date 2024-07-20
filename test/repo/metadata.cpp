@@ -75,7 +75,7 @@ int main() {
     constexpr auto REPO = "/var/db/repos/gentoo";
     bool success = true;
     Metrics metrics;
-    for (Repository repo(REPO); const Category &category : repo) {
+    for (const Repository repo{REPO}; const Category &category : repo) {
         for (const Package &package : category) {
             for (const Ebuild &ebuild : package) {
                 success &= check_file(ebuild, metrics);

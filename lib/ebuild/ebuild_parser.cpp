@@ -46,7 +46,7 @@ constexpr inline auto uri_helper = [](auto &ctx) {
 };
 
 constexpr inline auto filename_helper = [](auto &ctx) {
-    std::string_view attr = x3::_attr(ctx);
+    const std::string_view attr = x3::_attr(ctx);
     std::filesystem::path &val = x3::_val(ctx);
 
     val = attr;
@@ -57,7 +57,7 @@ constexpr inline auto filename_helper = [](auto &ctx) {
 };
 
 constexpr auto restrict_elem_helper = [](auto &ctx) {
-    std::string_view attr = x3::_attr(ctx);
+    const std::string_view attr = x3::_attr(ctx);
     pms_utils::ebuild::restrict_elem &val = x3::_val(ctx);
     val.string = attr;
     using enum pms_utils::ebuild::restrict_elem::Type;
@@ -75,7 +75,7 @@ constexpr auto restrict_elem_helper = [](auto &ctx) {
 };
 
 constexpr auto properties_elem_helper = [](auto &ctx) {
-    std::string_view attr = x3::_attr(ctx);
+    const std::string_view attr = x3::_attr(ctx);
     pms_utils::ebuild::properties_elem &val = x3::_val(ctx);
     val.string = attr;
     using enum pms_utils::ebuild::properties_elem::Type;

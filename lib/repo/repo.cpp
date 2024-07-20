@@ -191,7 +191,7 @@ Package::const_iterator Package::end() const noexcept {
 Package::const_iterator Package::cend() const noexcept { return end(); }
 
 std::optional<Ebuild> Package::operator[](const atom::Version &version) const {
-    std::filesystem::path ebuild_path =
+    const std::filesystem::path ebuild_path =
         _path / std::format("{}-{}.ebuild", std::string(_name), std::string(version));
     if (!std::filesystem::is_regular_file(ebuild_path)) {
         return {};
@@ -424,7 +424,7 @@ std::vector<std::filesystem::path> Repository::Iterator::init_categories() const
             // TODO
             throw std::runtime_error(std::format("malformed line in categories file: {}", line));
         }
-        std::filesystem::path category = path / parsed;
+        const std::filesystem::path category = path / parsed;
         if (!std::filesystem::is_directory(category)) {
             // TODO
             throw std::runtime_error(std::format("category {} does not exist", category.string()));

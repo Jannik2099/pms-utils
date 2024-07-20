@@ -56,9 +56,9 @@ namespace pms_utils::bindings::python {
 template <typename Func>
 static inline py::object &add_method(py::object &cls, std::string_view name, Func &&func) {
     // pybind11 needs a c_str ;/
-    const std::string name_str(name);
-    py::cpp_function cfunc(std::forward<Func>(func), py::name(name_str.c_str()), py::is_method(cls),
-                           py::sibling(py::getattr(cls, name_str.c_str(), py::none())));
+    const std::string name_str{name};
+    const py::cpp_function cfunc{std::forward<Func>(func), py::name(name_str.c_str()), py::is_method(cls),
+                                 py::sibling(py::getattr(cls, name_str.c_str(), py::none()))};
     py::detail::add_class_method(cls, name_str.c_str(), cfunc);
     return cls;
 }
