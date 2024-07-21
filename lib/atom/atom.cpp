@@ -19,7 +19,7 @@ namespace atom {
 Version::Version(std::string_view version_string) {
     if (const auto *begin = version_string.begin();
         parse(begin, version_string.end(), parsers::atom::package_version(), *this) &&
-        begin == version_string.end()) {
+        (begin == version_string.end())) {
         return;
     }
     throw std::invalid_argument{"input is not a PMS version string"};
@@ -243,7 +243,7 @@ PackageExpr::operator std::string() const {
     if (version.has_value()) {
         ret += "-";
         ret += std::string{version.value()};
-        if (verspec.has_value() && verspec.value() == VersionSpecifier::ea) {
+        if (verspec.has_value() && (verspec.value() == VersionSpecifier::ea)) {
             ret += "*";
         }
     }

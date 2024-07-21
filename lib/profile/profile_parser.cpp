@@ -134,8 +134,8 @@ const auto atom_helper = [](auto &ctx) {
         val.version = std::move(at_c<0>(versionPart.value()));
         const bool asterisk = at_c<1>(versionPart.value());
 
-        if (version_specifier.value() != pms_utils::atom::VersionSpecifier::eq &&
-            val.version->type() == typeid(std::string)) {
+        if ((version_specifier.value() != pms_utils::atom::VersionSpecifier::eq) &&
+            (val.version->type() == typeid(std::string))) {
             // wildcard versions are only allowed on =
             x3::_pass(ctx) = false;
             return;

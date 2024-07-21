@@ -25,13 +25,13 @@ template <typename Rule>
     ret.consumed = {input.begin(), begin};
     ret.remainder = {begin, end};
 
-    if (expected && !ret.success) {
+    if (expected && (!ret.success)) {
         std::cerr << std::format("parser failed\n\tinput: {}\n\tconsumed: {}\n\tremainder: {}\n", input,
                                  ret.consumed, ret.remainder);
         ret.as_expected = false;
         return ret;
     }
-    if (!expected && ret.success) {
+    if ((!expected) && ret.success) {
         std::cerr << std::format(
             "parser succeeded unexpectedly\n\tinput: {}\n\tconsumed: {}\n\tremainder: {}\n", input,
             ret.consumed, ret.remainder);
@@ -43,7 +43,7 @@ template <typename Rule>
     std::stringstream stream;
     stream << ret.result;
 
-    if (expected && complete && begin != end) {
+    if (expected && complete && (begin != end)) {
         std::cerr << std::format(
             "parser did not consume all input\n\tinput: {}\n\tconsumed: {}\n\tremainder: {}\n\tparsed: {}\n",
             input, ret.consumed, ret.remainder, stream.view());
@@ -51,7 +51,7 @@ template <typename Rule>
         return ret;
     }
 
-    if (!complete && begin == end) {
+    if ((!complete) && (begin == end)) {
         std::cerr << std::format("parser unexpectedly consumed all input\n\tinput: {}\n\tconsumed: "
                                  "{}\n\tremainder: {}\n\tparsed: {}\n",
                                  input, ret.consumed, ret.remainder, stream.view());

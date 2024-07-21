@@ -145,7 +145,7 @@ std::optional<std::filesystem::path> find_repo(const std::filesystem::path &path
             return {};
         }
         my_path = my_path.parent_path();
-        if (my_path.stem() == "profiles" && std::filesystem::is_regular_file(my_path / "repo_name")) {
+        if ((my_path.stem() == "profiles") && std::filesystem::is_regular_file(my_path / "repo_name")) {
             break;
         }
     }
@@ -206,9 +206,9 @@ void set_or_append(M &map, K &&key, V &&value)
     // use const& up until the last usage of key / value to prevent calling non-const overloads
     const auto &c_key = std::as_const(key);
     const auto &c_value = std::as_const(value);
-    if (c_key == "USE" || c_key == "USE_EXPAND" || c_key == "USE_EXPAND_HIDDEN" ||
-        c_key == "CONFIG_PROTECT" || c_key == "CONFIG_PROTECT_MASK" || c_key == "IUSE_IMPLICIT" ||
-        c_key == "USE_EXPAND_IMPLICIT" || c_key == "USE_EXPAND_UNPREFIXED" || c_key == "ENV_UNSET") {
+    if ((c_key == "USE") || (c_key == "USE_EXPAND") || (c_key == "USE_EXPAND_HIDDEN") ||
+        (c_key == "CONFIG_PROTECT") || (c_key == "CONFIG_PROTECT_MASK") || (c_key == "IUSE_IMPLICIT") ||
+        (c_key == "USE_EXPAND_IMPLICIT") || (c_key == "USE_EXPAND_UNPREFIXED") || (c_key == "ENV_UNSET")) {
         const auto iter = map.find(c_key);
         const std::string &prev = iter != map.end() ? iter->second : "";
         if (prev.empty()) {
@@ -232,7 +232,7 @@ template <typename P> auto parser_helper(P parser, std::string_view str) {
         return res;
     }
     const auto *begin = str.begin();
-    if (const auto *const end = str.end(); !parse(begin, end, parser, res) || begin != end) {
+    if (const auto *const end = str.end(); (!parse(begin, end, parser, res)) || (begin != end)) {
         throw std::invalid_argument{std::format("make.defaults element {} appears invalid", str)};
     }
     return res;
@@ -352,7 +352,7 @@ void Profile::init_make_defaults() {
         auto begin = line.begin();
         const auto end = line.end();
         std::vector<std::tuple<std::string, bool>> parsed_line;
-        if (!parse(begin, end, parsers::profile::make_defaults_shlex(), parsed_line) || begin != end) {
+        if ((!parse(begin, end, parsers::profile::make_defaults_shlex(), parsed_line)) || (begin != end)) {
             throw std::invalid_argument{std::format("make.defaults element {} appears invalid", line)};
         }
         for (const auto &[elem, is_variable] : parsed_line) {

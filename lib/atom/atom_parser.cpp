@@ -117,7 +117,7 @@ constexpr inline auto slot_expr_helper = [](auto &ctx) {
         val.slot = slot;
         val.slotVariant = equal ? pms_utils::atom::SlotVariant::equal : pms_utils::atom::SlotVariant::none;
 
-        if (!equal && !slot.has_value()) {
+        if ((!equal) && (!slot.has_value())) {
             // TODO
             throw std::runtime_error{"TODO"};
         }
@@ -154,7 +154,7 @@ constexpr inline auto package_dep_helper = [](auto &ctx, bool requireVerSpec) {
         const pms_utils::atom::Version &version = at_c<0>(versionPart.value());
         const bool asterisk = at_c<1>(versionPart.value());
 
-        if (!version_specifier.has_value() && requireVerSpec) {
+        if ((!version_specifier.has_value()) && requireVerSpec) {
             // TODO
             x3::_pass(ctx) = false;
         }

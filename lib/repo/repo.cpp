@@ -205,7 +205,7 @@ std::optional<Ebuild> Package::operator[](std::string_view version) const {
     const auto *begin = version.begin();
     const auto *const end = version.end();
     atom::Version ver;
-    if (!parse(begin, end, parsers::atom::package_version(), ver) || begin != end) {
+    if ((!parse(begin, end, parsers::atom::package_version(), ver)) || (begin != end)) {
         throw std::invalid_argument{std::format("argument {} is not a valid Version expression", version)};
     }
     return (*this)[ver];
@@ -229,7 +229,7 @@ std::optional<Package> Category::operator[](std::string_view package) const {
     const auto *begin = package.begin();
     const auto *const end = package.end();
     atom::Name package_name;
-    if (!parse(begin, end, parsers::atom::name(), package_name) || begin != end) {
+    if ((!parse(begin, end, parsers::atom::name(), package_name)) || (begin != end)) {
         throw std::invalid_argument{
             std::format("argument {} is not a valid Package Name expression", package)};
     }
@@ -266,7 +266,7 @@ std::optional<Category> Repository::operator[](std::string_view category) const 
     const auto *begin = category.begin();
     const auto *const end = category.end();
     atom::Category category_name;
-    if (!parse(begin, end, parsers::atom::category(), category_name) || begin != end) {
+    if ((!parse(begin, end, parsers::atom::category(), category_name)) || (begin != end)) {
         throw std::invalid_argument{
             std::format("argument {} is not a valid Package Name expression", category)};
     }
@@ -307,7 +307,7 @@ Ebuild Package::Iterator::make_value() const {
 
 Package::Iterator::Iterator(const Package &package) : path{package.path()} {
     iter = std::filesystem::directory_iterator{path};
-    while (iter != std::filesystem::end(iter) && iter->path().extension() != ".ebuild") {
+    while ((iter != std::filesystem::end(iter)) && (iter->path().extension() != ".ebuild")) {
         iter++;
     }
     if (iter == std::filesystem::end(iter)) {
@@ -319,7 +319,7 @@ Package::Iterator::Iterator(const Package &package) : path{package.path()} {
 
 Package::Iterator &Package::Iterator::operator++() {
     iter++;
-    while (iter != std::filesystem::end(iter) && iter->path().extension() != ".ebuild") {
+    while ((iter != std::filesystem::end(iter)) && (iter->path().extension() != ".ebuild")) {
         iter++;
     }
     if (iter != std::filesystem::end(iter)) {
@@ -380,10 +380,10 @@ Category::Iterator::Iterator(const Category &category) : path{category.path()}, 
 
 Category::Iterator &Category::Iterator::operator++() {
     iter++;
-    while (iter != std::filesystem::end(iter) && !iter->is_directory()) {
+    while ((iter != std::filesystem::end(iter)) && (!iter->is_directory())) {
         iter++;
     }
-    if (iter != std::filesystem::end(iter) && iter->is_directory()) {
+    if ((iter != std::filesystem::end(iter)) && (iter->is_directory())) {
         elem = Package{*iter};
     }
     return *this;
@@ -423,7 +423,7 @@ std::vector<std::filesystem::path> Repository::Iterator::init_categories() const
         auto begin = line.begin();
         const auto end = line.end();
         std::string parsed;
-        if (!parse(begin, end, pms_utils::parsers::atom::category(), parsed) || begin != end) {
+        if ((!parse(begin, end, pms_utils::parsers::atom::category(), parsed)) || (begin != end)) {
             // TODO
             throw std::runtime_error{std::format("malformed line in categories file: {}", line)};
         }
