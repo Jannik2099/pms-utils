@@ -37,10 +37,10 @@ namespace py = pybind11;
 
 namespace PYBIND11_NAMESPACE {
 namespace detail {
-template <typename T> struct type_caster<boost::optional<T>> : optional_caster<boost::optional<T>> {};
+template <typename T> struct type_caster<boost::optional<T>> : public optional_caster<boost::optional<T>> {};
 
 template <typename... Ts>
-struct type_caster<boost::variant<Ts...>> : variant_caster<boost::variant<Ts...>> {};
+struct type_caster<boost::variant<Ts...>> : public variant_caster<boost::variant<Ts...>> {};
 
 template <> struct visit_helper<boost::variant> {
     template <typename... Args> static auto call(Args &&...args) -> decltype(boost::apply_visitor(args...)) {

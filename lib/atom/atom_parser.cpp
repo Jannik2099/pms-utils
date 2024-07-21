@@ -24,7 +24,7 @@ namespace x3 = boost::spirit::x3;
 
 namespace {
 
-struct VerSpec final : x3::symbols<pms_utils::atom::VersionSpecifier> {
+struct VerSpec final : public x3::symbols<pms_utils::atom::VersionSpecifier> {
     // This intentionally lacks VersionSpecifier::ea because we cannot match against it directly
     // clang-format off
     VerSpec() {
@@ -41,7 +41,7 @@ struct VerSpec final : x3::symbols<pms_utils::atom::VersionSpecifier> {
     // clang-format on
 };
 
-struct Blocker final : x3::symbols<pms_utils::atom::Blocker> {
+struct Blocker final : public x3::symbols<pms_utils::atom::Blocker> {
     // clang-format off
     Blocker() {
         add
@@ -52,7 +52,7 @@ struct Blocker final : x3::symbols<pms_utils::atom::Blocker> {
     // clang-format on
 };
 
-struct VersionSuffixWord final : x3::symbols<pms_utils::atom::VersionSuffixWord> {
+struct VersionSuffixWord final : public x3::symbols<pms_utils::atom::VersionSuffixWord> {
     // clang-format off
     VersionSuffixWord() {
         using enum pms_utils::atom::VersionSuffixWord;
@@ -67,7 +67,7 @@ struct VersionSuffixWord final : x3::symbols<pms_utils::atom::VersionSuffixWord>
     // clang-format on
 };
 
-struct UsedepNegate final : x3::symbols<pms_utils::atom::UsedepNegate> {
+struct UsedepNegate final : public x3::symbols<pms_utils::atom::UsedepNegate> {
     // clang-format off
     UsedepNegate() {
         add
@@ -77,7 +77,7 @@ struct UsedepNegate final : x3::symbols<pms_utils::atom::UsedepNegate> {
     }
     // clang-format on
 };
-struct UsedepSign final : x3::symbols<pms_utils::atom::UsedepSign> {
+struct UsedepSign final : public x3::symbols<pms_utils::atom::UsedepSign> {
     // clang-format off
     UsedepSign() {
         add
@@ -88,7 +88,7 @@ struct UsedepSign final : x3::symbols<pms_utils::atom::UsedepSign> {
     // clang-format on
 };
 
-struct UsedepConditional final : x3::symbols<pms_utils::atom::UsedepCond> {
+struct UsedepConditional final : public x3::symbols<pms_utils::atom::UsedepCond> {
     // clang-format off
     UsedepConditional() {
         add

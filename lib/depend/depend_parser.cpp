@@ -17,7 +17,7 @@ namespace parsers::depend {
 namespace x3 = boost::spirit::x3;
 
 namespace {
-struct GroupHeaderOp final : x3::symbols<pms_utils::depend::GroupHeaderOp> {
+struct GroupHeaderOp final : public x3::symbols<pms_utils::depend::GroupHeaderOp> {
     // clang-format off
     GroupHeaderOp() {
         using enum pms_utils::depend::GroupHeaderOp;
