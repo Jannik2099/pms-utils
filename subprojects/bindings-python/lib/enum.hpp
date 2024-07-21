@@ -2,18 +2,14 @@
 
 #include "internal.hpp"
 
-#include <abstract.h>
+#include <Python.h> // IWYU pragma: keep
 #include <boost/describe/enumerators.hpp>
 #include <boost/mp11/algorithm.hpp>
-#include <longobject.h>
-#include <object.h>
 #include <pybind11/cast.h>
 #include <pybind11/detail/common.h>
 #include <pybind11/gil.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/pytypes.h>
-#include <pyerrors.h>
-#include <pytypedefs.h>
 #include <string>
 #include <string_view>
 #include <type_traits>
