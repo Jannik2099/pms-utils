@@ -49,23 +49,24 @@ bool check_file(const Ebuild &ebuild, Metrics &metrics) {
             [&line_ = std::as_const(line), &metadata, &metrics, &success, &cachefile](auto member) {
                 const std::string match =
                     member.name == "INHERITED" ? "INHERIT=" : std::string{member.name} + '=';
-                if (line_.starts_with(match)) {
-                    metrics.found[member.name] += 1;
-                    std::string control = line_.substr(match.size());
-                    metrics.bytes[member.name] += control.size();
-                    control = trim_string(control);
-                    std::ostringstream ostr;
-                    ostr << metadata.*member.pointer;
-                    const std::string result(trim_string(ostr.view()));
-                    const auto control_hash = std::hash<std::string>{}(control);
-                    const auto result_hash = std::hash<std::string>{}(result);
-                    if (control_hash != result_hash) {
-                        success = false;
-                        std::cerr << std::format("hash mismatch {} {}\n\tinput: {}\n\tparsed: {}\n", match,
-                                                 cachefile.string(), control, result);
-                    } else {
-                        metrics.parsed[member.name] += 1;
-                    }
+                if (!line_.starts_with(match)) {
+                    return;
+                }
+                metrics.found[member.name] += 1;
+                std::string control = line_.substr(match.size());
+                metrics.bytes[member.name] += control.size();
+                control = trim_string(control);
+                std::ostringstream ostr;
+                ostr << metadata.*member.pointer;
+                const std::string result(trim_string(ostr.view()));
+                const auto control_hash = std::hash<std::string>{}(control);
+                const auto result_hash = std::hash<std::string>{}(result);
+                if (control_hash != result_hash) {
+                    success = false;
+                    std::cerr << std::format("hash mismatch {} {}\n\tinput: {}\n\tparsed: {}\n", match,
+                                             cachefile.string(), control, result);
+                } else {
+                    metrics.parsed[member.name] += 1;
                 }
             });
     }

@@ -130,12 +130,12 @@ void Expander::slot_matcher(const repo::Repository &repository, const repo::Cate
     if (!atom_.slot.has_value()) {
         atoms_.emplace_back(std::format("{}/{}-{}::{}", category.name(), std::string{ebuild.name},
                                         std::string{ebuild.version}, repository.name()));
-    } else {
-        if ((atom_.slot->slot == ebuild.metadata().SLOT.slot) &&
-            (atom_.slot->subslot.empty() || (atom_.slot->subslot == ebuild.metadata().SLOT.subslot))) {
-            atoms_.emplace_back(std::format("{}/{}-{}::{}", category.name(), std::string{ebuild.name},
-                                            std::string{ebuild.version}, repository.name()));
-        }
+        return;
+    }
+    if ((atom_.slot->slot == ebuild.metadata().SLOT.slot) &&
+        (atom_.slot->subslot.empty() || (atom_.slot->subslot == ebuild.metadata().SLOT.subslot))) {
+        atoms_.emplace_back(std::format("{}/{}-{}::{}", category.name(), std::string{ebuild.name},
+                                        std::string{ebuild.version}, repository.name()));
     }
 }
 
@@ -145,20 +145,20 @@ void Expander::version_matcher(const repo::Repository &repository, const repo::C
         for (const auto &ebuild : package) {
             slot_matcher(repository, category, ebuild);
         }
-    } else {
-        if (version_re.has_value()) {
-            for (const auto &ebuild : package) {
-                if (boost::regex_match(std::string{ebuild.version}, version_re.value())) {
-                    slot_matcher(repository, category, ebuild);
-                }
+        return;
+    }
+    if (version_re.has_value()) {
+        for (const auto &ebuild : package) {
+            if (boost::regex_match(std::string{ebuild.version}, version_re.value())) {
+                slot_matcher(repository, category, ebuild);
             }
-        } else {
-            for (const auto &ebuild : package) {
-                if (test_version(atom_.version_specifier.value(),
-                                 boost::get<atom::Version>(atom_.version.value()), ebuild)) {
-                    slot_matcher(repository, category, ebuild);
-                }
-            }
+        }
+        return;
+    }
+    for (const auto &ebuild : package) {
+        if (test_version(atom_.version_specifier.value(), boost::get<atom::Version>(atom_.version.value()),
+                         ebuild)) {
+            slot_matcher(repository, category, ebuild);
         }
     }
 }
@@ -170,11 +170,11 @@ void Expander::name_matcher(const repo::Repository &repository, const repo::Cate
                 version_matcher(repository, category, package);
             }
         }
-    } else {
-        const auto package = category[atom_.name];
-        if (package.has_value()) {
-            version_matcher(repository, category, package.value());
-        }
+        return;
+    }
+    const auto package = category[atom_.name];
+    if (package.has_value()) {
+        version_matcher(repository, category, package.value());
     }
 }
 
@@ -185,11 +185,11 @@ void Expander::category_matcher(const repo::Repository &repository) {
                 name_matcher(repository, category);
             }
         }
-    } else {
-        const auto category = repository[atom_.category];
-        if (category.has_value()) {
-            name_matcher(repository, category.value());
-        }
+        return;
+    }
+    const auto category = repository[atom_.category];
+    if (category.has_value()) {
+        name_matcher(repository, category.value());
     }
 }
 
