@@ -3,4 +3,4 @@ HeaderFilterRegex: '.*\.hpp'
 FormatStyle: "file"
 ExtraArgsBefore: ["-DPMS_UTILS_CLANG_TIDY"]
 CheckOptions:
-  misc-include-cleaner.IgnoreHeaders: "[gc]\\+\\+.*/bits/.*;boost/.*/detail/.*"
+  misc-include-cleaner.IgnoreHeaders: '[gc]\+\+.*/bits/.*;boost/.*/detail/.*;(python|pypy)[0-9\.]*/.*'
