@@ -1,0 +1,33 @@
+name: "SonarLint"
+
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    container: ghcr.io/jannik2099/pms-utils-gentoo-ci:latest
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+
+    - name: Install SonarSource
+      uses: SonarSource/sonarcloud-github-c-cpp@v3
+
+    - name: Configure
+      run: meson setup -Dtest=true build
+
+    - name: Run sonar-scanner
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: sonar-scanner --define sonar.cfamily.compile-commands="build/compile_commands.json"
