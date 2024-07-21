@@ -156,7 +156,7 @@ private:
         return false;
     };
     [[nodiscard]] bool traverse_right() {
-        if (index_.size() == 1 && index_[0] >= ast->nodes.size() - 1) {
+        if ((index_.size() == 1) && (index_[0] >= ast->nodes.size() - 1)) {
             return false;
         }
 
@@ -217,7 +217,7 @@ public:
     [[nodiscard]] friend constexpr std::strong_ordering operator<=>(const Iterator &lhs,
                                                                     const Iterator &rhs) noexcept {
         // both at end, or both empty
-        if (lhs.node == nullptr && rhs.node == nullptr) {
+        if ((lhs.node == nullptr) && (rhs.node == nullptr)) {
             return std::strong_ordering::equal;
         }
         const std::size_t index = std::min(lhs.index_.size(), rhs.index_.size());
@@ -240,7 +240,7 @@ public:
     Iterator &operator++() {
         if (!traverse_downwards()) {
             while (!traverse_right()) {
-                if (index_.size() == 1 && index_[0] >= ast->nodes.size() - 1) {
+                if ((index_.size() == 1) && (index_[0] >= ast->nodes.size() - 1)) {
                     to_end();
                     return *this;
                 }
@@ -267,7 +267,7 @@ public:
             }
         } else {
             if (!traverse_upwards()) {
-                if (index_.size() == 1 && index_.back() == 0) {
+                if ((index_.size() == 1) && (index_.back() == 0)) {
                     return *this;
                 }
                 // TODO

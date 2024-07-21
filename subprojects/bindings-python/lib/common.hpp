@@ -149,7 +149,7 @@ static inline auto create_bindings(M module_, R rule = false) {
             std::string repr_trunc;
             repr_trunc.reserve(repr.size());
             std::ranges::replace_if(
-                repr, [](const char character) { return character == '\n' || character == '\t'; }, ' ');
+                repr, [](const char character) { return (character == '\n') || (character == '\t'); }, ' ');
             for (const auto &word : std::views::split(repr, ' ')) {
                 if (word.empty()) {
                     continue;
@@ -168,7 +168,7 @@ static inline auto create_bindings(M module_, R rule = false) {
     if constexpr (requires(const T &val) {
                       std::begin(val);
                       std::end(val);
-                  } && !std::is_base_of_v<std::string, T>) {
+                  } && (!std::is_base_of_v<std::string, T>)) {
         ret.def(
             "__iter__", [](const T &val) { return py::make_iterator(std::begin(val), std::end(val)); },
             py::keep_alive<0, 1>{});

@@ -57,11 +57,11 @@ std::optional<bool> test_version(atom::VersionSpecifier verspec, const atom::Ver
     case lt:
         return order == std::strong_ordering::less;
     case le:
-        return order == std::strong_ordering::less || order == std::strong_ordering::equal;
+        return (order == std::strong_ordering::less) || (order == std::strong_ordering::equal);
     case eq:
         return order == std::strong_ordering::equal;
     case ge:
-        return order == std::strong_ordering::greater || order == std::strong_ordering::equal;
+        return (order == std::strong_ordering::greater) || (order == std::strong_ordering::equal);
     case gt:
         return order == std::strong_ordering::greater;
         // handled above
@@ -86,7 +86,7 @@ Expander::Expander(const WildcardAtom &atom, const std::vector<repo::Repository>
     const bool category_is_wildcard = atom_.category.find('*') != std::string::npos;
     const bool name_is_wildcard = atom_.name.find('*') != std::string::npos;
     const bool version_is_wildcard =
-        atom_.version.has_value() && atom_.version.value().type() == typeid(std::string);
+        atom_.version.has_value() && (atom_.version.value().type() == typeid(std::string));
     if (category_is_wildcard) {
         category_re = "^" +
                       boost::regex_replace(regex_escape(atom_.category), wildcard_re, ".*",
@@ -133,8 +133,8 @@ void Expander::slot_matcher(const repo::Repository &repository, const repo::Cate
         atoms_.emplace_back(std::format("{}/{}-{}::{}", category.name(), std::string{ebuild.name},
                                         std::string{ebuild.version}, repository.name()));
     } else {
-        if (atom_.slot->slot == ebuild.metadata().SLOT.slot &&
-            (atom_.slot->subslot.empty() || atom_.slot->subslot == ebuild.metadata().SLOT.subslot)) {
+        if ((atom_.slot->slot == ebuild.metadata().SLOT.slot) &&
+            (atom_.slot->subslot.empty() || (atom_.slot->subslot == ebuild.metadata().SLOT.subslot))) {
             atoms_.emplace_back(std::format("{}/{}-{}::{}", category.name(), std::string{ebuild.name},
                                             std::string{ebuild.version}, repository.name()));
         }
