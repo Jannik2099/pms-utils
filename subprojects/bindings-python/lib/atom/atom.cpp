@@ -43,9 +43,8 @@ void _register(py::module &_module) {
                           .def(py::self < py::self)
                           .def(py::self <= py::self)
                           .def(py::self > py::self)
-                          .def(py::self >= py::self)
-                          .def(py::self == py::self)
-                          .def(py::self != py::self);
+                          .def(py::self >= py::self);
+    // == and != are already bound automatically
     // NOLINTEND(misc-redundant-expression)
 
     auto py_Slot = create_bindings<Slot>(atom, parsers::atom::slot);
