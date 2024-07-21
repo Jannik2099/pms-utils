@@ -12,6 +12,7 @@
 using namespace pms_utils;
 using namespace depend;
 namespace parsers = pms_utils::parsers;
+using pms_utils::test::try_parse;
 
 namespace {
 class Myvisitor : private boost::static_visitor<std::string> {

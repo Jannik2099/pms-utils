@@ -3,6 +3,7 @@
 
 using namespace pms_utils::ebuild;
 namespace parsers = pms_utils::parsers;
+using pms_utils::test::try_parse;
 
 int main() {
     bool success = true;

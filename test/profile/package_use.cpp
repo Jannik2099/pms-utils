@@ -21,6 +21,8 @@ std::ostream &operator<<(std::ostream &stream,
 
 #include "x3_util.hpp"
 
+using pms_utils::test::try_parse;
+
 int main() {
     bool success = true;
     success &= try_parse("foo", parsers::profile::package_use_values()).as_expected;
