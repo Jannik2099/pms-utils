@@ -62,7 +62,7 @@ public:
             PyObject *tmp = PyNumber_Index(src.attr("value").ptr());
             if (tmp != nullptr) {
                 auto ival = PyLong_AsLong(tmp);
-                value = decltype(value)(ival);
+                value = static_cast<decltype(value)>(ival);
                 Py_DECREF(tmp);
                 return (ival != -1) || (PyErr_Occurred() != nullptr);
             }
@@ -71,7 +71,7 @@ public:
     }
     static handle cast(const decltype(value) &obj, return_value_policy /*unused*/, handle /*unused*/) {
         const py::object cls = pms_utils::bindings::python::_internal::enums().at(typeid(T));
-        return cls(std::underlying_type_t<T>(obj)).inc_ref();
+        return cls(static_cast<std::underlying_type_t<T>>(obj)).inc_ref();
     }
 };
 
