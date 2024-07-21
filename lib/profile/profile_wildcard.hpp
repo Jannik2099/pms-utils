@@ -36,8 +36,8 @@ public:
     Expander(const WildcardAtom &atom [[clang::lifetimebound]],
              const std::vector<repo::Repository> &repositories [[clang::lifetimebound]]);
     Expander(const Expander &) = delete;
-    Expander &operator=(const Expander &) = delete;
     Expander(Expander &&) = delete;
+    Expander &operator=(const Expander &) = delete;
     Expander &operator=(Expander &&) = delete;
     ~Expander() = default;
 
