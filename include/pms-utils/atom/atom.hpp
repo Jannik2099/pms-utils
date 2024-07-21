@@ -51,7 +51,7 @@ enum class VersionSuffixWord : std::uint8_t {
     p,
 };
 // Sorted as per PMS, _alpha < _beta < _pre < _rc < _p
-[[nodiscard]] std::strong_ordering operator<=>(VersionSuffixWord lhs, VersionSuffixWord rhs) noexcept;
+[[nodiscard]] std::strong_ordering operator<=>(VersionSuffixWord lhs, VersionSuffixWord rhs);
 
 struct VersionSuffix {
 private:

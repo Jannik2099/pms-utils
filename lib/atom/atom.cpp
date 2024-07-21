@@ -44,8 +44,7 @@ std::string to_string(VersionSpecifier versionSpecifier) {
     case gt:
         return ">";
     default:
-        // gcc cannot see that all enum values are covered, sigh
-        __builtin_unreachable();
+        throw std::out_of_range{"unknown enum value"};
     }
 }
 std::ostream &operator<<(std::ostream &out, VersionSpecifier versionSpecifier) {
@@ -79,8 +78,7 @@ std::string to_string(VersionSuffixWord versionSuffixWord) {
     case p:
         return "_p";
     default:
-        // gcc cannot see that all enum values are covered, sigh
-        __builtin_unreachable();
+        throw std::out_of_range{"unknown enum value"};
     }
 }
 std::ostream &operator<<(std::ostream &out, VersionSuffixWord versionSuffixWord) {
@@ -113,8 +111,7 @@ std::string to_string(Blocker blocker) {
     case Blocker::strong:
         return "!!";
     default:
-        // gcc cannot see that all enum values are covered, sigh
-        __builtin_unreachable();
+        throw std::out_of_range{"unknown enum value"};
     }
 }
 std::ostream &operator<<(std::ostream &out, Blocker blocker) { return out << to_string(blocker); }
@@ -145,6 +142,8 @@ SlotExpr::operator std::string() const {
     case equal:
         ret += "=";
         break;
+    default:
+        throw std::out_of_range{"unknown enum value"};
     }
     return ret;
 }
@@ -157,8 +156,7 @@ std::string to_string(UsedepNegate usedepNegate) {
     case UsedepNegate::exclamation:
         return "!";
     default:
-        // gcc cannot see that all enum values are covered, sigh
-        __builtin_unreachable();
+        throw std::out_of_range{"unknown enum value"};
     }
 }
 std::ostream &operator<<(std::ostream &out, UsedepNegate usedepNegate) {
@@ -172,8 +170,7 @@ std::string to_string(UsedepSign usedepSign) {
     case UsedepSign::minus:
         return "-";
     default:
-        // gcc cannot see that all enum values are covered, sigh
-        __builtin_unreachable();
+        throw std::out_of_range{"unknown enum value"};
     }
 }
 std::ostream &operator<<(std::ostream &out, UsedepSign usedepSign) { return out << to_string(usedepSign); }
@@ -185,7 +182,7 @@ std::string to_string(UsedepCond usedepCond) {
     case UsedepCond::question:
         return "?";
     default:
-        throw std::runtime_error{"unknown enum value"};
+        throw std::out_of_range{"unknown enum value"};
     }
 }
 std::ostream &operator<<(std::ostream &out, UsedepCond usedepCond) { return out << to_string(usedepCond); }
@@ -200,6 +197,8 @@ Usedep::operator std::string() const {
         case UsedepNegate::minus:
             ret += "-";
             break;
+        default:
+            throw std::out_of_range{"unknown enum value"};
         }
     }
     ret += useflag;
@@ -389,7 +388,7 @@ std::optional<std::strong_ordering> algorithm_3_7(std::string_view left, std::st
 
 } // namespace
 
-std::strong_ordering operator<=>(VersionSuffixWord lhs, VersionSuffixWord rhs) noexcept {
+std::strong_ordering operator<=>(VersionSuffixWord lhs, VersionSuffixWord rhs) {
     const auto order = [](VersionSuffixWord word) {
         switch (word) {
             using enum pms_utils::atom::VersionSuffixWord;
@@ -404,8 +403,7 @@ std::strong_ordering operator<=>(VersionSuffixWord lhs, VersionSuffixWord rhs) n
         case p:
             return 4;
         default:
-            // gcc cannot see that all enum values are covered, sigh
-            __builtin_unreachable();
+            throw std::out_of_range{"unknown enum value"};
         }
     };
     return order(lhs) <=> order(rhs);
