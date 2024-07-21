@@ -71,18 +71,23 @@ template <typename T, typename Pclass> static inline Pclass &bind_members_and_ge
 
     mp_for_each<boost::describe::describe_members<T, boost::describe::mod_private>>([&cls](auto member) {
         mp_for_each<boost::describe::describe_members<T, boost::describe::mod_public |
-                                                             boost::describe::mod_function>>(
-            [&cls, &member](auto mfunc) {
-                if (std::string{mfunc.name} + '_' == member.name) {
-                    if constexpr (requires(const T &val) { (val.*mfunc.pointer)(); }) {
-                        if constexpr (std::is_convertible_v<
-                                          decltype((std::declval<const T &>().*mfunc.pointer)()),
-                                          decltype(std::declval<const T &>().*member.pointer)>) {
-                            cls.def_property_readonly(mfunc.name, mfunc.pointer);
-                        }
+                                                             boost::describe::mod_function>>([&cls, &member](
+                                                                                                 auto mfunc) {
+            if (std::string{mfunc.name} + '_' == member.name) {
+                // this can't be combined into a single requires expression due to
+                // https://github.com/llvm/llvm-project/issues/91566
+                // reduced case of this expression https://godbolt.org/z/8W3ErEKrc
+                if constexpr (!requires(const T &val) { (val.*mfunc.pointer)(); }) {
+                    // negated condition & empty statement to prevent having if() if() and thus avoid
+                    // diagnostics
+                } else {
+                    if constexpr (std::convertible_to<decltype((std::declval<const T &>().*mfunc.pointer)()),
+                                                      decltype(std::declval<const T &>().*member.pointer)>) {
+                        cls.def_property_readonly(mfunc.name, mfunc.pointer);
                     }
                 }
-            });
+            }
+        });
     });
     return cls;
 }
