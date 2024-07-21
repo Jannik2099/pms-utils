@@ -426,17 +426,16 @@ void Profile::init_package_mask() {
         }
         const auto ebuilds = expand_package_expr(line, repos_);
         for (const auto &ebuild : ebuilds) {
-            const auto iter = filters_.find(ebuild);
-            if (iter == filters_.end()) {
-                // if the filter does not exist and would not be changed from the default value, we avoid
-                // creating it
-                if (!is_masked) {
-                    continue;
-                }
-                filters_[ebuild].masked = is_masked;
-            } else {
+            if (const auto iter = filters_.find(ebuild); iter != filters_.end()) {
                 iter->second.masked = is_masked;
+                continue;
             }
+            // if the filter does not exist and would not be changed from the default value, we avoid
+            // creating it
+            if (!is_masked) {
+                continue;
+            }
+            filters_[ebuild].masked = is_masked;
         }
     }
 }
