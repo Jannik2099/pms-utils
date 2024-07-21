@@ -42,7 +42,9 @@ struct package_use_elem {
 struct StringHash {
     using is_transparent = void;
 
-    std::size_t operator()(std::string_view view) const { return std::hash<std::string_view>{}(view); }
+    [[nodiscard]] std::size_t operator()(std::string_view view) const {
+        return std::hash<std::string_view>{}(view);
+    }
 };
 
 template <typename T>
@@ -63,7 +65,7 @@ public:
     boost::optional<atom::Slot> slot;
     boost::optional<std::string> repo;
 
-    explicit operator std::string() const;
+    [[nodiscard]] explicit operator std::string() const;
     friend std::ostream &operator<<(std::ostream &out,
                                     const pms_utils::profile::_internal::WildcardAtom &atom) {
         return atom.ostream_impl(out);
@@ -245,7 +247,8 @@ public:
 
 class PortageProfile : public Profile {
 private:
-    static Profile init_base(const std::filesystem::path &path, std::vector<repo::Repository> repos);
+    [[nodiscard]] static Profile init_base(const std::filesystem::path &path,
+                                           std::vector<repo::Repository> repos);
 
 public:
     [[nodiscard]] explicit PortageProfile(const std::filesystem::path &path);
@@ -255,7 +258,7 @@ public:
 
 // BEGIN HASH
 
-inline std::size_t hash_value(const Profile &profile) {
+[[nodiscard]] inline std::size_t hash_value(const Profile &profile) {
     return boost::hash<std::filesystem::path>{}(profile.path());
 }
 
