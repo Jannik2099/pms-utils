@@ -40,13 +40,14 @@ template <> void testVerspec<VersionSpecifier::ea>(bool &ret) {
 
 int main() {
     bool ret = true;
-    testVerspec<VersionSpecifier::lt>(ret);
-    testVerspec<VersionSpecifier::le>(ret);
-    testVerspec<VersionSpecifier::eq>(ret);
-    testVerspec<VersionSpecifier::ea>(ret);
-    testVerspec<VersionSpecifier::td>(ret);
-    testVerspec<VersionSpecifier::ge>(ret);
-    testVerspec<VersionSpecifier::gt>(ret);
+    using enum VersionSpecifier;
+    testVerspec<lt>(ret);
+    testVerspec<le>(ret);
+    testVerspec<eq>(ret);
+    testVerspec<ea>(ret);
+    testVerspec<td>(ret);
+    testVerspec<ge>(ret);
+    testVerspec<gt>(ret);
 
     if (!ret) {
         return 1;
