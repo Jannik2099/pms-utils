@@ -88,7 +88,7 @@ constexpr auto properties_elem_helper = [](auto &ctx) {
     }
 };
 
-struct phases_token final : x3::symbols<pms_utils::ebuild::phases> {
+struct phases_token final : public x3::symbols<pms_utils::ebuild::phases> {
     // clang-format off
     phases_token() {
         using enum pms_utils::ebuild::phases;
