@@ -19,7 +19,7 @@ namespace {
 std::unordered_map<std::type_index, py::object> _enums;
 } // namespace
 
-std::unordered_map<std::type_index, py::object> &enums() { return _enums; };
+[[nodiscard]] std::unordered_map<std::type_index, py::object> &enums() { return _enums; };
 
 } // namespace pms_utils::bindings::python::_internal
 

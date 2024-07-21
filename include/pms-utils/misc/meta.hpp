@@ -21,9 +21,10 @@ template <typename T>
 using is_described = boost::mp11::mp_if<std::is_class<T>, boost::describe::has_describe_members<T>,
                                         boost::describe::has_describe_enumerators<T>>;
 
-template <typename Test, template <typename...> class Ref> struct is_specialization : std::false_type {};
+template <typename Test, template <typename...> class Ref>
+struct is_specialization : public std::false_type {};
 template <template <typename...> class Ref, typename... Args>
-struct is_specialization<Ref<Args...>, Ref> : std::true_type {};
+struct is_specialization<Ref<Args...>, Ref> : public std::true_type {};
 template <typename Test, template <typename...> class Ref>
 constexpr inline bool is_specialization_v = is_specialization<Test, Ref>::value;
 
@@ -77,7 +78,7 @@ namespace boost {
 
 template <typename T>
     requires pms_utils::meta::_internal::is_specialization_v<T, boost::optional>
-std::size_t hash_value(const T &param) {
+[[nodiscard]] inline std::size_t hash_value(const T &param) {
     using type = boost::mp11::mp_at_c<T, 0>;
     if (param.has_value()) {
         return boost::hash<type>{}(param.value());
@@ -137,7 +138,7 @@ std::size_t hash_value(const T &param) {
         requires boost::mp11::mp_set_contains<pms_utils::namespace_::meta::_internal::all_plus_crtp,         \
                                               T>::value                                                      \
     struct hash<T> {                                                                                         \
-        std::size_t operator()(const T &expr) const { return boost::hash<T>{}(expr); }                       \
+        [[nodiscard]] std::size_t operator()(const T &expr) const { return boost::hash<T>{}(expr); }         \
     };                                                                                                       \
     } /* namespace std */                                                                                    \
     static_assert(                                                                                           \

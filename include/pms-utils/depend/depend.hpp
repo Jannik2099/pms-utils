@@ -284,8 +284,8 @@ public:
     };
 
     // this exists solely because std::incrementable is a shithead and requires std::regular
-    Iterator() = default;
-    explicit Iterator(const GroupExpr &ast [[clang::lifetimebound]])
+    [[nodiscard]] Iterator() = default;
+    [[nodiscard]] explicit Iterator(const GroupExpr &ast [[clang::lifetimebound]])
         : ast{static_cast<const group_type *>(&ast)} {
         to_begin();
     };

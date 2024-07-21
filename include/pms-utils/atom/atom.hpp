@@ -72,8 +72,9 @@ struct VersionRevision : public std::string {};
 
 struct Version {
 private:
-    static std::strong_ordering compare_impl(const Version &lhs, const Version &rhs, bool revision) noexcept;
-    static bool compare_td_impl(const Version &lhs, const Version &rhs) noexcept;
+    [[nodiscard]] static std::strong_ordering compare_impl(const Version &lhs, const Version &rhs,
+                                                           bool revision) noexcept;
+    [[nodiscard]] static bool compare_td_impl(const Version &lhs, const Version &rhs) noexcept;
     std::ostream &ostream_impl(std::ostream &out) const;
 
 public:
@@ -84,17 +85,17 @@ public:
     // representation for =* matching
     boost::optional<VersionRevision> revision;
 
-    // Constructs the version from any valid version string
-    explicit Version(std::string_view version_string);
     [[nodiscard]] explicit operator std::string() const;
     friend std::ostream &operator<<(std::ostream &out, const Version &version) {
         return version.ostream_impl(out);
     }
 
-    Version() = default;
-    Version(const Version &other) = default;
+    [[nodiscard]] Version() = default;
+    // Constructs the version from any valid version string
+    [[nodiscard]] explicit Version(std::string_view version_string);
+    [[nodiscard]] Version(const Version &other) = default;
+    [[nodiscard]] Version(Version &&other) = default;
     Version &operator=(const Version &other) = default;
-    Version(Version &&other) = default;
     Version &operator=(Version &&other) = default;
     ~Version() = default;
 

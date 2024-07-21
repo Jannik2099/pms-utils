@@ -30,8 +30,9 @@ public:
     pms_utils::atom::Version version;
     const ebuild::Metadata &metadata() const [[clang::lifetimebound]];
 
-    Ebuild() = default;
-    Ebuild(std::filesystem::path path, pms_utils::atom::Name name, pms_utils::atom::Version version);
+    [[nodiscard]] Ebuild() = default;
+    [[nodiscard]] Ebuild(std::filesystem::path path, pms_utils::atom::Name name,
+                         pms_utils::atom::Version version);
 
     BOOST_DESCRIBE_CLASS(Ebuild, (), (path, name, version, metadata), (), (_metadata));
 };
@@ -153,19 +154,19 @@ public:
 
 // BEGIN HASH
 
-inline std::size_t hash_value(const Ebuild &ebuild) {
+[[nodiscard]] inline std::size_t hash_value(const Ebuild &ebuild) {
     return boost::hash<std::filesystem::path>{}(ebuild.path);
 }
 
-inline std::size_t hash_value(const Repository &repository) {
+[[nodiscard]] inline std::size_t hash_value(const Repository &repository) {
     return boost::hash<std::filesystem::path>{}(repository.path());
 }
 
-inline std::size_t hash_value(const Category &category) {
+[[nodiscard]] inline std::size_t hash_value(const Category &category) {
     return boost::hash<std::filesystem::path>{}(category.path());
 }
 
-inline std::size_t hash_value(const Package &package) {
+[[nodiscard]] inline std::size_t hash_value(const Package &package) {
     return boost::hash<std::filesystem::path>{}(package.path());
 }
 
