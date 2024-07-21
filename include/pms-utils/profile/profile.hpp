@@ -273,7 +273,7 @@ BOOST_DESCRIBE_STRUCT(Filters, (), (masked, use, use_mask, use_force, use_stable
 
 namespace meta {
 
-using all = boost::mp11::mp_list<Filters>;
+using all = boost::mp11::mp_list<Filters, Profile, PortageProfile>;
 
 } // namespace meta
 
