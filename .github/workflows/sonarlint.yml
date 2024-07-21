@@ -20,14 +20,23 @@ jobs:
       with:
         fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
 
+    - name: Configure
+      run: meson setup -Dtest=true -Db_coverage=true -Dbuildtype=debugoptimized build
+
+    - name: Build
+      run: meson compile -C build
+
+    - name: Test
+      run: meson test -C build
+
+    - name: Collect coverage data
+      run: ninja -C build coverage-sonarqube
+
     - name: Install SonarSource
       uses: SonarSource/sonarcloud-github-c-cpp@v3
-
-    - name: Configure
-      run: meson setup -Dtest=true build
 
     - name: Run sonar-scanner
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: sonar-scanner --define sonar.cfamily.compile-commands="build/compile_commands.json"
+      run: sonar-scanner --define sonar.cfamily.compile-commands="build/compile_commands.json" --define sonar.coverageReportPaths="build/meson-logs/sonarqube.xml"
