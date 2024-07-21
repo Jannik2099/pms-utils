@@ -64,10 +64,8 @@ std::optional<bool> test_version(atom::VersionSpecifier verspec, const atom::Ver
         return (order == std::strong_ordering::greater) || (order == std::strong_ordering::equal);
     case gt:
         return order == std::strong_ordering::greater;
-        // handled above
-    case ea:
-    case td:
     default:
+        // ea and td are handled above
         // explicitly cast to underlying to avoid any to_string overloads
         throw std::out_of_range{
             std::format("invalid atom::VersionSpecifier {}",

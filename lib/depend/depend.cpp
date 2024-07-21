@@ -30,8 +30,7 @@ std::string to_string(GroupHeaderOp groupHeaderOp) {
     case at_most_one_of:
         return "??";
     default:
-        // gcc cannot see that all enum values are covered, sigh
-        __builtin_unreachable();
+        throw std::out_of_range{"unknown enum value"};
     }
 }
 std::ostream &operator<<(std::ostream &out, GroupHeaderOp groupHeaderOp) {

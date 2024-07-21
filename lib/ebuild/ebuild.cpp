@@ -42,8 +42,7 @@ std::ostream &restrict_elem::ostream_impl(std::ostream &out) const { return out 
     case test:
         return "test";
     default:
-        // gcc cannot see that all enum values are covered, sigh
-        __builtin_unreachable();
+        throw std::out_of_range{"unknown enum value"};
     }
 }
 std::ostream &operator<<(std::ostream &out, restrict_elem::Type type) { return out << to_string(type); }
@@ -109,8 +108,7 @@ std::ostream &properties_elem::ostream_impl(std::ostream &out) const { return ou
     case test_network:
         return "test_network";
     default:
-        // gcc cannot see that all enum values are covered, sigh
-        __builtin_unreachable();
+        throw std::out_of_range{"unknown enum value"};
     }
 }
 std::ostream &operator<<(std::ostream &out, properties_elem::Type type) { return out << to_string(type); }
@@ -149,8 +147,7 @@ std::ostream &operator<<(std::ostream &out, properties_elem::Type type) { return
     case phases::nofetch:
         return "nofetch";
     default:
-        // gcc cannot see that all enum values are covered, sigh
-        __builtin_unreachable();
+        throw std::out_of_range{"unknown enum value"};
     }
 }
 std::ostream &operator<<(std::ostream &out, phases _phases) { return out << to_string(_phases); }
