@@ -9,6 +9,7 @@
 #include <string>
 
 namespace parsers = pms_utils::parsers;
+using pms_utils::test::try_parse;
 
 // TODO: probably add this to x3_util.hpp
 bool try_parse_helper(const pms_utils::profile::_internal::WildcardAtom &atom) {

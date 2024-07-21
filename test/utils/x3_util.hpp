@@ -7,6 +7,8 @@
 #include <string>
 #include <string_view>
 
+namespace pms_utils::test {
+
 template <typename T> struct parse_result {
     T result{};
     bool success{};
@@ -62,3 +64,5 @@ template <typename Rule>
     ret.as_expected = true;
     return ret;
 }
+
+} // namespace pms_utils::test
