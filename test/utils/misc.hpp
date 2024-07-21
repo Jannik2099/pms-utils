@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cctype>
 #include <istream>
+#include <locale>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -10,10 +10,10 @@
     std::string temp;
     temp.reserve(input.size());
     for (const auto elem : input) {
-        if (std::isgraph(elem) == 0) {
-            temp.push_back(' ');
-        } else {
+        if (std::isgraph(elem, std::locale::classic())) {
             temp.push_back(elem);
+        } else {
+            temp.push_back(' ');
         }
     }
     std::istringstream iss{temp};
