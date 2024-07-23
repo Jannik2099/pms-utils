@@ -2,9 +2,9 @@
 
 #include <array>
 #include <cstddef>
+#include <format>
 #include <pybind11/detail/descr.h>
 #include <stdexcept>
-#include <string>
 #include <string_view>
 #include <utility>
 
@@ -75,14 +75,12 @@ template <typename Rule> [[nodiscard]] static inline auto expr_from_str(Rule rul
     const auto *begin = str.begin();
     const auto *const end = str.end();
     if (!parse(begin, end, rule, ret)) {
-        // TODO
-        throw std::runtime_error("parser failed");
+        throw std::invalid_argument{"invalid expression"};
     }
 
     if (begin != end) {
-        // TODO
-        throw std::runtime_error(std::string("parser did not consume all input, remaining ") +
-                                 std::string{begin, end});
+        throw std::invalid_argument{
+            std::format("incomplete parse, remaining expression: {}", std::string_view{begin, end})};
     }
 
     return ret;

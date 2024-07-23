@@ -5,6 +5,7 @@
 #include <Python.h> // IWYU pragma: keep
 #include <boost/describe/enumerators.hpp>
 #include <boost/mp11/algorithm.hpp>
+#include <format>
 #include <pybind11/cast.h>
 #include <pybind11/detail/common.h>
 #include <pybind11/gil.h>
@@ -42,6 +43,15 @@ auto bind_enum(M &mod, std::string_view name, std::string_view enum_type) {
     py::object &spec = _internal::enums()[typeid(T)];
     spec = py::module::import("pydoc").attr("locate")(enum_type)(name, pairs,
                                                                  py::arg{"module"} = mod.attr("__name__"));
+
+    const auto docstring = std::format(R"---(
+            Constructs a new {} object from the input expression.
+
+            :raises ValueError: The expression is invalid.
+)---",
+                                       name);
+    spec.attr("__doc__") = docstring.c_str();
+
     mod.attr(std::string{name}.c_str()) = spec;
     return spec;
 }
