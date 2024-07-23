@@ -14,6 +14,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <ostream>
 #include <ranges>
 #include <sstream>
 #include <stdexcept>
