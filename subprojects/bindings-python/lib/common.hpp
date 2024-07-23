@@ -105,9 +105,12 @@ static inline py::object create_bindings(M module_, R rule = false,
     }
     if constexpr (!std::is_same_v<R, bool>) {
         const std::string function_name = std::string{"_"} + std::string{name} + "__missing_";
-        module_.def(function_name.c_str(), [rule](const py::object &, std::string_view arg) {
-            return _internal::expr_from_str(rule(), arg);
-        });
+        module_.def(
+            function_name.c_str(),
+            [rule](const py::object &, std::string_view arg) {
+                return _internal::expr_from_str(rule(), arg);
+            },
+            py::arg{nullptr}, py::arg{"expr"});
         ret.attr("_missing_") =
             py::module::import("builtins").attr("classmethod")(module_.attr(function_name.c_str()));
         add_method(ret, "__repr__", [](T val) {
@@ -148,7 +151,14 @@ static inline auto create_bindings(M module_, R rule = false) {
         ret.def("__str__", [](const T &val) { return std::string{val}; });
     }
     if constexpr (!std::is_same_v<R, bool>) {
-        ret.def(py::init([rule](std::string_view str) { return _internal::expr_from_str(rule(), str); }));
+        const auto docstring = std::format(R"---(
+            Constructs a new {} object from the input expression.
+
+            :raises ValueError: The expression is invalid.
+)---",
+                                           name);
+        ret.def(py::init([rule](std::string_view str) { return _internal::expr_from_str(rule(), str); }),
+                docstring.c_str(), py::arg{"expr"});
         ret.def("__repr__", [](const T &val) {
             std::string repr{val};
             std::string repr_trunc;
