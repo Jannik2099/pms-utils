@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cctype>
 #include <istream>
 #include <locale>
 #include <sstream>
