@@ -34,3 +34,7 @@ if get_option('test')
 endif
 
 subdir('stubs')
+
+if get_option('docs')
+    subdir('docs')
+endif

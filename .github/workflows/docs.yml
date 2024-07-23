@@ -1,0 +1,52 @@
+name: "docs"
+
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+jobs:
+  docs:
+    name: Build documentation
+    permissions:
+      contents: read
+      deployments: write
+    runs-on: ubuntu-latest
+    container: ghcr.io/jannik2099/pms-utils-gentoo-ci:latest
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure venv
+      run: |
+        python -m venv .venv
+        .venv/bin/pip install Sphinx sphinx-toolbox sphinx-rtd-theme enum-tools
+
+    - name: Configure
+      run: |
+        . .venv/bin/activate
+        meson setup -Dtest=false -Ddocs=true -Dbuildtype=debugoptimized build
+
+    - name: Build
+      run: |
+        . .venv/bin/activate
+        meson compile -C build docs
+
+    - name: Install npm
+      uses: actions/setup-node@v4
+      with:
+        node-version: latest
+
+    - name: Upload docs
+      uses: cloudflare/pages-action@v1
+      with:
+        directory: build/subprojects/bindings-python/docs
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        projectName: pms-utils
+        gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+        wranglerVersion: '3'

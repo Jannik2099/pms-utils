@@ -32,8 +32,15 @@ if get_option('test')
 endif
 
 if get_option('bindings').contains('python')
-    subproject(
+    bindings_python = subproject(
         'bindings-python',
-        default_options: ['test=' + get_option('test').to_string()],
+        default_options: [
+            'test=' + get_option('test').to_string(),
+            'docs=' + get_option('docs').to_string(),
+        ],
     )
+endif
+
+if get_option('docs')
+    subdir('docs')
 endif

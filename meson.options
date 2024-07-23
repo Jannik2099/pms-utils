@@ -8,3 +8,8 @@ option(
     type: 'boolean',
     value: false,
 )
+option(
+    'docs',
+    type: 'boolean',
+    value: false,
+)
