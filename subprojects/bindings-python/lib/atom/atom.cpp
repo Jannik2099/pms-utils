@@ -29,8 +29,6 @@ void _register(py::module &_module) {
     auto py_VersionSpecifier = create_bindings<VersionSpecifier>(atom, parsers::atom::version_specifier);
     auto py_VersionNumber = create_bindings<VersionNumber>(atom);
 
-    auto py_Blocker = create_bindings<Blocker>(atom, parsers::atom::blocker);
-
     // IntEnum for ordering
     auto py_VersionSuffixWord =
         create_bindings<VersionSuffixWord>(atom, parsers::atom::ver_suffix_word, "enum.IntEnum");
@@ -46,6 +44,8 @@ void _register(py::module &_module) {
                           .def(py::self >= py::self);
     // == and != are already bound automatically
     // NOLINTEND(misc-redundant-expression)
+
+    auto py_Blocker = create_bindings<Blocker>(atom, parsers::atom::blocker);
 
     auto py_Slot = create_bindings<Slot>(atom, parsers::atom::slot);
 
