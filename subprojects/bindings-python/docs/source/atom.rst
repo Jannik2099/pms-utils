@@ -2,6 +2,10 @@ atom
 ====
 .. module:: pms_utils.atom
 
+| This module provides a strongly typed representation of the various components of a PMS Atom.
+| All types may only be constructed from valid expression strings and are immutable.
+| The primary class is :py:class:`Atom` which represents a full Atom / package expression, including versioning constraints, blockers, useflags, use dependencies and constraints, and slots and subslots.
+
 .. toctree::
     :maxdepth: 1
 

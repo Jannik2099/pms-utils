@@ -2,6 +2,8 @@ VersionSpecifier
 ================
 .. currentmodule:: pms_utils.atom
 
+This enum represents the version dependency operators as per `PMS 8.3.1 <https://projects.gentoo.org/pms/8/pms.html#x1-800008.3.1>`_.
+
 ..
     a normal | block won't work here for *reasons*
 

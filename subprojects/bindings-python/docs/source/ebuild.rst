@@ -2,6 +2,9 @@ ebuild
 ======
 .. module:: pms_utils.ebuild
 
+| This module provides the various ebuild variables as per `PMS 7 <https://projects.gentoo.org/pms/8/pms.html#x1-590007>`_.
+| The primary class is :py:class:`Metadata`, though it is only accessible through an instance of :py:class:`pms_utils.repo.Ebuild`.
+
 .. toctree::
     :maxdepth: 1
 
@@ -38,4 +41,4 @@ ebuild
     ebuild/phases
     ebuild/defined_phases
 
-    ebuild/metadata
+    ebuild/Metadata
