@@ -179,9 +179,9 @@ Ebuild::Ebuild(std::filesystem::path _path, pms_utils::atom::Name _name, pms_uti
 
 // END EBUILD
 
-Package::Package(std::filesystem::path path) : _path{std::move(path)}, _name{_path.filename().string()} {
-    if (!std::filesystem::is_directory(_path)) {
-        throw std::invalid_argument{std::format("provided path {} does not exist", _path.string())};
+Package::Package(std::filesystem::path path) : path_{std::move(path)}, name_{path_.filename().string()} {
+    if (!std::filesystem::is_directory(path_)) {
+        throw std::invalid_argument{std::format("provided path {} does not exist", path_.string())};
     }
 }
 Package::const_iterator Package::begin() const noexcept { return Package::const_iterator{*this}; }
@@ -195,11 +195,11 @@ Package::const_iterator Package::cend() const noexcept { return end(); }
 
 std::optional<Ebuild> Package::operator[](const atom::Version &version) const {
     const std::filesystem::path ebuild_path =
-        _path / std::format("{}-{}.ebuild", std::string{_name}, std::string{version});
+        path_ / std::format("{}-{}.ebuild", std::string{name_}, std::string{version});
     if (!std::filesystem::is_regular_file(ebuild_path)) {
         return {};
     }
-    return Ebuild{ebuild_path, _name, version};
+    return Ebuild{ebuild_path, name_, version};
 }
 std::optional<Ebuild> Package::operator[](std::string_view version) const {
     const auto *begin = version.begin();
@@ -211,9 +211,9 @@ std::optional<Ebuild> Package::operator[](std::string_view version) const {
     return (*this)[ver];
 }
 
-Category::Category(std::filesystem::path path) : _path{std::move(path)}, _name{_path.filename().string()} {
-    if (!std::filesystem::is_directory(_path)) {
-        throw std::invalid_argument{std::format("provided path {} does not exist", _path.string())};
+Category::Category(std::filesystem::path path) : path_{std::move(path)}, name_{path_.filename().string()} {
+    if (!std::filesystem::is_directory(path_)) {
+        throw std::invalid_argument{std::format("provided path {} does not exist", path_.string())};
     }
 }
 Category::const_iterator Category::begin() const noexcept { return Category::const_iterator{*this}; }
@@ -233,25 +233,25 @@ std::optional<Package> Category::operator[](std::string_view package) const {
         throw std::invalid_argument{
             std::format("argument {} is not a valid Package Name expression", package)};
     }
-    const std::filesystem::path package_path = _path / std::string{package_name};
+    const std::filesystem::path package_path = path_ / std::string{package_name};
     if (!std::filesystem::is_directory(package_path)) {
         return {};
     }
     return Package{package_path};
 }
 
-Repository::Repository(std::filesystem::path path) : _path{std::move(path)} {
-    if (!std::filesystem::is_directory(_path)) {
-        throw std::invalid_argument{std::format("provided path {} does not exist", _path.string())};
+Repository::Repository(std::filesystem::path path) : path_{std::move(path)} {
+    if (!std::filesystem::is_directory(path_)) {
+        throw std::invalid_argument{std::format("provided path {} does not exist", path_.string())};
     }
-    const auto repo_name_file = _path / "profiles" / "repo_name";
+    const auto repo_name_file = path_ / "profiles" / "repo_name";
     if (!std::filesystem::is_regular_file(repo_name_file)) {
         throw std::invalid_argument{
-            std::format("Repository {} does not appear valid, missing profiles/repo_name", _path.string())};
+            std::format("Repository {} does not appear valid, missing profiles/repo_name", path_.string())};
     }
     std::ifstream stream{repo_name_file};
     // TODO: validate
-    std::getline(stream, _name);
+    std::getline(stream, name_);
 }
 Repository::const_iterator Repository::begin() const noexcept { return Repository::const_iterator{*this}; }
 Repository::const_iterator Repository::cbegin() const noexcept { return begin(); }
@@ -270,7 +270,7 @@ std::optional<Category> Repository::operator[](std::string_view category) const 
         throw std::invalid_argument{
             std::format("argument {} is not a valid Package Name expression", category)};
     }
-    const std::filesystem::path category_path = _path / std::string{category_name};
+    const std::filesystem::path category_path = path_ / std::string{category_name};
     if (!std::filesystem::is_directory(category_path)) {
         return {};
     }

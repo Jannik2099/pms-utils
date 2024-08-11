@@ -128,14 +128,16 @@ const repo::Repository &Expander::repo_matcher() const {
 void Expander::slot_matcher(const repo::Repository &repository, const repo::Category &category,
                             const repo::Ebuild &ebuild) {
     if (!atom_.slot.has_value()) {
-        atoms_.emplace_back(std::format("{}/{}-{}::{}", category.name(), std::string{ebuild.name},
-                                        std::string{ebuild.version}, repository.name()));
+        atoms_.emplace_back(std::format("{}/{}-{}::{}", std::string_view{category.name()},
+                                        std::string_view{ebuild.name}, std::string{ebuild.version},
+                                        repository.name()));
         return;
     }
     if ((atom_.slot->slot == ebuild.metadata().SLOT.slot) &&
         (atom_.slot->subslot.empty() || (atom_.slot->subslot == ebuild.metadata().SLOT.subslot))) {
-        atoms_.emplace_back(std::format("{}/{}-{}::{}", category.name(), std::string{ebuild.name},
-                                        std::string{ebuild.version}, repository.name()));
+        atoms_.emplace_back(std::format("{}/{}-{}::{}", std::string_view{category.name()},
+                                        std::string_view{ebuild.name}, std::string{ebuild.version},
+                                        repository.name()));
     }
 }
 
