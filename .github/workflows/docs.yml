@@ -36,6 +36,11 @@ jobs:
         . .venv/bin/activate
         meson compile -C build docs
 
+    - name: Test
+      run: |
+        . .venv/bin/activate
+        meson test -C build
+
     - name: Install npm
       uses: actions/setup-node@v4
       with:

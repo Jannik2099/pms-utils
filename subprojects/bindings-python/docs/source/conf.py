@@ -15,9 +15,11 @@ author = "Jannik Glückert"
 
 autoclass_content = "both"
 autodoc_default_options = {"members": True, "undoc-members": True}
+doctest_global_setup = "import pms_utils"
 
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.doctest",
     "enum_tools.autoenum",
     "autoclass",
     "autoproperty",
