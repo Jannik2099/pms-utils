@@ -277,6 +277,21 @@ using all = boost::mp11::mp_list<Ebuild, Category, Repository, Package, Package:
 // END DESCRIBE
 
 } // namespace repo
+
+namespace meta {
+
+template <> struct is_owning_iterator<repo::Package::Iterator> {
+    constexpr static bool value = true;
+};
+template <> struct is_owning_iterator<repo::Category::Iterator> {
+    constexpr static bool value = true;
+};
+template <> struct is_owning_iterator<repo::Repository::Iterator> {
+    constexpr static bool value = true;
+};
+
+} // namespace meta
+
 } // namespace pms_utils
 
 PMS_UTILS_FOOTER(repo);
