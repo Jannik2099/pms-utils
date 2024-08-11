@@ -50,8 +50,8 @@ public:
     using const_iterator = Iterator;
 
 private:
-    std::filesystem::path _path;
-    std::string _name;
+    std::filesystem::path path_;
+    std::string name_;
 
 public:
     [[nodiscard]] const_iterator begin() const noexcept [[clang::lifetimebound]];
@@ -62,15 +62,15 @@ public:
     [[nodiscard]] explicit Repository(std::filesystem::path path);
 
     [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept [[clang::lifetimebound]] {
-        return _path;
+        return path_;
     }
     [[nodiscard]] constexpr const std::string &name() const noexcept [[clang::lifetimebound]] {
-        return _name;
+        return name_;
     }
 
     [[nodiscard]] std::optional<Category> operator[](std::string_view category) const;
 
-    BOOST_DESCRIBE_CLASS(Repository, (), (begin, cbegin, end, cend, path, name), (), (_path, _name));
+    BOOST_DESCRIBE_CLASS(Repository, (), (begin, cbegin, end, cend, path, name), (), (path_, name_));
 };
 
 class Package;
@@ -86,8 +86,8 @@ public:
     using const_iterator = Iterator;
 
 private:
-    std::filesystem::path _path;
-    pms_utils::atom::Category _name;
+    std::filesystem::path path_;
+    pms_utils::atom::Category name_;
 
     [[nodiscard]] Category() = default;
 
@@ -102,15 +102,15 @@ public:
     [[nodiscard]] explicit Category(std::filesystem::path path);
 
     [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept [[clang::lifetimebound]] {
-        return _path;
+        return path_;
     }
-    [[nodiscard]] constexpr const std::string &name() const noexcept [[clang::lifetimebound]] {
-        return _name;
+    [[nodiscard]] constexpr const pms_utils::atom::Category &name() const noexcept [[clang::lifetimebound]] {
+        return name_;
     }
 
     [[nodiscard]] std::optional<Package> operator[](std::string_view package) const;
 
-    BOOST_DESCRIBE_CLASS(Category, (), (begin, cbegin, end, cend, path, name), (), (_path, _name));
+    BOOST_DESCRIBE_CLASS(Category, (), (begin, cbegin, end, cend, path, name), (), (path_, name_));
 };
 
 class Package {
@@ -124,8 +124,8 @@ public:
     using const_iterator = Iterator;
 
 private:
-    std::filesystem::path _path;
-    pms_utils::atom::Name _name;
+    std::filesystem::path path_;
+    pms_utils::atom::Name name_;
 
     [[nodiscard]] Package() = default;
 
@@ -140,16 +140,16 @@ public:
     [[nodiscard]] explicit Package(std::filesystem::path path);
 
     [[nodiscard]] constexpr const std::filesystem::path &path() const noexcept [[clang::lifetimebound]] {
-        return _path;
+        return path_;
     }
-    [[nodiscard]] constexpr const std::string &name() const noexcept [[clang::lifetimebound]] {
-        return _name;
+    [[nodiscard]] constexpr const pms_utils::atom::Name &name() const noexcept [[clang::lifetimebound]] {
+        return name_;
     }
 
     [[nodiscard]] std::optional<Ebuild> operator[](const atom::Version &version) const;
     [[nodiscard]] std::optional<Ebuild> operator[](std::string_view version) const;
 
-    BOOST_DESCRIBE_CLASS(Package, (), (begin, cbegin, end, cend, path, name), (), (_path, _name));
+    BOOST_DESCRIBE_CLASS(Package, (), (begin, cbegin, end, cend, path, name), (), (path_, name_));
 };
 
 // BEGIN HASH
