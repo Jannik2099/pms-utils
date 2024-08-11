@@ -179,14 +179,23 @@ static inline auto create_bindings(M module_, R rule = false) {
         });
     }
 
-    // prevent exporting __iter__ for std::string types
     if constexpr (requires(const T &val) {
                       std::begin(val);
                       std::end(val);
-                  } && (!std::is_base_of_v<std::string, T>)) {
-        ret.def(
-            "__iter__", [](const T &val) { return py::make_iterator(std::begin(val), std::end(val)); },
-            py::keep_alive<0, 1>{});
+                  }
+                  // prevent exporting __iter__ for std::string types
+                  && (!std::is_base_of_v<std::string, T>)) {
+        using iterator_type = std::remove_cvref_t<decltype(std::begin(std::declval<T>()))>;
+        // an iterator that holds the value would instead have the value get overwritten by iterator++
+        if constexpr (meta::is_owning_iterator_v<iterator_type>) {
+            ret.def("__iter__", [](const T &val) {
+                return py::make_iterator<py::return_value_policy::move>(std::begin(val), std::end(val));
+            });
+        } else {
+            ret.def(
+                "__iter__", [](const T &val) { return py::make_iterator<>(std::begin(val), std::end(val)); },
+                py::keep_alive<0, 1>{});
+        }
     }
 
     if constexpr (std::equality_comparable<T>) {

@@ -73,6 +73,16 @@ template <typename Ts> [[nodiscard]] consteval bool hashable_chk() {
 
 } // namespace pms_utils::meta::_internal
 
+namespace pms_utils::meta {
+
+// describes whether an iterator object owns it's value
+template <typename T> struct is_owning_iterator {
+    constexpr static bool value = false;
+};
+template <typename T> constexpr inline bool is_owning_iterator_v = is_owning_iterator<T>::value;
+
+} // namespace pms_utils::meta
+
 // this is to add boost::hash support for boost::optional
 namespace boost {
 

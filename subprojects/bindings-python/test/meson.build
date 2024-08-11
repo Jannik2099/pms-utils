@@ -12,6 +12,7 @@ tests += 'import'
 
 if fs.is_dir('/var/db/repos/gentoo')
     tests += 'issue_26'
+    tests += 'issue_36'
 endif
 
 foreach t : tests
