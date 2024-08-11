@@ -20,3 +20,14 @@ pms-utils
     ebuild
     profile
     repo
+
+
+.. toctree::
+    :hidden:
+    :maxdepth: 1
+    :caption: Examples
+
+    examples/atom
+    examples/depend
+    examples/repo
+    examples/equery
