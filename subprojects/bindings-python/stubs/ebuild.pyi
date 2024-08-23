@@ -5,10 +5,14 @@ import pms_utils.depend
 from typing import Callable, ClassVar, Iterator
 
 class Metadata:
-    def __init__(self, *args, **kwargs) -> None: ...
-    def __eq__(self, arg0: Metadata) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: Metadata) -> bool: ...
+    def __init__(self, *args, **kwargs) -> None:
+        """Initialize self.  See help(type(self)) for accurate signature."""
+    def __eq__(self, arg0: Metadata) -> bool:
+        """__eq__(self: pms_utils.ebuild.Metadata, arg0: pms_utils.ebuild.Metadata) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.Metadata) -> int"""
+    def __ne__(self, arg0: Metadata) -> bool:
+        """__ne__(self: pms_utils.ebuild.Metadata, arg0: pms_utils.ebuild.Metadata) -> bool"""
     @property
     def BDEPEND(self) -> pms_utils.depend.DependExpr: ...
     @property
@@ -47,94 +51,232 @@ class Metadata:
     def SRC_URI(self) -> src_uri: ...
 
 class URI:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: URI) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: URI) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.URI, expr: str) -> None
+
+
+                    Constructs a new URI object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: URI) -> bool:
+        """__eq__(self: pms_utils.ebuild.URI, arg0: pms_utils.ebuild.URI) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.URI) -> int"""
+    def __ne__(self, arg0: URI) -> bool:
+        """__ne__(self: pms_utils.ebuild.URI, arg0: pms_utils.ebuild.URI) -> bool"""
 
 class defined_phases:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: defined_phases) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __iter__(self) -> Iterator[phases]: ...
-    def __ne__(self, arg0: defined_phases) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.defined_phases, expr: str) -> None
+
+
+                    Constructs a new defined_phases object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: defined_phases) -> bool:
+        """__eq__(self: pms_utils.ebuild.defined_phases, arg0: pms_utils.ebuild.defined_phases) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.defined_phases) -> int"""
+    def __iter__(self) -> Iterator[phases]:
+        """__iter__(self: pms_utils.ebuild.defined_phases) -> Iterator[pms_utils.ebuild.phases]"""
+    def __ne__(self, arg0: defined_phases) -> bool:
+        """__ne__(self: pms_utils.ebuild.defined_phases, arg0: pms_utils.ebuild.defined_phases) -> bool"""
 
 class eapi:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: eapi) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: eapi) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.eapi, expr: str) -> None
+
+
+                    Constructs a new eapi object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: eapi) -> bool:
+        """__eq__(self: pms_utils.ebuild.eapi, arg0: pms_utils.ebuild.eapi) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.eapi) -> int"""
+    def __ne__(self, arg0: eapi) -> bool:
+        """__ne__(self: pms_utils.ebuild.eapi, arg0: pms_utils.ebuild.eapi) -> bool"""
 
 class homepage:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: homepage) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __iter__(self) -> Iterator[URI | homepage]: ...
-    def __ne__(self, arg0: homepage) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.homepage, expr: str) -> None
+
+
+                    Constructs a new homepage object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: homepage) -> bool:
+        """__eq__(self: pms_utils.ebuild.homepage, arg0: pms_utils.ebuild.homepage) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.homepage) -> int"""
+    def __iter__(self) -> Iterator[URI | homepage]:
+        """__iter__(self: pms_utils.ebuild.homepage) -> Iterator[Union[pms_utils.ebuild.URI, pms_utils.ebuild.homepage]]"""
+    def __ne__(self, arg0: homepage) -> bool:
+        """__ne__(self: pms_utils.ebuild.homepage, arg0: pms_utils.ebuild.homepage) -> bool"""
     @property
     def conditional(self) -> pms_utils.depend.UseConditional | pms_utils.depend.GroupHeaderOp | None: ...
     @property
     def nodes(self) -> list[URI | homepage]: ...
 
 class inherited:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: inherited) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __iter__(self) -> Iterator[inherited_elem]: ...
-    def __ne__(self, arg0: inherited) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.inherited, expr: str) -> None
+
+
+                    Constructs a new inherited object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: inherited) -> bool:
+        """__eq__(self: pms_utils.ebuild.inherited, arg0: pms_utils.ebuild.inherited) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.inherited) -> int"""
+    def __iter__(self) -> Iterator[inherited_elem]:
+        """__iter__(self: pms_utils.ebuild.inherited) -> Iterator[pms_utils.ebuild.inherited_elem]"""
+    def __ne__(self, arg0: inherited) -> bool:
+        """__ne__(self: pms_utils.ebuild.inherited, arg0: pms_utils.ebuild.inherited) -> bool"""
 
 class inherited_elem:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: inherited_elem) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: inherited_elem) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.inherited_elem, expr: str) -> None
+
+
+                    Constructs a new inherited_elem object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: inherited_elem) -> bool:
+        """__eq__(self: pms_utils.ebuild.inherited_elem, arg0: pms_utils.ebuild.inherited_elem) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.inherited_elem) -> int"""
+    def __ne__(self, arg0: inherited_elem) -> bool:
+        """__ne__(self: pms_utils.ebuild.inherited_elem, arg0: pms_utils.ebuild.inherited_elem) -> bool"""
 
 class iuse:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: iuse) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __iter__(self) -> Iterator[iuse_elem]: ...
-    def __ne__(self, arg0: iuse) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.iuse, expr: str) -> None
+
+
+                    Constructs a new iuse object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: iuse) -> bool:
+        """__eq__(self: pms_utils.ebuild.iuse, arg0: pms_utils.ebuild.iuse) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.iuse) -> int"""
+    def __iter__(self) -> Iterator[iuse_elem]:
+        """__iter__(self: pms_utils.ebuild.iuse) -> Iterator[pms_utils.ebuild.iuse_elem]"""
+    def __ne__(self, arg0: iuse) -> bool:
+        """__ne__(self: pms_utils.ebuild.iuse, arg0: pms_utils.ebuild.iuse) -> bool"""
 
 class iuse_elem:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: iuse_elem) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: iuse_elem) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.iuse_elem, expr: str) -> None
+
+
+                    Constructs a new iuse_elem object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: iuse_elem) -> bool:
+        """__eq__(self: pms_utils.ebuild.iuse_elem, arg0: pms_utils.ebuild.iuse_elem) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.iuse_elem) -> int"""
+    def __ne__(self, arg0: iuse_elem) -> bool:
+        """__ne__(self: pms_utils.ebuild.iuse_elem, arg0: pms_utils.ebuild.iuse_elem) -> bool"""
     @property
     def default_enabled(self) -> bool: ...
     @property
     def useflag(self) -> pms_utils.atom.Useflag: ...
 
 class keyword:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: keyword) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: keyword) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.keyword, expr: str) -> None
+
+
+                    Constructs a new keyword object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: keyword) -> bool:
+        """__eq__(self: pms_utils.ebuild.keyword, arg0: pms_utils.ebuild.keyword) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.keyword) -> int"""
+    def __ne__(self, arg0: keyword) -> bool:
+        """__ne__(self: pms_utils.ebuild.keyword, arg0: pms_utils.ebuild.keyword) -> bool"""
 
 class keywords:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: keywords) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __iter__(self) -> Iterator[keyword]: ...
-    def __ne__(self, arg0: keywords) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.keywords, expr: str) -> None
+
+
+                    Constructs a new keywords object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: keywords) -> bool:
+        """__eq__(self: pms_utils.ebuild.keywords, arg0: pms_utils.ebuild.keywords) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.keywords) -> int"""
+    def __iter__(self) -> Iterator[keyword]:
+        """__iter__(self: pms_utils.ebuild.keywords) -> Iterator[pms_utils.ebuild.keyword]"""
+    def __ne__(self, arg0: keywords) -> bool:
+        """__ne__(self: pms_utils.ebuild.keywords, arg0: pms_utils.ebuild.keywords) -> bool"""
 
 class license:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: license) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __iter__(self) -> Iterator[license_elem | license]: ...
-    def __ne__(self, arg0: license) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.license, expr: str) -> None
+
+
+                    Constructs a new license object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: license) -> bool:
+        """__eq__(self: pms_utils.ebuild.license, arg0: pms_utils.ebuild.license) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.license) -> int"""
+    def __iter__(self) -> Iterator[license_elem | license]:
+        """__iter__(self: pms_utils.ebuild.license) -> Iterator[Union[pms_utils.ebuild.license_elem, pms_utils.ebuild.license]]"""
+    def __ne__(self, arg0: license) -> bool:
+        """__ne__(self: pms_utils.ebuild.license, arg0: pms_utils.ebuild.license) -> bool"""
     @property
     def conditional(self) -> pms_utils.depend.UseConditional | pms_utils.depend.GroupHeaderOp | None: ...
     @property
     def nodes(self) -> list[license_elem | license]: ...
 
 class license_elem:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: license_elem) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: license_elem) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.license_elem, expr: str) -> None
+
+
+                    Constructs a new license_elem object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: license_elem) -> bool:
+        """__eq__(self: pms_utils.ebuild.license_elem, arg0: pms_utils.ebuild.license_elem) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.license_elem) -> int"""
+    def __ne__(self, arg0: license_elem) -> bool:
+        """__ne__(self: pms_utils.ebuild.license_elem, arg0: pms_utils.ebuild.license_elem) -> bool"""
 
 class phases(enum.Enum):
     __new__: ClassVar[Callable] = ...
@@ -163,21 +305,44 @@ class phases(enum.Enum):
     unpack: ClassVar[phases] = ...
 
 class properties:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: properties) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __iter__(self) -> Iterator[properties_elem | properties]: ...
-    def __ne__(self, arg0: properties) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.properties, expr: str) -> None
+
+
+                    Constructs a new properties object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: properties) -> bool:
+        """__eq__(self: pms_utils.ebuild.properties, arg0: pms_utils.ebuild.properties) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.properties) -> int"""
+    def __iter__(self) -> Iterator[properties_elem | properties]:
+        """__iter__(self: pms_utils.ebuild.properties) -> Iterator[Union[pms_utils.ebuild.properties_elem, pms_utils.ebuild.properties]]"""
+    def __ne__(self, arg0: properties) -> bool:
+        """__ne__(self: pms_utils.ebuild.properties, arg0: pms_utils.ebuild.properties) -> bool"""
     @property
     def conditional(self) -> pms_utils.depend.UseConditional | pms_utils.depend.GroupHeaderOp | None: ...
     @property
     def nodes(self) -> list[properties_elem | properties]: ...
 
 class properties_elem:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: properties_elem) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: properties_elem) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.properties_elem, expr: str) -> None
+
+
+                    Constructs a new properties_elem object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: properties_elem) -> bool:
+        """__eq__(self: pms_utils.ebuild.properties_elem, arg0: pms_utils.ebuild.properties_elem) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.properties_elem) -> int"""
+    def __ne__(self, arg0: properties_elem) -> bool:
+        """__ne__(self: pms_utils.ebuild.properties_elem, arg0: pms_utils.ebuild.properties_elem) -> bool"""
     @property
     def string(self) -> str: ...
     @property
@@ -199,32 +364,67 @@ class properties_elem_type(enum.Enum):
     test_network: ClassVar[properties_elem_type] = ...
 
 class required_use:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: required_use) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __iter__(self) -> Iterator[pms_utils.atom.Usedep | required_use]: ...
-    def __ne__(self, arg0: required_use) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.required_use, expr: str) -> None
+
+
+                    Constructs a new required_use object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: required_use) -> bool:
+        """__eq__(self: pms_utils.ebuild.required_use, arg0: pms_utils.ebuild.required_use) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.required_use) -> int"""
+    def __iter__(self) -> Iterator[pms_utils.atom.Usedep | required_use]:
+        """__iter__(self: pms_utils.ebuild.required_use) -> Iterator[Union[pms_utils.atom.Usedep, pms_utils.ebuild.required_use]]"""
+    def __ne__(self, arg0: required_use) -> bool:
+        """__ne__(self: pms_utils.ebuild.required_use, arg0: pms_utils.ebuild.required_use) -> bool"""
     @property
     def conditional(self) -> pms_utils.depend.UseConditional | pms_utils.depend.GroupHeaderOp | None: ...
     @property
     def nodes(self) -> list[pms_utils.atom.Usedep | required_use]: ...
 
 class restrict:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: restrict) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __iter__(self) -> Iterator[restrict_elem | restrict]: ...
-    def __ne__(self, arg0: restrict) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.restrict, expr: str) -> None
+
+
+                    Constructs a new restrict object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: restrict) -> bool:
+        """__eq__(self: pms_utils.ebuild.restrict, arg0: pms_utils.ebuild.restrict) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.restrict) -> int"""
+    def __iter__(self) -> Iterator[restrict_elem | restrict]:
+        """__iter__(self: pms_utils.ebuild.restrict) -> Iterator[Union[pms_utils.ebuild.restrict_elem, pms_utils.ebuild.restrict]]"""
+    def __ne__(self, arg0: restrict) -> bool:
+        """__ne__(self: pms_utils.ebuild.restrict, arg0: pms_utils.ebuild.restrict) -> bool"""
     @property
     def conditional(self) -> pms_utils.depend.UseConditional | pms_utils.depend.GroupHeaderOp | None: ...
     @property
     def nodes(self) -> list[restrict_elem | restrict]: ...
 
 class restrict_elem:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: restrict_elem) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: restrict_elem) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.restrict_elem, expr: str) -> None
+
+
+                    Constructs a new restrict_elem object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: restrict_elem) -> bool:
+        """__eq__(self: pms_utils.ebuild.restrict_elem, arg0: pms_utils.ebuild.restrict_elem) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.restrict_elem) -> int"""
+    def __ne__(self, arg0: restrict_elem) -> bool:
+        """__ne__(self: pms_utils.ebuild.restrict_elem, arg0: pms_utils.ebuild.restrict_elem) -> bool"""
     @property
     def string(self) -> str: ...
     @property
@@ -248,21 +448,44 @@ class restrict_elem_type(enum.Enum):
     userpriv: ClassVar[restrict_elem_type] = ...
 
 class src_uri:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: src_uri) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __iter__(self) -> Iterator[uri_elem | src_uri]: ...
-    def __ne__(self, arg0: src_uri) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.src_uri, expr: str) -> None
+
+
+                    Constructs a new src_uri object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: src_uri) -> bool:
+        """__eq__(self: pms_utils.ebuild.src_uri, arg0: pms_utils.ebuild.src_uri) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.src_uri) -> int"""
+    def __iter__(self) -> Iterator[uri_elem | src_uri]:
+        """__iter__(self: pms_utils.ebuild.src_uri) -> Iterator[Union[pms_utils.ebuild.uri_elem, pms_utils.ebuild.src_uri]]"""
+    def __ne__(self, arg0: src_uri) -> bool:
+        """__ne__(self: pms_utils.ebuild.src_uri, arg0: pms_utils.ebuild.src_uri) -> bool"""
     @property
     def conditional(self) -> pms_utils.depend.UseConditional | pms_utils.depend.GroupHeaderOp | None: ...
     @property
     def nodes(self) -> list[uri_elem | src_uri]: ...
 
 class uri_elem:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: uri_elem) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: uri_elem) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.ebuild.uri_elem, expr: str) -> None
+
+
+                    Constructs a new uri_elem object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: uri_elem) -> bool:
+        """__eq__(self: pms_utils.ebuild.uri_elem, arg0: pms_utils.ebuild.uri_elem) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.ebuild.uri_elem) -> int"""
+    def __ne__(self, arg0: uri_elem) -> bool:
+        """__ne__(self: pms_utils.ebuild.uri_elem, arg0: pms_utils.ebuild.uri_elem) -> bool"""
     @property
     def filename(self) -> os.PathLike | None: ...
     @property
