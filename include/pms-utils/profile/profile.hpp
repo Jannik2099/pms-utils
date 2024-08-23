@@ -74,11 +74,12 @@ public:
 
 } // namespace _internal
 
-// this expands any package expression that occurs in profile files to ["=category/name-version", "repo"]
+// this expands any package expression that occurs in profile files to
+// ["=category/name-version", i] such that repos[i] is the corresponding repository
 // namely, this covers slot and wildcard expressions
-[[nodiscard]] std::vector<std::tuple<atom::PackageExpr, std::string>>
+[[nodiscard]] std::vector<std::tuple<atom::PackageExpr, std::size_t>>
 expand_package_expr(std::string_view expr, const std::vector<repo::Repository> &repos);
-[[nodiscard]] std::vector<std::tuple<atom::PackageExpr, std::string>>
+[[nodiscard]] std::vector<std::tuple<atom::PackageExpr, std::size_t>>
 expand_package_expr(const _internal::WildcardAtom &atom, const std::vector<repo::Repository> &repos);
 
 struct Filters {

@@ -5,10 +5,10 @@
 #include "pms-utils/profile/profile.hpp"
 #include "pms-utils/repo/repo.hpp"
 
+#include <cstddef>
 #include <filesystem>
 #include <memory>
 #include <pybind11/pybind11.h>
-#include <string>
 #include <string_view>
 #include <tuple>
 #include <vector>
@@ -23,7 +23,7 @@ void _register(py::module &_module) {
     py::module profile = _module.def_submodule("profile");
 
     profile.def("expand_package_expr",
-                static_cast<std::vector<std::tuple<atom::PackageExpr, std::string>> (&)(
+                static_cast<std::vector<std::tuple<atom::PackageExpr, std::size_t>> (&)(
                     std::string_view, const std::vector<repo::Repository> &)>(expand_package_expr));
 
     auto py_Filters = create_bindings<Filters>(profile);

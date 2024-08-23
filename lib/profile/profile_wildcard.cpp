@@ -12,6 +12,7 @@
 #include <boost/variant/get.hpp>
 #include <compare>
 #include <format>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -101,29 +102,29 @@ Expander::Expander(const WildcardAtom &atom, const std::vector<repo::Repository>
     if (atom_.repo.has_value()) {
         category_matcher(repo_matcher());
     } else {
-        for (const auto &repository : repositories_) {
-            category_matcher(repository);
+        for (auto iter = repositories_.begin(); iter != repositories_.end(); iter++) {
+            category_matcher(iter);
         }
     }
 }
 
-const repo::Repository &Expander::repo_matcher() const {
+Expander::repo_iter Expander::repo_matcher() const {
     const auto repo_pos = std::ranges::find_if(
         repositories_, [this](const repo::Repository &repo) { return repo.name() == atom_.repo.value(); });
     if (repo_pos == repositories_.end()) {
         // TODO: unknown repo specified
         throw std::runtime_error{std::format("unknown repo {}", atom_.repo.value())};
     }
-    return *repo_pos;
+    return repo_pos;
 }
 
-void Expander::slot_matcher(const repo::Repository &repository, const repo::Category &category,
+void Expander::slot_matcher(const repo_iter &repository, const repo::Category &category,
                             const repo::Ebuild &ebuild) {
     if (!atom_.slot.has_value()) {
         atoms_.emplace_back(
             atom::PackageExpr{
                 {}, category.name(), ebuild.name, atom::VersionSpecifier::eq, ebuild.version, {}, {}},
-            repository.name());
+            std::distance(repositories_.begin(), repository));
         return;
     }
     if ((atom_.slot->slot == ebuild.metadata().SLOT.slot) &&
@@ -131,11 +132,11 @@ void Expander::slot_matcher(const repo::Repository &repository, const repo::Cate
         atoms_.emplace_back(
             atom::PackageExpr{
                 {}, category.name(), ebuild.name, atom::VersionSpecifier::eq, ebuild.version, {}, {}},
-            repository.name());
+            std::distance(repositories_.begin(), repository));
     }
 }
 
-void Expander::version_matcher(const repo::Repository &repository, const repo::Category &category,
+void Expander::version_matcher(const repo_iter &repository, const repo::Category &category,
                                const repo::Package &package) {
     if (!atom_.version.has_value()) {
         for (const auto &ebuild : package) {
@@ -159,7 +160,7 @@ void Expander::version_matcher(const repo::Repository &repository, const repo::C
     }
 }
 
-void Expander::name_matcher(const repo::Repository &repository, const repo::Category &category) {
+void Expander::name_matcher(const repo_iter &repository, const repo::Category &category) {
     if (name_re.has_value()) {
         for (const auto &package : category) {
             if (boost::regex_match(package.name(), name_re.value())) {
@@ -174,16 +175,16 @@ void Expander::name_matcher(const repo::Repository &repository, const repo::Cate
     }
 }
 
-void Expander::category_matcher(const repo::Repository &repository) {
+void Expander::category_matcher(const repo_iter &repository) {
     if (category_re.has_value()) {
-        for (const auto &category : repository) {
+        for (const auto &category : *repository) {
             if (boost::regex_match(category.name(), category_re.value())) {
                 name_matcher(repository, category);
             }
         }
         return;
     }
-    const auto category = repository[atom_.category];
+    const auto category = (*repository)[atom_.category];
     if (category.has_value()) {
         name_matcher(repository, category.value());
     }
