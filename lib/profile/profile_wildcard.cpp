@@ -12,7 +12,6 @@
 #include <boost/variant/get.hpp>
 #include <compare>
 #include <format>
-#include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -32,8 +31,7 @@ std::string regex_escape(const std::string &str) {
     return ret;
 }
 
-std::optional<bool> test_version(atom::VersionSpecifier verspec, const atom::Version &version,
-                                 const repo::Ebuild &ebuild) {
+bool test_version(atom::VersionSpecifier verspec, const atom::Version &version, const repo::Ebuild &ebuild) {
 
     const auto version_str = std::string{version};
 
@@ -44,12 +42,7 @@ std::optional<bool> test_version(atom::VersionSpecifier verspec, const atom::Ver
         return compare_td(ebuild.version, version);
     }
     if (verspec == ea) {
-        std::string_view version_substr = version_str;
-        if (version_substr.size() < 2) {
-            return {};
-        }
-        version_substr.remove_suffix(1);
-        return std::string{ebuild.version}.starts_with(version_substr);
+        return std::string{ebuild.version}.starts_with(version_str);
     }
 
     const auto order = ebuild.version <=> version;
