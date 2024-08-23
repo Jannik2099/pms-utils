@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <boost/spirit/home/x3/core/parse.hpp>
+#include <cstddef>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -54,8 +55,9 @@ std::ostream &WildcardAtom::ostream_impl(std::ostream &out) const {
 
 namespace {
 
-std::string map_helper(const std::tuple<atom::PackageExpr, std::string> &elem) {
-    return std::format("{}::{}", std::string{std::get<0>(elem)}, std::get<1>(elem));
+std::string map_helper(const std::tuple<atom::PackageExpr, std::size_t> &elem,
+                       const std::vector<repo::Repository> &repos) {
+    return std::format("{}::{}", std::string{std::get<0>(elem)}, repos[std::get<1>(elem)].name());
 }
 
 // combines sacrifice into absorber
@@ -198,7 +200,7 @@ void init_package_use_impl(
         }
         const auto ebuilds = expand_package_expr(std::get<0>(parsed), repos);
         for (const auto &ebuild : ebuilds) {
-            combine_package_use_sets(map[map_helper(ebuild)].*member, std::get<1>(parsed));
+            combine_package_use_sets(map[map_helper(ebuild, repos)].*member, std::get<1>(parsed));
         }
     }
 }
@@ -286,7 +288,7 @@ void algo_5_1_helper(const _internal::unordered_str_set<std::string> &set, const
 
 } // namespace
 
-std::vector<std::tuple<atom::PackageExpr, std::string>>
+std::vector<std::tuple<atom::PackageExpr, std::size_t>>
 expand_package_expr(std::string_view expr, const std::vector<repo::Repository> &repos) {
     _internal::WildcardAtom atom;
     const auto *begin = expr.begin();
@@ -301,7 +303,7 @@ expand_package_expr(std::string_view expr, const std::vector<repo::Repository> &
     }
     return expand_package_expr(atom, repos);
 }
-std::vector<std::tuple<atom::PackageExpr, std::string>>
+std::vector<std::tuple<atom::PackageExpr, std::size_t>>
 expand_package_expr(const _internal::WildcardAtom &atom, const std::vector<repo::Repository> &repos) {
     if (repos.empty()) {
         throw std::invalid_argument{"expand_package_expr called with empty Repository list"};
@@ -431,7 +433,7 @@ void Profile::init_package_mask() {
         }
         const auto ebuilds = expand_package_expr(line, repos_);
         for (const auto &ebuild : ebuilds) {
-            if (const auto iter = filters_.find(map_helper(ebuild)); iter != filters_.end()) {
+            if (const auto iter = filters_.find(map_helper(ebuild, repos_)); iter != filters_.end()) {
                 iter->second.masked = is_masked;
                 continue;
             }
@@ -440,7 +442,7 @@ void Profile::init_package_mask() {
             if (!is_masked) {
                 continue;
             }
-            filters_[map_helper(ebuild)].masked = is_masked;
+            filters_[map_helper(ebuild, repos_)].masked = is_masked;
         }
     }
 }

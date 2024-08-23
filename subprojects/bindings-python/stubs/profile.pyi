@@ -5,12 +5,16 @@ import pms_utils.repo
 class Filters:
     def __init__(self, *args, **kwargs) -> None:
         """Initialize self.  See help(type(self)) for accurate signature."""
+
     def __eq__(self, arg0: Filters) -> bool:
         """__eq__(self: pms_utils.profile.Filters, arg0: pms_utils.profile.Filters) -> bool"""
+
     def __hash__(self) -> int:
         """__hash__(self: pms_utils.profile.Filters) -> int"""
+
     def __ne__(self, arg0: Filters) -> bool:
         """__ne__(self: pms_utils.profile.Filters, arg0: pms_utils.profile.Filters) -> bool"""
+
     @property
     def masked(self) -> bool: ...
     @property
@@ -27,24 +31,34 @@ class Filters:
 class PortageProfile(Profile):
     def __init__(self, arg0: os.PathLike) -> None:
         """__init__(self: pms_utils.profile.PortageProfile, arg0: os.PathLike) -> None"""
+
     def __eq__(self, arg0: PortageProfile) -> bool:
         """__eq__(self: pms_utils.profile.PortageProfile, arg0: pms_utils.profile.PortageProfile) -> bool"""
+
     def __hash__(self) -> int:
         """__hash__(self: pms_utils.profile.PortageProfile) -> int"""
+
     def __ne__(self, arg0: PortageProfile) -> bool:
         """__ne__(self: pms_utils.profile.PortageProfile, arg0: pms_utils.profile.PortageProfile) -> bool"""
 
 class Profile:
     def __init__(self, arg0: os.PathLike) -> None:
         """__init__(self: pms_utils.profile.Profile, arg0: os.PathLike) -> None"""
-    def effective_useflags(self, arg0: pms_utils.atom.Atom) -> set[pms_utils.atom.Useflag]:
+
+    def effective_useflags(
+        self, arg0: pms_utils.atom.Atom
+    ) -> set[pms_utils.atom.Useflag]:
         """effective_useflags(self: pms_utils.profile.Profile, arg0: pms_utils.atom.Atom) -> set[pms_utils.atom.Useflag]"""
+
     def __eq__(self, arg0: Profile) -> bool:
         """__eq__(self: pms_utils.profile.Profile, arg0: pms_utils.profile.Profile) -> bool"""
+
     def __hash__(self) -> int:
         """__hash__(self: pms_utils.profile.Profile) -> int"""
+
     def __ne__(self, arg0: Profile) -> bool:
         """__ne__(self: pms_utils.profile.Profile, arg0: pms_utils.profile.Profile) -> bool"""
+
     @property
     def ARCH(self) -> str: ...
     @property
@@ -92,5 +106,7 @@ class Profile:
     @property
     def use_stable_mask(self) -> set[str]: ...
 
-def expand_package_expr(arg0: str, arg1: list[pms_utils.repo.Repository]) -> list[tuple[pms_utils.atom.Atom, str]]:
-    """expand_package_expr(arg0: str, arg1: list[pms_utils.repo.Repository]) -> list[tuple[pms_utils.atom.Atom, str]]"""
+def expand_package_expr(
+    arg0: str, arg1: list[pms_utils.repo.Repository]
+) -> list[tuple[pms_utils.atom.Atom, int]]:
+    """expand_package_expr(arg0: str, arg1: list[pms_utils.repo.Repository]) -> list[tuple[pms_utils.atom.Atom, int]]"""
