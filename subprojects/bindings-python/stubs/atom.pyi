@@ -2,10 +2,21 @@ import enum
 from typing import Callable, ClassVar, Iterator
 
 class Atom:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: Atom) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: Atom) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.atom.Atom, expr: str) -> None
+
+
+                    Constructs a new Atom object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: Atom) -> bool:
+        """__eq__(self: pms_utils.atom.Atom, arg0: pms_utils.atom.Atom) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.atom.Atom) -> int"""
+    def __ne__(self, arg0: Atom) -> bool:
+        """__ne__(self: pms_utils.atom.Atom, arg0: pms_utils.atom.Atom) -> bool"""
     @property
     def blocker(self) -> Blocker | None: ...
     @property
@@ -36,32 +47,76 @@ class Blocker(enum.Enum):
     weak: ClassVar[Blocker] = ...
 
 class Category:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: Category) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: Category) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.atom.Category, expr: str) -> None
+
+
+                    Constructs a new Category object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: Category) -> bool:
+        """__eq__(self: pms_utils.atom.Category, arg0: pms_utils.atom.Category) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.atom.Category) -> int"""
+    def __ne__(self, arg0: Category) -> bool:
+        """__ne__(self: pms_utils.atom.Category, arg0: pms_utils.atom.Category) -> bool"""
 
 class Name:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: Name) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: Name) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.atom.Name, expr: str) -> None
+
+
+                    Constructs a new Name object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: Name) -> bool:
+        """__eq__(self: pms_utils.atom.Name, arg0: pms_utils.atom.Name) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.atom.Name) -> int"""
+    def __ne__(self, arg0: Name) -> bool:
+        """__ne__(self: pms_utils.atom.Name, arg0: pms_utils.atom.Name) -> bool"""
 
 class Slot:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: Slot) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: Slot) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.atom.Slot, expr: str) -> None
+
+
+                    Constructs a new Slot object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: Slot) -> bool:
+        """__eq__(self: pms_utils.atom.Slot, arg0: pms_utils.atom.Slot) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.atom.Slot) -> int"""
+    def __ne__(self, arg0: Slot) -> bool:
+        """__ne__(self: pms_utils.atom.Slot, arg0: pms_utils.atom.Slot) -> bool"""
     @property
     def slot(self) -> str: ...
     @property
     def subslot(self) -> str: ...
 
 class SlotExpr:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: SlotExpr) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: SlotExpr) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.atom.SlotExpr, expr: str) -> None
+
+
+                    Constructs a new SlotExpr object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: SlotExpr) -> bool:
+        """__eq__(self: pms_utils.atom.SlotExpr, arg0: pms_utils.atom.SlotExpr) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.atom.SlotExpr) -> int"""
+    def __ne__(self, arg0: SlotExpr) -> bool:
+        """__ne__(self: pms_utils.atom.SlotExpr, arg0: pms_utils.atom.SlotExpr) -> bool"""
     @property
     def slot(self) -> Slot | None: ...
     @property
@@ -82,10 +137,21 @@ class SlotVariant(enum.Enum):
     star: ClassVar[SlotVariant] = ...
 
 class Usedep:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: Usedep) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: Usedep) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.atom.Usedep, expr: str) -> None
+
+
+                    Constructs a new Usedep object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: Usedep) -> bool:
+        """__eq__(self: pms_utils.atom.Usedep, arg0: pms_utils.atom.Usedep) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.atom.Usedep) -> int"""
+    def __ne__(self, arg0: Usedep) -> bool:
+        """__ne__(self: pms_utils.atom.Usedep, arg0: pms_utils.atom.Usedep) -> bool"""
     @property
     def conditional(self) -> UsedepCond | None: ...
     @property
@@ -135,27 +201,65 @@ class UsedepSign(enum.Enum):
     plus: ClassVar[UsedepSign] = ...
 
 class Usedeps:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: Usedeps) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __iter__(self) -> Iterator[Usedep]: ...
-    def __ne__(self, arg0: Usedeps) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.atom.Usedeps, expr: str) -> None
+
+
+                    Constructs a new Usedeps object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: Usedeps) -> bool:
+        """__eq__(self: pms_utils.atom.Usedeps, arg0: pms_utils.atom.Usedeps) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.atom.Usedeps) -> int"""
+    def __iter__(self) -> Iterator[Usedep]:
+        """__iter__(self: pms_utils.atom.Usedeps) -> Iterator[pms_utils.atom.Usedep]"""
+    def __ne__(self, arg0: Usedeps) -> bool:
+        """__ne__(self: pms_utils.atom.Usedeps, arg0: pms_utils.atom.Usedeps) -> bool"""
 
 class Useflag:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: Useflag) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: Useflag) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.atom.Useflag, expr: str) -> None
+
+
+                    Constructs a new Useflag object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: Useflag) -> bool:
+        """__eq__(self: pms_utils.atom.Useflag, arg0: pms_utils.atom.Useflag) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.atom.Useflag) -> int"""
+    def __ne__(self, arg0: Useflag) -> bool:
+        """__ne__(self: pms_utils.atom.Useflag, arg0: pms_utils.atom.Useflag) -> bool"""
 
 class Version:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: Version) -> bool: ...
-    def __ge__(self, arg0: Version) -> bool: ...
-    def __gt__(self, arg0: Version) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __le__(self, arg0: Version) -> bool: ...
-    def __lt__(self, arg0: Version) -> bool: ...
-    def __ne__(self, arg0: Version) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.atom.Version, expr: str) -> None
+
+
+                    Constructs a new Version object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: Version) -> bool:
+        """__eq__(self: pms_utils.atom.Version, arg0: pms_utils.atom.Version) -> bool"""
+    def __ge__(self, arg0: Version) -> bool:
+        """__ge__(self: pms_utils.atom.Version, arg0: pms_utils.atom.Version) -> bool"""
+    def __gt__(self, arg0: Version) -> bool:
+        """__gt__(self: pms_utils.atom.Version, arg0: pms_utils.atom.Version) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.atom.Version) -> int"""
+    def __le__(self, arg0: Version) -> bool:
+        """__le__(self: pms_utils.atom.Version, arg0: pms_utils.atom.Version) -> bool"""
+    def __lt__(self, arg0: Version) -> bool:
+        """__lt__(self: pms_utils.atom.Version, arg0: pms_utils.atom.Version) -> bool"""
+    def __ne__(self, arg0: Version) -> bool:
+        """__ne__(self: pms_utils.atom.Version, arg0: pms_utils.atom.Version) -> bool"""
     @property
     def letter(self) -> str | None: ...
     @property
@@ -166,17 +270,26 @@ class Version:
     def suffixes(self) -> list[VersionSuffix]: ...
 
 class VersionNumber:
-    def __init__(self, *args, **kwargs) -> None: ...
-    def __eq__(self, arg0: VersionNumber) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __iter__(self) -> Iterator[str]: ...
-    def __ne__(self, arg0: VersionNumber) -> bool: ...
+    def __init__(self, *args, **kwargs) -> None:
+        """Initialize self.  See help(type(self)) for accurate signature."""
+    def __eq__(self, arg0: VersionNumber) -> bool:
+        """__eq__(self: pms_utils.atom.VersionNumber, arg0: pms_utils.atom.VersionNumber) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.atom.VersionNumber) -> int"""
+    def __iter__(self) -> Iterator[str]:
+        """__iter__(self: pms_utils.atom.VersionNumber) -> Iterator[str]"""
+    def __ne__(self, arg0: VersionNumber) -> bool:
+        """__ne__(self: pms_utils.atom.VersionNumber, arg0: pms_utils.atom.VersionNumber) -> bool"""
 
 class VersionRevision:
-    def __init__(self, *args, **kwargs) -> None: ...
-    def __eq__(self, arg0: VersionRevision) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: VersionRevision) -> bool: ...
+    def __init__(self, *args, **kwargs) -> None:
+        """Initialize self.  See help(type(self)) for accurate signature."""
+    def __eq__(self, arg0: VersionRevision) -> bool:
+        """__eq__(self: pms_utils.atom.VersionRevision, arg0: pms_utils.atom.VersionRevision) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.atom.VersionRevision) -> int"""
+    def __ne__(self, arg0: VersionRevision) -> bool:
+        """__ne__(self: pms_utils.atom.VersionRevision, arg0: pms_utils.atom.VersionRevision) -> bool"""
 
 class VersionSpecifier(enum.Enum):
     __new__: ClassVar[Callable] = ...
@@ -198,10 +311,21 @@ class VersionSpecifier(enum.Enum):
     td: ClassVar[VersionSpecifier] = ...
 
 class VersionSuffix:
-    def __init__(self, arg0: str) -> None: ...
-    def __eq__(self, arg0: VersionSuffix) -> bool: ...
-    def __hash__(self) -> int: ...
-    def __ne__(self, arg0: VersionSuffix) -> bool: ...
+    def __init__(self, expr: str) -> None:
+        """__init__(self: pms_utils.atom.VersionSuffix, expr: str) -> None
+
+
+                    Constructs a new VersionSuffix object from the input expression.
+
+                    :raises ValueError: The expression is invalid.
+
+        """
+    def __eq__(self, arg0: VersionSuffix) -> bool:
+        """__eq__(self: pms_utils.atom.VersionSuffix, arg0: pms_utils.atom.VersionSuffix) -> bool"""
+    def __hash__(self) -> int:
+        """__hash__(self: pms_utils.atom.VersionSuffix) -> int"""
+    def __ne__(self, arg0: VersionSuffix) -> bool:
+        """__ne__(self: pms_utils.atom.VersionSuffix, arg0: pms_utils.atom.VersionSuffix) -> bool"""
     @property
     def number(self) -> str: ...
     @property
@@ -222,4 +346,5 @@ class VersionSuffixWord(enum.IntEnum):
     p: ClassVar[VersionSuffixWord] = ...
     pre: ClassVar[VersionSuffixWord] = ...
     rc: ClassVar[VersionSuffixWord] = ...
-    def __format__(self, *args, **kwargs) -> str: ...
+    def __format__(self, *args, **kwargs) -> str:
+        """Convert to a string according to format_spec."""

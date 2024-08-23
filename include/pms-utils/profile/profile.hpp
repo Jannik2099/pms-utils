@@ -74,12 +74,12 @@ public:
 
 } // namespace _internal
 
-// this expands any package expression that occurs in profile files to "category/name-version::repo"
+// this expands any package expression that occurs in profile files to ["=category/name-version", "repo"]
 // namely, this covers slot and wildcard expressions
-[[nodiscard]] std::vector<std::string> expand_package_expr(std::string_view expr,
-                                                           const std::vector<repo::Repository> &repos);
-[[nodiscard]] std::vector<std::string> expand_package_expr(const _internal::WildcardAtom &atom,
-                                                           const std::vector<repo::Repository> &repos);
+[[nodiscard]] std::vector<std::tuple<atom::PackageExpr, std::string>>
+expand_package_expr(std::string_view expr, const std::vector<repo::Repository> &repos);
+[[nodiscard]] std::vector<std::tuple<atom::PackageExpr, std::string>>
+expand_package_expr(const _internal::WildcardAtom &atom, const std::vector<repo::Repository> &repos);
 
 struct Filters {
     // 5.2.8
@@ -146,7 +146,7 @@ private:
     _internal::unordered_str_set<std::string> ENV_UNSET_;
     std::string ARCH_;
 
-    // key is "ebuild::repo" as returned from expand_package_expr
+    // key is "=category/name-version::repo" as returned from expand_package_expr
     std::unordered_map<std::string, Filters, _internal::StringHash, std::equal_to<>> filters_;
 
     void combine_parents();
