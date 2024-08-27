@@ -5,6 +5,8 @@ subdir('depend')
 subdir('ebuild')
 subdir('repo')
 subdir('profile')
+subdir('vdb')
+
 
 libpms_utils = library(
     'pms-utils',
