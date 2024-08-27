@@ -34,7 +34,7 @@ Category::Category(std::filesystem::path path) : _path(std::move(path)) {
         throw std::runtime_error(std::format("invalid category in vdb: not a directory: {}", _path.string()));
     }
     auto filename = _path.filename().string();
-    auto result = pms_utils::try_parse(filename, pms_utils::parsers::category());
+    auto result = pms_utils::try_parse(filename, pms_utils::parsers::atom::category());
     if (result.status != pms_utils::ParserStatus::Success) {
         throw std::runtime_error(std::format("invalid category in vdb: {}", result.display(filename)));
     }
@@ -52,14 +52,14 @@ Pkg::Pkg(std::filesystem::path path) : _path(std::move(path)), _md5(load_md5(_pa
 
     auto filename = _path.filename().string();
 
-    auto name = pms_utils::try_parse(filename, pms_utils::parsers::name());
+    auto name = pms_utils::try_parse(filename, pms_utils::parsers::atom::name());
     if (name.status != pms_utils::ParserStatus::Progress) {
         throw std::runtime_error(std::format("invalid package in vdb: {}", name.display(filename)));
     }
     _name = name.result.value();
 
     auto rest = std::string_view(filename.begin() + name.consumed + 1, filename.end());
-    auto version = pms_utils::try_parse(rest, pms_utils::parsers::package_version());
+    auto version = pms_utils::try_parse(rest, pms_utils::parsers::atom::package_version());
     if (version.status != pms_utils::ParserStatus::Success) {
         throw std::runtime_error(std::format("invalid package in vdb: {}", version.display(rest)));
     }
@@ -93,7 +93,7 @@ pms_utils::depend::DependExpr load_depend(const std::filesystem::path &file) {
         return {};
     }
     auto depend_string = pms_utils::read_file(file);
-    auto depend_expr = pms_utils::try_parse(depend_string, pms_utils::parsers::nodes());
+    auto depend_expr = pms_utils::try_parse(depend_string, pms_utils::parsers::depend::nodes());
     if (depend_expr.status != pms_utils::ParserStatus::Success) {
         throw std::runtime_error(
             std::format("invalid DEPEND in vdb: {}", depend_expr.display(depend_string)));
