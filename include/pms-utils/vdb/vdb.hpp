@@ -2,6 +2,7 @@
 
 #include "pms-utils/atom/atom.hpp"
 #include "pms-utils/depend/depend.hpp"
+#include "pms-utils/misc/md5.hpp"
 
 #include <chrono>
 #include <cstddef>
@@ -71,6 +72,7 @@ private:
     pms_utils::depend::DependExpr _rdepend;
     pms_utils::depend::DependExpr _idepend;
     std::chrono::time_point<std::chrono::system_clock> _build_time;
+    pms_utils::MD5 _md5;
 
 public:
     enum class DependKind { DEPEND, BDEPEND, RDEPEND, IDEPEND };
@@ -81,6 +83,7 @@ public:
     [[nodiscard]] std::chrono::time_point<std::chrono::system_clock> build_time() const noexcept {
         return _build_time;
     };
+    [[nodiscard]] pms_utils::MD5 md5() const noexcept { return _md5; };
 };
 
 } // namespace vdb

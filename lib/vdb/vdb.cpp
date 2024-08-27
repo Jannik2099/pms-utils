@@ -16,6 +16,12 @@ namespace vdb {
 pms_utils::depend::DependExpr load_depend(const std::filesystem::path &file);
 std::chrono::time_point<std::chrono::system_clock> load_build_time(const std::filesystem::path &file);
 
+pms_utils::MD5 load_md5(const std::filesystem::path &file) {
+    auto md5_text = pms_utils::read_file(file);
+    auto md5 = pms_utils::MD5(md5_text);
+    return md5;
+}
+
 Vdb::Vdb(std::filesystem::path path) : _path(std::move(path)) {
     for (const auto &entry : std::filesystem::directory_iterator(_path)) {
         Category category(entry.path());
@@ -39,7 +45,7 @@ Category::Category(std::filesystem::path path) : _path(std::move(path)) {
     }
 }
 
-Pkg::Pkg(std::filesystem::path path) : _path(std::move(path)) {
+Pkg::Pkg(std::filesystem::path path) : _path(std::move(path)), _md5(load_md5(_path / "MD5SUM")) {
     if (!std::filesystem::is_directory(_path)) {
         throw std::runtime_error(std::format("invalid package in vdb: not a directory: {}", _path.string()));
     }
