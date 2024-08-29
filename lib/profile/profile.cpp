@@ -447,7 +447,6 @@ void Profile::init_package_mask() {
     }
 }
 
-// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<bool> Profile::algorithm_5_1_force(std::string_view package, const atom::Useflag &useflag,
                                                  bool is_stable, const Filters *filter) const {
     std::optional<bool> forced;
@@ -473,7 +472,6 @@ std::optional<bool> Profile::algorithm_5_1_force(std::string_view package, const
     return forced;
 }
 
-// NOLINTNEXTLINE(misc-no-recursion)
 std::optional<bool> Profile::algorithm_5_1_mask(std::string_view package, const atom::Useflag &useflag,
                                                 bool is_stable, const Filters *filter) const {
     std::optional<bool> masked;
