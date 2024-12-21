@@ -6,8 +6,7 @@ name: Alpine
 on:
   pull_request:
   push:
-    branches:
-      main
+    branches: main
 
 jobs:
   build:
@@ -21,39 +20,39 @@ jobs:
     env:
       CC: ${{ matrix.cc }}
     steps:
-    - name: Install dependencies
-      run: |
-        apk --no-cache add meson pkgconf boost-dev python3-dev py3-pybind11 py3-pybind11-dev build-base valgrind ${{ matrix.cc }}
+      - name: Install dependencies
+        run: |
+          apk --no-cache add meson pkgconf boost-dev python3-dev build-base valgrind ${{ matrix.cc }}
 
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Configure
-      run: |
-        case "${{ matrix.cc }}" in
-          gcc)
-            export CC=gcc
-            export CXX=g++
-            ;;
-          clang)
-            export CC=clang
-            export CXX=clang++
-            ;;
-        esac
+      - name: Configure
+        run: |
+          case "${{ matrix.cc }}" in
+            gcc)
+              export CC=gcc
+              export CXX=g++
+              ;;
+            clang)
+              export CC=clang
+              export CXX=clang++
+              ;;
+          esac
 
-        meson setup -Dtest=true -Dwerror=true build
+          meson setup -Dtest=true -Dwerror=true build
 
-    - name: Build
-      run: |
-        ninja -C build
+      - name: Build
+        run: |
+          ninja -C build
 
-    - name: Test
-      run: |
-        case "${{ matrix.valgrind }}" in
-          valgrind)
-            args="--wrapper valgrind"
-            ;;
-          vanilla)
-            ;;
-        esac
+      - name: Test
+        run: |
+          case "${{ matrix.valgrind }}" in
+            valgrind)
+              args="--wrapper valgrind"
+              ;;
+            vanilla)
+              ;;
+          esac
 
-        meson test -C build --print-errorlogs ${args}
+          meson test -C build --print-errorlogs ${args}

@@ -3,7 +3,7 @@
 #include <array>
 #include <cstddef>
 #include <format>
-#include <pybind11/detail/descr.h>
+#include <nanobind/nanobind.h>
 #include <stdexcept>
 #include <string_view>
 #include <utility>
@@ -20,7 +20,7 @@ constexpr auto string_view_as_array(std::string_view str, std::index_sequence<Id
 template <std::size_t... Idxs>
 constexpr auto array_as_descr(std::array<char, sizeof...(Idxs)> array,
                               std::index_sequence<Idxs...> /*unused*/) {
-    return pybind11::detail::descr<sizeof...(Idxs)>{array[Idxs]...};
+    return nanobind::detail::descr<sizeof...(Idxs)>{array[Idxs]...};
 }
 
 // thanks to
@@ -88,7 +88,7 @@ template <typename Rule> [[nodiscard]] static inline auto expr_from_str(Rule rul
 
 // this is essentially just a s/::/./g
 // oh the wonders of constexpr string manipulation
-template <pybind11::detail::descr descr> constexpr auto descr_qualified_fixup() {
+template <nanobind::detail::descr descr> constexpr auto descr_qualified_fixup() {
     constexpr std::string_view str{static_cast<const char *>(descr.text)};
     constexpr std::string_view lhs = str.substr(0, str.find_first_of(':'));
     constexpr auto lhs_indices = std::make_index_sequence<lhs.size()>{};
@@ -101,7 +101,7 @@ template <pybind11::detail::descr descr> constexpr auto descr_qualified_fixup() 
         constexpr std::string_view rhs = rhs_temp.substr(rhs_temp.find_first_not_of(':'));
         constexpr auto rhs_indices = std::make_index_sequence<rhs.size()>{};
         constexpr auto rhs_descr = array_as_descr(string_view_as_array(rhs, rhs_indices), rhs_indices);
-        return lhs_descr + pybind11::detail::const_name(".") + descr_qualified_fixup<rhs_descr>();
+        return lhs_descr + nanobind::detail::const_name(".") + descr_qualified_fixup<rhs_descr>();
     }
 }
 
@@ -111,13 +111,13 @@ template <typename T> constexpr std::string_view bound_type_name_override = _int
 
 template <typename T> struct bound_type_name {
     constexpr static std::string_view qualified_str = bound_type_name_override<T>;
-    constexpr static pybind11::detail::descr qualified_descr =
+    constexpr static nanobind::detail::descr qualified_descr =
         _internal::descr_qualified_fixup<_internal::array_as_descr(
             _internal::string_view_as_array(qualified_str, std::make_index_sequence<qualified_str.size()>{}),
             std::make_index_sequence<qualified_str.size()>{})>();
 
     constexpr static std::string_view unqualified_str = _internal::unqualified(qualified_str);
-    constexpr static pybind11::detail::descr unqualified_descr =
+    constexpr static nanobind::detail::descr unqualified_descr =
         _internal::descr_qualified_fixup<_internal::array_as_descr(
             _internal::string_view_as_array(unqualified_str,
                                             std::make_index_sequence<unqualified_str.size()>{}),

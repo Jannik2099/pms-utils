@@ -4,16 +4,16 @@
 #include "pms-utils/depend/depend.hpp"
 #include "pms-utils/depend/depend_parser.hpp"
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 using namespace pms_utils::depend;
 
 namespace pms_utils::bindings::python::depend {
 
-void _register(py::module &_module) {
-    const py::module depend = _module.def_submodule("depend");
+void _register(nb::module_ &_module) {
+    const nb::module_ depend = _module.def_submodule("depend");
 
     auto py_UseConditional = create_bindings<UseConditional>(depend, parsers::depend::use_cond);
 

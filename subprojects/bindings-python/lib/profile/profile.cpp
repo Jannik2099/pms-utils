@@ -7,31 +7,29 @@
 
 #include <cstddef>
 #include <filesystem>
-#include <memory>
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 #include <string_view>
 #include <tuple>
 #include <vector>
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 using namespace pms_utils::profile;
 
 namespace pms_utils::bindings::python::profile {
 
-void _register(py::module &_module) {
-    py::module profile = _module.def_submodule("profile");
+void _register(nb::module_ &_module) {
+    nb::module_ profile = _module.def_submodule("profile");
 
     profile.def("expand_package_expr",
                 static_cast<std::vector<std::tuple<atom::PackageExpr, std::size_t>> (&)(
                     std::string_view, const std::vector<repo::Repository> &)>(expand_package_expr));
 
     auto py_Filters = create_bindings<Filters>(profile);
-    auto py_Profile = create_bindings<Profile, std::shared_ptr<Profile>>(profile)
-                          .def(py::init<std::filesystem::path>())
+    auto py_Profile = create_bindings<Profile>(profile)
+                          .def(nb::init<std::filesystem::path>())
                           .def("effective_useflags", &Profile::effective_useflags);
-    auto py_PortageProfile = create_bindings<PortageProfile, std::shared_ptr<PortageProfile>>(profile).def(
-        py::init<std::filesystem::path>());
+    auto py_PortageProfile = create_bindings<PortageProfile>(profile).def(nb::init<std::filesystem::path>());
 }
 
 } // namespace pms_utils::bindings::python::profile

@@ -10,11 +10,31 @@ add_project_arguments(
 )
 add_project_arguments('-DBOOST_ALL_DYN_LINK=1', language: 'cpp')
 
+cpp = meson.get_compiler('cpp')
+# Boost and nanobind are naughty
+wno_args = [
+    '-Wno-gnu-zero-variadic-macro-arguments',
+    '-Wno-zero-length-array',
+    '-Wno-nested-anon-types',
+    '-Wno-pedantic',
+]
+
+if not meson.is_subproject()
+    foreach arg : wno_args
+        if cpp.has_argument(arg)
+            add_global_arguments(
+                arg,
+                language: 'cpp',
+            )
+        endif
+    endforeach
+endif
+
 fs = import('fs')
 
 pms_utils_dep = dependency('pms-utils')
 boost_dep = dependency('boost')
-pybind11_dep = dependency('pybind11')
+nanobind_dep = dependency('nanobind', static: true, include_type: 'system')
 
 pymod = import('python')
 py_installation = pymod.find_installation()

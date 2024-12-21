@@ -15,11 +15,9 @@ RUN <<EOF
     mkdir -p package.env
     mkdir -p env
 
-    echo "dev-python/pybind11 pb11env" > package.env/pb11
-    echo "PYTHON_TARGETS=\"python3_11 python3_12 pypy3\"" >> env/pb11env
     emerge-webrsync -q
     getuto
-    emerge --autounmask --autounmask-write --autounmask-continue -q -j8 dev-vcs/git dev-util/pkgdev sys-devel/clang sys-devel/lld dev-libs/boost dev-python/pybind11 dev-build/meson dev-python/pip dev-util/cppcheck dev-util/gcovr
+    emerge --autounmask --autounmask-write --autounmask-continue -q -j8 dev-vcs/git dev-util/pkgdev sys-devel/clang sys-devel/lld dev-libs/boost dev-build/meson dev-python/pip dev-util/cppcheck dev-util/gcovr
     env-update
     . /etc/profile
     rm -rf /var/cache/distfiles

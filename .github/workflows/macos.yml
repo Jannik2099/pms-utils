@@ -6,8 +6,7 @@ name: macOS
 on:
   pull_request:
   push:
-    branches:
-      main
+    branches: main
 
 jobs:
   build:
@@ -17,54 +16,54 @@ jobs:
         cc: [gcc, clang]
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Install dependencies
-      run: |
-        brew install meson ninja boost pybind11
+      - name: Install dependencies
+        run: |
+          brew install meson ninja boost
 
-        case "${{ matrix.cc }}" in
-          gcc)
-            brew install gcc
-            ;;
-          clang)
-            brew install llvm
-            ;;
-        esac
+          case "${{ matrix.cc }}" in
+            gcc)
+              brew install gcc
+              ;;
+            clang)
+              brew install llvm
+              ;;
+          esac
 
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Configure
-      run: |
-        # Silly hacks to get brew-installed GCC and Clang on macOS
-        if [[ -d /usr/local/bin ]] ; then
-        export PATH="/usr/local/bin:${PATH}"
-        # It's fine if this already exists.
-        ln -s $(ls -1v /usr/local/bin/gcc-* | head -n 1) /usr/local/bin/gcc || true
-        ln -s $(ls -1v /usr/local/bin/g++-* | head -n 1) /usr/local/bin/g++ || true
-        fi
-        if [[ -d /usr/local/opt/llvm ]] ; then
-        export CPPFLAGS="-I/usr/local/opt/llvm/include ${CPPFLAGS}"
-        export LDFLAGS="-L/usr/local/opt/llvm/lib ${LDFLAGS}"
-        export PATH="/usr/local/opt/llvm/bin:${PATH}"
-        fi
+      - name: Configure
+        run: |
+          # Silly hacks to get brew-installed GCC and Clang on macOS
+          if [[ -d /usr/local/bin ]] ; then
+          export PATH="/usr/local/bin:${PATH}"
+          # It's fine if this already exists.
+          ln -s $(ls -1v /usr/local/bin/gcc-* | head -n 1) /usr/local/bin/gcc || true
+          ln -s $(ls -1v /usr/local/bin/g++-* | head -n 1) /usr/local/bin/g++ || true
+          fi
+          if [[ -d /usr/local/opt/llvm ]] ; then
+          export CPPFLAGS="-I/usr/local/opt/llvm/include ${CPPFLAGS}"
+          export LDFLAGS="-L/usr/local/opt/llvm/lib ${LDFLAGS}"
+          export PATH="/usr/local/opt/llvm/bin:${PATH}"
+          fi
 
-        case "${{ matrix.cc }}" in
-          gcc)
-            export CC=/usr/local/bin/gcc
-            export CXX=/usr/local/bin/g++
-            ;;
-          clang)
-            export LDFLAGS="-L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++ ${LDFLAGS}"
-            export CC=/usr/local/opt/llvm/bin/clang
-            export CXX=/usr/local/opt/llvm/bin/clang++
-            ;;
-        esac
+          case "${{ matrix.cc }}" in
+            gcc)
+              export CC=/usr/local/bin/gcc
+              export CXX=/usr/local/bin/g++
+              ;;
+            clang)
+              export LDFLAGS="-L/usr/local/opt/llvm/lib/c++ -Wl,-rpath,/usr/local/opt/llvm/lib/c++ ${LDFLAGS}"
+              export CC=/usr/local/opt/llvm/bin/clang
+              export CXX=/usr/local/opt/llvm/bin/clang++
+              ;;
+          esac
 
-        meson setup -Dtest=true -Dwerror=true build
+          meson setup -Dtest=true -Dwerror=true build
 
-    - name: Build
-      run: |
-        ninja -C build
+      - name: Build
+        run: |
+          ninja -C build
 
-    - name: Test
-      run: |
-        meson test -C build --print-errorlogs
+      - name: Test
+        run: |
+          meson test -C build --print-errorlogs
