@@ -6,10 +6,10 @@
 #include "pms-utils/ebuild/ebuild.hpp"
 #include "pms-utils/ebuild/ebuild_parser.hpp"
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 #include <string_view>
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 using namespace pms_utils::ebuild;
 
@@ -21,9 +21,9 @@ constexpr std::string_view bound_type_name_override<properties_elem::Type> = "pr
 
 namespace ebuild {
 
-void _register(py::module &_module) {
+void _register(nb::module_ &_module) {
 
-    const py::module ebuild = _module.def_submodule("ebuild");
+    const nb::module_ ebuild = _module.def_submodule("ebuild");
 
     auto py_URI = create_bindings<URI>(ebuild, parsers::ebuild::uri);
 

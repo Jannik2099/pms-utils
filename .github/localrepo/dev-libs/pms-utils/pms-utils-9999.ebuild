@@ -27,7 +27,6 @@ REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 DEPEND="
 python? (
 	${PYTHON_DEPS}
-	dev-python/pybind11[${PYTHON_USEDEP}]
 )
 dev-libs/boost
 "
@@ -61,6 +60,14 @@ bindings_python_test() {
 	local EMESON_SOURCE="${S}/subprojects/bindings-python"
 	python_foreach_impl meson_src_test
 }
+
+if [[ ${PV} == 9999 ]]; then
+src_unpack() {
+	git-r3_src_unpack
+	cd "${S}/subprojects/bindings-python" || die
+	meson subprojects download || die
+}
+fi
 
 src_configure() {
 	local TEST="false"

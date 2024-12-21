@@ -5,11 +5,11 @@
 #include "pms-utils/atom/atom.hpp"
 #include "pms-utils/atom/atom_parser.hpp"
 
-#include <pybind11/operators.h>
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/operators.h>
 #include <string_view>
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 using namespace pms_utils::atom;
 
@@ -19,9 +19,9 @@ template <> constexpr std::string_view bound_type_name_override<PackageExpr> = "
 
 namespace atom {
 
-void _register(py::module &_module) {
+void _register(nb::module_ &_module) {
 
-    const py::module atom = _module.def_submodule("atom");
+    const nb::module_ atom = _module.def_submodule("atom");
 
     // TODO
     // Version number components should be exposed as ints as python uses VarInts
@@ -31,17 +31,17 @@ void _register(py::module &_module) {
 
     // IntEnum for ordering
     auto py_VersionSuffixWord =
-        create_bindings<VersionSuffixWord>(atom, parsers::atom::ver_suffix_word, "enum.IntEnum");
+        create_bindings<VersionSuffixWord>(atom, parsers::atom::ver_suffix_word, nb::is_arithmetic{});
 
     auto py_VersionSuffix = create_bindings<VersionSuffix>(atom, parsers::atom::ver_suffix);
     auto py_VersionRevision = create_bindings<VersionRevision>(atom);
 
     // NOLINTBEGIN(misc-redundant-expression)
     auto py_Version = create_bindings<Version>(atom, parsers::atom::package_version)
-                          .def(py::self < py::self)
-                          .def(py::self <= py::self)
-                          .def(py::self > py::self)
-                          .def(py::self >= py::self);
+                          .def(nb::self < nb::self)
+                          .def(nb::self <= nb::self)
+                          .def(nb::self > nb::self)
+                          .def(nb::self >= nb::self);
     // == and != are already bound automatically
     // NOLINTEND(misc-redundant-expression)
 

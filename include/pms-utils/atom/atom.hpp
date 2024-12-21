@@ -102,10 +102,6 @@ public:
     [[nodiscard]] friend std::strong_ordering operator<=>(const Version &lhs, const Version &rhs) noexcept {
         return compare_impl(lhs, rhs, true);
     }
-    // pybind11 requires this to exist as a friend
-    [[nodiscard]] friend bool operator==(const Version &lhs, const Version &rhs) noexcept {
-        return (lhs <=> rhs) == std::strong_ordering::equal;
-    }
 
     // lhs =~ rhs (equal modulo revision)
     [[nodiscard]] friend bool compare_td(const Version &lhs, const Version &rhs) noexcept {

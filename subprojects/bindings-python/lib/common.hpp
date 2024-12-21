@@ -1,6 +1,5 @@
 #pragma once
 
-#include "enum.hpp"
 #include "internal.hpp"
 #include "pms-utils/misc/meta.hpp"
 
@@ -17,49 +16,100 @@
 #include <boost/variant/variant.hpp>
 #include <concepts>
 #include <cstddef>
+#include <cstdint>
 #include <format>
 #include <functional>
-#include <pybind11/attr.h>
-#include <pybind11/cast.h>
-#include <pybind11/detail/common.h>
-#include <pybind11/operators.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/pytypes.h>
-#include <pybind11/stl.h>
-#include <pybind11/stl/filesystem.h> // IWYU pragma: keep
+#include <nanobind/make_iterator.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/operators.h>
+#include <nanobind/stl/detail/nb_optional.h>
 #include <ranges>
 #include <string>
 #include <string_view>
 #include <type_traits>
 #include <utility>
 
-namespace py = pybind11;
+// we generally want all of these
+// IWYU pragma: begin_keep
+#include <nanobind/stl/array.h>
+#include <nanobind/stl/bind_map.h>
+#include <nanobind/stl/bind_vector.h>
+#include <nanobind/stl/chrono.h>
+#include <nanobind/stl/complex.h>
+#include <nanobind/stl/filesystem.h>
+#include <nanobind/stl/function.h>
+#include <nanobind/stl/list.h>
+#include <nanobind/stl/map.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/pair.h>
+#include <nanobind/stl/set.h>
+#include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/string_view.h>
+#include <nanobind/stl/tuple.h>
+#include <nanobind/stl/unique_ptr.h>
+#include <nanobind/stl/unordered_map.h>
+#include <nanobind/stl/unordered_set.h>
+#include <nanobind/stl/variant.h>
+#include <nanobind/stl/vector.h>
+#include <nanobind/stl/wstring.h>
+// IWYU pragma: end_keep
 
-namespace PYBIND11_NAMESPACE {
-namespace detail {
+namespace nb = nanobind;
+
+namespace nanobind::detail {
+
 template <typename T> struct type_caster<boost::optional<T>> : public optional_caster<boost::optional<T>> {};
 
-template <typename... Ts>
-struct type_caster<boost::variant<Ts...>> : public variant_caster<boost::variant<Ts...>> {};
+// this is mostly copied from nb::detail::type_caster<std::variant>
+template <typename... Ts> struct type_caster<boost::variant<Ts...>> {
+    NB_TYPE_CASTER(boost::variant<Ts...>, union_name(make_caster<Ts>::Name...))
 
-template <> struct visit_helper<boost::variant> {
-    template <typename... Args> static auto call(Args &&...args) -> decltype(boost::apply_visitor(args...)) {
-        return boost::apply_visitor(std::forward<Args>(args)...);
+    template <typename T> bool try_variant(const handle &src, uint8_t flags, cleanup_list *cleanup) {
+        using CasterT = make_caster<T>;
+
+        CasterT caster;
+
+        if ((!caster.from_python(src, flags_for_local_caster<T>(flags), cleanup)) ||
+            (!caster.template can_cast<T>())) {
+            return false;
+        }
+
+        value = caster.operator cast_t<T>();
+
+        return true;
+    }
+
+    bool from_python(handle src, uint8_t flags, cleanup_list *cleanup) noexcept {
+        return (try_variant<Ts>(src, flags, cleanup) || ...);
+    }
+
+    struct Visitor {
+        rv_policy policy;
+        cleanup_list *cleanup;
+
+        using result_type = handle;
+
+        template <typename T> result_type operator()(T &&src) const {
+            return make_caster<T>::from_cpp(std::forward<T>(src), policy, cleanup);
+        }
+    };
+
+    template <typename T>
+    static handle from_cpp(T &&value, rv_policy policy, cleanup_list *cleanup) noexcept {
+        return boost::apply_visitor(Visitor{policy, cleanup}, std::forward<T>(value));
     }
 };
 
-} // namespace detail
-} // namespace PYBIND11_NAMESPACE
+} // namespace nanobind::detail
 
 namespace pms_utils::bindings::python {
 
 template <typename Func>
-static inline py::object &add_method(py::object &cls, std::string_view name, Func &&func) {
-    // pybind11 needs a c_str ;/
-    const std::string name_str{name};
-    const py::cpp_function cfunc{std::forward<Func>(func), py::name{name_str.c_str()}, py::is_method{cls},
-                                 py::sibling{py::getattr(cls, name_str.c_str(), py::none{})}};
-    py::detail::add_class_method(cls, name_str.c_str(), cfunc);
+static inline nb::object &add_method(nb::object &cls, const std::string &name, Func &&func) {
+    const nb::object cfunc =
+        nb::cpp_function(std::forward<Func>(func), nb::name{name.c_str()}, nb::is_method{});
+    cls.attr(name.c_str()) = cfunc;
     return cls;
 }
 
@@ -67,7 +117,7 @@ template <typename T, typename Pclass> static inline Pclass &bind_members_and_ge
     using namespace boost::mp11;
 
     mp_for_each<boost::describe::describe_members<T, boost::describe::mod_public>>(
-        [&cls](auto member) { cls.def_readonly(member.name, member.pointer); });
+        [&cls](auto member) { cls.def_ro(member.name, member.pointer); });
 
     mp_for_each<boost::describe::describe_members<T, boost::describe::mod_private>>([&cls](auto member) {
         mp_for_each<boost::describe::describe_members<T, boost::describe::mod_public |
@@ -83,7 +133,7 @@ template <typename T, typename Pclass> static inline Pclass &bind_members_and_ge
                 } else {
                     if constexpr (std::convertible_to<decltype((std::declval<const T &>().*mfunc.pointer)()),
                                                       decltype(std::declval<const T &>().*member.pointer)>) {
-                        cls.def_property_readonly(mfunc.name, mfunc.pointer);
+                        cls.def_prop_ro(mfunc.name, mfunc.pointer);
                     }
                 }
             }
@@ -92,13 +142,22 @@ template <typename T, typename Pclass> static inline Pclass &bind_members_and_ge
     return cls;
 }
 
-template <typename T, typename M, typename R = bool>
+template <typename T, typename M, typename R = bool, typename... Extra>
     requires(std::is_enum_v<T> && boost::describe::has_describe_enumerators<T>::value)
-static inline py::object create_bindings(M module_, R rule = false,
-                                         std::string_view enum_type = "enum.Enum") {
+static inline nb::object create_bindings(M module_, R rule = false, const Extra &...extra) {
     constexpr std::string_view name = bound_type_name<T>::unqualified_str;
 
-    py::object ret = _internal::bind_enum<M, T>(module_, name, enum_type);
+    nb::enum_ ret = nb::enum_<T>(module_, std::string{name}.c_str(), extra...);
+    const auto docstring = std::format(R"---(
+            Constructs a new {} object from the input expression.
+
+            :raises ValueError: The expression is invalid.
+)---",
+                                       name);
+    ret.doc() = docstring;
+
+    boost::mp11::mp_for_each<boost::describe::describe_enumerators<T>>(
+        [&ret](auto member) { ret.value(member.name, member.value); });
 
     if constexpr (requires(T val) { to_string(val); }) {
         add_method(ret, "__str__", [](T val) { return to_string(val); });
@@ -107,12 +166,12 @@ static inline py::object create_bindings(M module_, R rule = false,
         const std::string function_name = std::string{"_"} + std::string{name} + "__missing_";
         module_.def(
             function_name.c_str(),
-            [rule](const py::object &, std::string_view arg) {
+            [rule](const nb::object &, std::string_view arg) {
                 return _internal::expr_from_str(rule(), arg);
             },
-            py::arg{nullptr}, py::arg{"expr"});
+            nb::arg{nullptr}, nb::arg{"expr"});
         ret.attr("_missing_") =
-            py::module::import("builtins").attr("classmethod")(module_.attr(function_name.c_str()));
+            nb::module_::import_("builtins").attr("classmethod")(module_.attr(function_name.c_str()));
         add_method(ret, "__repr__", [](T val) {
             return std::format("{}('{}')", bound_type_name<T>::qualified_descr.text, to_string(val));
         });
@@ -120,24 +179,22 @@ static inline py::object create_bindings(M module_, R rule = false,
     return ret;
 }
 
-template <typename T, typename H = bool, typename M, typename R = bool>
+template <typename T, typename M, typename R = bool>
     requires(std::is_class_v<T> && boost::describe::has_describe_members<T>::value)
 static inline auto create_bindings(M module_, R rule = false) {
     constexpr std::string_view name = bound_type_name<T>::unqualified_str;
     using namespace boost::mp11;
 
-    // this extracts the bases from T and transforms them such that py::class_<T, ...Bases>
+    // this extracts the bases from T and transforms them such that nb::class_<T, ...Bases>
     using base_descriptors = boost::describe::describe_bases<T, boost::describe::mod_any_access>;
     // empty list of descriptors if no bases, thus mp_first<> is invalid
     using bases_pre = mp_rename<mp_eval_or<mp_list<T>, mp_first, base_descriptors>, mp_list>;
     // remove the crtp base from the inheritance set, as we do not want to bind it
     using crtp_type = mp_eval_or<void, pms_utils::meta::_internal::crtp_base, T>;
-    using t_plus_bases = mp_remove<bases_pre, crtp_type>;
-    // add the holder (i.e. std::shared_ptr<T>) if specified
-    using pytype = mp_eval_if_c<std::is_same_v<H, bool>, t_plus_bases, mp_push_back, t_plus_bases, H>;
+    using pytype = mp_remove<bases_pre, crtp_type>;
 
     static_assert(std::is_same_v<mp_first<pytype>, T>);
-    using pyclass = mp_apply<py::class_, pytype>;
+    using pyclass = mp_apply<nb::class_, pytype>;
 
     auto ret = pyclass{module_, std::string{name}.data()};
 
@@ -157,8 +214,10 @@ static inline auto create_bindings(M module_, R rule = false) {
             :raises ValueError: The expression is invalid.
 )---",
                                            name);
-        ret.def(py::init([rule](std::string_view str) { return _internal::expr_from_str(rule(), str); }),
-                docstring.c_str(), py::arg{"expr"});
+        ret.def(
+            "__init__",
+            [rule](T *mem, std::string_view str) { new (mem) T(_internal::expr_from_str(rule(), str)); },
+            nb::arg{"expr"}, docstring.c_str());
         ret.def("__repr__", [](const T &val) {
             std::string repr{val};
             std::string repr_trunc;
@@ -189,19 +248,19 @@ static inline auto create_bindings(M module_, R rule = false) {
         // an iterator that holds the value would instead have the value get overwritten by iterator++
         if constexpr (meta::is_owning_iterator_v<iterator_type>) {
             ret.def("__iter__", [](const T &val) {
-                return py::make_iterator<py::return_value_policy::move>(std::begin(val), std::end(val));
+                return nb::make_iterator<nb::rv_policy::move>(nb::type<T>(), "iterator", val);
             });
         } else {
             ret.def(
-                "__iter__", [](const T &val) { return py::make_iterator<>(std::begin(val), std::end(val)); },
-                py::keep_alive<0, 1>{});
+                "__iter__", [](const T &val) { return nb::make_iterator<>(nb::type<T>(), "iterator", val); },
+                nb::keep_alive<0, 1>{});
         }
     }
 
     if constexpr (std::equality_comparable<T>) {
         // NOLINTBEGIN(misc-redundant-expression)
-        ret.def(py::self == py::self);
-        ret.def(py::self != py::self);
+        ret.def(nb::self == nb::self);
+        ret.def(nb::self != nb::self);
         // NOLINTEND(misc-redundant-expression)
     }
 
