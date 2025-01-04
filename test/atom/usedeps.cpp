@@ -1,7 +1,7 @@
 #include "pms-utils/atom/atom.hpp"
 #include "pms-utils/atom/atom_parser.hpp"
 
-#include <boost/spirit/home/x3/core/parse.hpp>
+#include <boost/parser/parser.hpp>
 #include <iostream>
 #include <string>
 
@@ -16,7 +16,7 @@ int main() {
     Usedeps usedeps;
     auto begin = str.begin();
     const auto end = str.end();
-    ret = parse(begin, end, parsers::atom::use_deps(), usedeps);
+    ret = prefix_parse(begin, end, parsers::atom::use_deps, usedeps);
 
     if (!ret) {
         return 1;

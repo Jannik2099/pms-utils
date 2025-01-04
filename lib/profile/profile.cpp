@@ -7,7 +7,7 @@
 #include "profile_wildcard.hpp"
 
 #include <algorithm>
-#include <boost/spirit/home/x3/core/parse.hpp>
+#include <boost/parser/parser.hpp>
 #include <cstddef>
 #include <filesystem>
 #include <format>
@@ -38,7 +38,8 @@ std::ostream &WildcardAtom::ostream_impl(std::ostream &out) const {
     }
     out << category << "/" << name;
     if (version.has_value()) {
-        out << "-" << version.value();
+        out << "-";
+        std::visit([&out](auto &&arg) { out << arg; }, version.value());
         if (version_specifier.value() == pms_utils::atom::VersionSpecifier::ea) {
             out << "*";
         }
@@ -171,7 +172,7 @@ void init_eapi(std::string &EAPI, const std::filesystem::path &path) {
 void init_use_impl(_internal::unordered_str_set<std::string> &set, std::string_view line) {
     const auto *begin = line.begin();
     const auto *const end = line.end();
-    if (!parse(begin, end, parsers::profile::package_use_values(), set)) {
+    if (!prefix_parse(begin, end, parsers::profile::package_use_values, set)) {
         throw std::invalid_argument{std::format("failed to parse use-style line {}", line)};
     }
     if (begin != end) {
@@ -190,7 +191,7 @@ void init_package_use_impl(
         const auto *begin = line.begin();
         const auto *const end = line.end();
         std::tuple<_internal::WildcardAtom, _internal::unordered_str_set<std::string>> parsed;
-        if (!parse(begin, end, parsers::profile::package_use_line(), parsed)) {
+        if (!prefix_parse(begin, end, parsers::profile::package_use_line, parsed)) {
             throw std::invalid_argument{std::format("failed to parse package.use-style line {}", line)};
         }
         if (begin != end) {
@@ -234,12 +235,12 @@ void set_or_append(M &map, K &&key, V &&value)
 
 // I really ought to make this a common helper
 template <typename P> auto parser_helper(P parser, std::string_view str) {
-    typename P::attribute_type res;
+    typename P::parser_type::attr_type res;
     if (str.empty()) {
         return res;
     }
     const auto *begin = str.begin();
-    if (const auto *const end = str.end(); (!parse(begin, end, parser, res)) || (begin != end)) {
+    if (const auto *const end = str.end(); (!prefix_parse(begin, end, parser, res)) || (begin != end)) {
         throw std::invalid_argument{std::format("make.defaults element {} appears invalid", str)};
     }
     return res;
@@ -293,7 +294,7 @@ expand_package_expr(std::string_view expr, const std::vector<repo::Repository> &
     _internal::WildcardAtom atom;
     const auto *begin = expr.begin();
     const auto *const end = expr.end();
-    if (!parse(begin, end, parsers::profile::wildcard_atom(), atom)) {
+    if (!prefix_parse(begin, end, parsers::profile::wildcard_atom, atom)) {
         throw std::invalid_argument{std::format("expression {} does not match valid wildcard syntax", expr)};
     }
     if (begin != end) {
@@ -340,7 +341,7 @@ void Profile::init_make_defaults() {
         std::vector<std::tuple<std::string, std::string>> my_make_defaults;
         const auto *begin = content.begin();
         const auto *const end = content.end();
-        if (!parse(begin, end, parsers::profile::make_defaults(), my_make_defaults)) {
+        if (!prefix_parse(begin, end, parsers::profile::make_defaults, my_make_defaults)) {
             throw std::invalid_argument{"make.defaults appear invalid"};
         }
         if (begin != end) {
@@ -359,7 +360,8 @@ void Profile::init_make_defaults() {
         auto begin = line.begin();
         const auto end = line.end();
         std::vector<std::tuple<std::string, bool>> parsed_line;
-        if ((!parse(begin, end, parsers::profile::make_defaults_shlex(), parsed_line)) || (begin != end)) {
+        if ((!prefix_parse(begin, end, parsers::profile::make_defaults_shlex, parsed_line)) ||
+            (begin != end)) {
             throw std::invalid_argument{std::format("make.defaults element {} appears invalid", line)};
         }
         for (const auto &[elem, is_variable] : parsed_line) {
@@ -400,7 +402,7 @@ void Profile::init_packages() {
         atom::PackageExpr val;
         const auto *begin = line.begin();
         const auto *const end = line.end();
-        if (!parse(begin, end, parsers::atom::package_dep(), val)) {
+        if (!prefix_parse(begin, end, parsers::atom::package_dep, val)) {
             throw std::invalid_argument{std::format("failed to parse {} as a PackageExpr", line)};
         }
         if (begin != end) {
@@ -626,19 +628,19 @@ Profile::Profile(const std::filesystem::path &path, std::vector<repo::Repository
         }
     }
 
-    USE_ = parser_helper(parsers::profile::USE(), make_defaults_["USE"]);
-    USE_EXPAND_ = parser_helper(parsers::profile::USE_EXPAND(), make_defaults_["USE_EXPAND"]);
+    USE_ = parser_helper(parsers::profile::USE, make_defaults_["USE"]);
+    USE_EXPAND_ = parser_helper(parsers::profile::USE_EXPAND, make_defaults_["USE_EXPAND"]);
     USE_EXPAND_HIDDEN_ =
-        parser_helper(parsers::profile::USE_EXPAND_HIDDEN(), make_defaults_["USE_EXPAND_HIDDEN"]);
-    CONFIG_PROTECT_ = parser_helper(parsers::profile::CONFIG_PROTECT(), make_defaults_["CONFIG_PROTECT"]);
+        parser_helper(parsers::profile::USE_EXPAND_HIDDEN, make_defaults_["USE_EXPAND_HIDDEN"]);
+    CONFIG_PROTECT_ = parser_helper(parsers::profile::CONFIG_PROTECT, make_defaults_["CONFIG_PROTECT"]);
     CONFIG_PROTECT_MASK_ =
-        parser_helper(parsers::profile::CONFIG_PROTECT_MASK(), make_defaults_["CONFIG_PROTECT_MASK"]);
-    IUSE_IMPLICIT_ = parser_helper(parsers::profile::IUSE_IMPLICIT(), make_defaults_["IUSE_IMPLICIT"]);
+        parser_helper(parsers::profile::CONFIG_PROTECT_MASK, make_defaults_["CONFIG_PROTECT_MASK"]);
+    IUSE_IMPLICIT_ = parser_helper(parsers::profile::IUSE_IMPLICIT, make_defaults_["IUSE_IMPLICIT"]);
     USE_EXPAND_IMPLICIT_ =
-        parser_helper(parsers::profile::USE_EXPAND_IMPLICIT(), make_defaults_["USE_EXPAND_IMPLICIT"]);
+        parser_helper(parsers::profile::USE_EXPAND_IMPLICIT, make_defaults_["USE_EXPAND_IMPLICIT"]);
     USE_EXPAND_UNPREFIXED_ =
-        parser_helper(parsers::profile::USE_EXPAND_UNPREFIXED(), make_defaults_["USE_EXPAND_UNPREFIXED"]);
-    ENV_UNSET_ = parser_helper(parsers::profile::ENV_UNSET(), make_defaults_["ENV_UNSET"]);
+        parser_helper(parsers::profile::USE_EXPAND_UNPREFIXED, make_defaults_["USE_EXPAND_UNPREFIXED"]);
+    ENV_UNSET_ = parser_helper(parsers::profile::ENV_UNSET, make_defaults_["ENV_UNSET"]);
 }
 
 Profile PortageProfile::init_base(const std::filesystem::path &path, std::vector<repo::Repository> repos) {

@@ -1,8 +1,8 @@
 #include "pms-utils/depend/depend.hpp"
 
-#include <boost/variant/static_visitor.hpp>
 #include <ostream>
 #include <string>
+#include <variant>
 
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace depend {
@@ -38,14 +38,14 @@ std::ostream &operator<<(std::ostream &out, GroupHeaderOp groupHeaderOp) {
 }
 
 std::string to_string(const GroupHeader &groupHeader) {
-    class visitor : private boost::static_visitor<std::string> {
+    class Visitor {
     public:
         std::string operator()(const UseConditional &useConditional) const {
             return std::string{useConditional};
         };
         std::string operator()(GroupHeaderOp groupHeaderOp) const { return to_string(groupHeaderOp); };
     };
-    return boost::apply_visitor(visitor{}, groupHeader);
+    return std::visit(Visitor{}, groupHeader);
 }
 
 // END IO

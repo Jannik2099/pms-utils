@@ -12,11 +12,8 @@
 #include <boost/mp11/algorithm.hpp>
 #include <boost/mp11/list.hpp>
 #include <boost/mp11/utility.hpp>
-#include <boost/optional/optional.hpp>
-#include <boost/variant/variant.hpp>
 #include <concepts>
 #include <cstddef>
-#include <cstdint>
 #include <format>
 #include <functional>
 #include <nanobind/make_iterator.h>
@@ -56,52 +53,6 @@
 // IWYU pragma: end_keep
 
 namespace nb = nanobind;
-
-namespace nanobind::detail {
-
-template <typename T> struct type_caster<boost::optional<T>> : public optional_caster<boost::optional<T>> {};
-
-// this is mostly copied from nb::detail::type_caster<std::variant>
-template <typename... Ts> struct type_caster<boost::variant<Ts...>> {
-    NB_TYPE_CASTER(boost::variant<Ts...>, union_name(make_caster<Ts>::Name...))
-
-    template <typename T> bool try_variant(const handle &src, uint8_t flags, cleanup_list *cleanup) {
-        using CasterT = make_caster<T>;
-
-        CasterT caster;
-
-        if ((!caster.from_python(src, flags_for_local_caster<T>(flags), cleanup)) ||
-            (!caster.template can_cast<T>())) {
-            return false;
-        }
-
-        value = caster.operator cast_t<T>();
-
-        return true;
-    }
-
-    bool from_python(handle src, uint8_t flags, cleanup_list *cleanup) noexcept {
-        return (try_variant<Ts>(src, flags, cleanup) || ...);
-    }
-
-    struct Visitor {
-        rv_policy policy;
-        cleanup_list *cleanup;
-
-        using result_type = handle;
-
-        template <typename T> result_type operator()(T &&src) const {
-            return make_caster<T>::from_cpp(std::forward<T>(src), policy, cleanup);
-        }
-    };
-
-    template <typename T>
-    static handle from_cpp(T &&value, rv_policy policy, cleanup_list *cleanup) noexcept {
-        return boost::apply_visitor(Visitor{policy, cleanup}, std::forward<T>(value));
-    }
-};
-
-} // namespace nanobind::detail
 
 namespace pms_utils::bindings::python {
 
@@ -166,9 +117,7 @@ static inline nb::object create_bindings(M module_, R rule = false, const Extra 
         const std::string function_name = std::string{"_"} + std::string{name} + "__missing_";
         module_.def(
             function_name.c_str(),
-            [rule](const nb::object &, std::string_view arg) {
-                return _internal::expr_from_str(rule(), arg);
-            },
+            [rule](const nb::object &, std::string_view arg) { return _internal::expr_from_str(rule, arg); },
             nb::arg{nullptr}, nb::arg{"expr"});
         ret.attr("_missing_") =
             nb::module_::import_("builtins").attr("classmethod")(module_.attr(function_name.c_str()));
@@ -216,7 +165,7 @@ static inline auto create_bindings(M module_, R rule = false) {
                                            name);
         ret.def(
             "__init__",
-            [rule](T *mem, std::string_view str) { new (mem) T(_internal::expr_from_str(rule(), str)); },
+            [rule](T *mem, std::string_view str) { new (mem) T(_internal::expr_from_str(rule, str)); },
             nb::arg{"expr"}, docstring.c_str());
         ret.def("__repr__", [](const T &val) {
             std::string repr{val};

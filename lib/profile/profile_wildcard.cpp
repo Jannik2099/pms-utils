@@ -9,7 +9,6 @@
 #include <boost/regex/v5/regex_fwd.hpp>
 #include <boost/regex/v5/regex_match.hpp>
 #include <boost/regex/v5/regex_replace.hpp>
-#include <boost/variant/get.hpp>
 #include <compare>
 #include <format>
 #include <iterator>
@@ -77,7 +76,7 @@ Expander::Expander(const WildcardAtom &atom, const std::vector<repo::Repository>
     const bool category_is_wildcard = atom_.category.find('*') != std::string::npos;
     const bool name_is_wildcard = atom_.name.find('*') != std::string::npos;
     const bool version_is_wildcard =
-        atom_.version.has_value() && (atom_.version.value().type() == typeid(std::string));
+        atom_.version.has_value() && (std::holds_alternative<std::string>(atom_.version.value()));
     if (category_is_wildcard) {
         category_re = "^" +
                       boost::regex_replace(regex_escape(atom_.category), wildcard_re, ".*",
@@ -93,7 +92,7 @@ Expander::Expander(const WildcardAtom &atom, const std::vector<repo::Repository>
     }
     if (version_is_wildcard) {
         version_re = "^" +
-                     boost::regex_replace(regex_escape(boost::get<std::string>(atom_.version.value())),
+                     boost::regex_replace(regex_escape(std::get<std::string>(atom_.version.value())),
                                           wildcard_re, ".*", boost::match_default | boost::format_sed) +
                      "$";
     }
@@ -153,7 +152,7 @@ void Expander::version_matcher(const repo_iter &repository, const repo::Category
         return;
     }
     for (const auto &ebuild : package) {
-        if (test_version(atom_.version_specifier.value(), boost::get<atom::Version>(atom_.version.value()),
+        if (test_version(atom_.version_specifier.value(), std::get<atom::Version>(atom_.version.value()),
                          ebuild)) {
             slot_matcher(repository, category, ebuild);
         }

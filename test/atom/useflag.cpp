@@ -6,7 +6,7 @@ namespace parsers = pms_utils::parsers;
 using pms_utils::test::try_parse;
 
 int main() {
-    const auto ret = try_parse("foo", parsers::atom::useflag());
+    const auto ret = try_parse("foo", parsers::atom::useflag);
 
     if (!ret.as_expected) {
         return 1;

@@ -28,7 +28,7 @@ DEPEND="
 python? (
 	${PYTHON_DEPS}
 )
-dev-libs/boost
+>=dev-libs/boost-1.87
 "
 RDEPEND="${DEPEND}"
 BDEPEND=""
