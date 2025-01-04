@@ -6,10 +6,7 @@
 #include "pms-utils/ebuild/ebuild.hpp"
 #include "pms-utils/ebuild/ebuild_parser.hpp"
 
-#include <boost/fusion/adapted/struct/adapt_struct.hpp>
-#include <boost/spirit/home/x3/core/parse.hpp>
-#include <boost/spirit/home/x3/nonterminal/rule.hpp>
-#include <boost/spirit/home/x3/string/literal_string.hpp>
+#include <boost/parser/parser.hpp>
 #include <cstring>
 #include <filesystem>
 #include <format>
@@ -21,11 +18,7 @@
 #include <utility>
 #include <vector>
 
-namespace x3 = boost::spirit::x3;
-
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define PARSER_DEF(name, type)                                                                               \
-    const inline auto name = x3::rule<struct name##_struc, type> { #name }
+namespace bp = boost::parser;
 
 namespace {
 
@@ -36,12 +29,10 @@ struct ebuild_plus_version_t {
 
 } // namespace
 
-BOOST_FUSION_ADAPT_STRUCT(ebuild_plus_version_t, name, version);
-
 namespace {
 
-PARSER_DEF(ebuild_plus_version, ebuild_plus_version_t) =
-    pms_utils::parsers::atom::name() >> x3::lit("-") >> pms_utils::parsers::atom::package_version();
+const auto ebuild_plus_version = pms_utils::parsers::atom::name >>
+                                 bp::lit('-') >> pms_utils::parsers::atom::package_version;
 
 } // namespace
 
@@ -59,7 +50,7 @@ bool metadata_parser(std::string_view line, std::string_view name, Member &membe
     }
     line = line.substr(name.length());
     const auto *begin = line.begin();
-    if (const auto *const end = line.end(); parse(begin, end, rule(), member)) {
+    if (const auto *const end = line.end(); prefix_parse(begin, end, rule, member)) {
         if (begin == end) {
             return true;
         }
@@ -205,7 +196,7 @@ std::optional<Ebuild> Package::operator[](std::string_view version) const {
     const auto *begin = version.begin();
     const auto *const end = version.end();
     atom::Version ver;
-    if ((!parse(begin, end, parsers::atom::package_version(), ver)) || (begin != end)) {
+    if ((!prefix_parse(begin, end, parsers::atom::package_version, ver)) || (begin != end)) {
         throw std::invalid_argument{std::format("argument {} is not a valid Version expression", version)};
     }
     return (*this)[ver];
@@ -229,7 +220,7 @@ std::optional<Package> Category::operator[](std::string_view package) const {
     const auto *begin = package.begin();
     const auto *const end = package.end();
     atom::Name package_name;
-    if ((!parse(begin, end, parsers::atom::name(), package_name)) || (begin != end)) {
+    if ((!prefix_parse(begin, end, parsers::atom::name, package_name)) || (begin != end)) {
         throw std::invalid_argument{
             std::format("argument {} is not a valid Package Name expression", package)};
     }
@@ -266,7 +257,7 @@ std::optional<Category> Repository::operator[](std::string_view category) const 
     const auto *begin = category.begin();
     const auto *const end = category.end();
     atom::Category category_name;
-    if ((!parse(begin, end, parsers::atom::category(), category_name)) || (begin != end)) {
+    if ((!prefix_parse(begin, end, parsers::atom::category, category_name)) || (begin != end)) {
         throw std::invalid_argument{
             std::format("argument {} is not a valid Package Name expression", category)};
     }
@@ -287,7 +278,7 @@ Ebuild Package::Iterator::make_value() const {
     auto begin = pathstr.begin();
     const auto end = pathstr.end();
 
-    if (!parse(begin, end, ebuild_plus_version, res)) {
+    if (!prefix_parse(begin, end, ebuild_plus_version, res)) {
         // TODO
         throw std::runtime_error{std::format("failed to parse ebuild {}", iter->path().string())};
     }
@@ -360,7 +351,7 @@ Category::Iterator::value_type Category::Iterator::init_value() {
         const std::string pathstr = iter->path().filename().string();
         auto begin = pathstr.begin();
         const auto end = pathstr.end();
-        if (!parse(begin, end, pms_utils::parsers::atom::name(), name)) {
+        if (!prefix_parse(begin, end, pms_utils::parsers::atom::name, name)) {
             iter++;
             continue;
         }
@@ -423,7 +414,7 @@ std::vector<std::filesystem::path> Repository::Iterator::init_categories() const
         auto begin = line.begin();
         const auto end = line.end();
         std::string parsed;
-        if ((!parse(begin, end, pms_utils::parsers::atom::category(), parsed)) || (begin != end)) {
+        if ((!prefix_parse(begin, end, pms_utils::parsers::atom::category, parsed)) || (begin != end)) {
             // TODO
             throw std::runtime_error{std::format("malformed line in categories file: {}", line)};
         }

@@ -7,12 +7,12 @@
 #include <boost/describe/class.hpp>
 #include <boost/describe/enum.hpp>
 #include <boost/mp11/list.hpp> // IWYU pragma: keep
-#include <boost/optional/optional.hpp>
-#include <boost/variant/variant.hpp>
 #include <cstdint>
 #include <filesystem>
 #include <iosfwd>
+#include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace [[gnu::visibility("default")]] pms_utils {
@@ -25,8 +25,8 @@ private:
     std::ostream &ostream_impl(std::ostream &out) const;
 
 public:
-    boost::variant<URI, std::filesystem::path> uri;
-    boost::optional<std::filesystem::path> filename;
+    std::variant<URI, std::filesystem::path> uri;
+    std::optional<std::filesystem::path> filename;
 
     [[nodiscard]] explicit operator std::string() const;
     friend std::ostream &operator<<(std::ostream &out, const uri_elem &uri_elem) {

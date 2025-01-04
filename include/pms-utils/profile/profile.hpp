@@ -7,8 +7,6 @@
 #include <boost/container_hash/hash.hpp>
 #include <boost/describe/class.hpp>
 #include <boost/mp11/list.hpp> // IWYU pragma: keep
-#include <boost/optional/optional.hpp>
-#include <boost/variant/variant.hpp>
 #include <cstddef>
 #include <filesystem>
 #include <functional>
@@ -22,6 +20,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
+#include <variant>
 #include <vector>
 
 //
@@ -35,7 +34,7 @@ namespace _internal {
 
 struct package_use_elem {
     bool negate;
-    boost::variant<bool, atom::Useflag> use_elem;
+    std::variant<bool, atom::Useflag> use_elem;
 };
 
 // should probably go into some common header
@@ -56,14 +55,14 @@ private:
     std::ostream &ostream_impl(std::ostream &out) const;
 
 public:
-    boost::optional<atom::Blocker> blocker;
-    boost::optional<atom::VersionSpecifier> version_specifier;
+    std::optional<atom::Blocker> blocker;
+    std::optional<atom::VersionSpecifier> version_specifier;
     std::string category;
     std::string name;
     // variant of exact version or wildcard
-    boost::optional<boost::variant<atom::Version, std::string>> version;
-    boost::optional<atom::Slot> slot;
-    boost::optional<std::string> repo;
+    std::optional<std::variant<atom::Version, std::string>> version;
+    std::optional<atom::Slot> slot;
+    std::optional<std::string> repo;
 
     [[nodiscard]] explicit operator std::string() const;
     friend std::ostream &operator<<(std::ostream &out,

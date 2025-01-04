@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/spirit/home/x3/core/parse.hpp> // IWYU pragma: keep
+#include <boost/parser/parser.hpp>
 #include <format>
 #include <iostream>
 #include <sstream>
@@ -20,10 +20,10 @@ template <typename T> struct parse_result {
 template <typename Rule>
 [[nodiscard]] static inline auto try_parse(std::string_view input, Rule rule, bool expected = true,
                                            bool complete = true) {
-    parse_result<typename Rule::attribute_type> ret;
+    parse_result<typename Rule::parser_type::attr_type> ret;
     const auto *begin = input.begin();
     const auto *const end = input.end();
-    ret.success = parse(begin, end, rule, ret.result);
+    ret.success = prefix_parse(begin, end, rule, ret.result);
     ret.consumed = {input.begin(), begin};
     ret.remainder = {begin, end};
 

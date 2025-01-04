@@ -14,7 +14,7 @@ namespace {
 
 template <VersionSpecifier versionSpecifier> void testVerspec(bool &ret) {
     const std::string str = to_string(versionSpecifier);
-    const auto res = try_parse(str, parsers::atom::version_specifier());
+    const auto res = try_parse(str, parsers::atom::version_specifier);
     if (!res.as_expected) {
         ret = false;
     }
@@ -27,7 +27,7 @@ template <VersionSpecifier versionSpecifier> void testVerspec(bool &ret) {
 // specialization for =* needed, see remarks in parser.hpp
 template <> void testVerspec<VersionSpecifier::ea>(bool &ret) {
     const std::string str = to_string(VersionSpecifier::ea);
-    const auto res = try_parse(str, parsers::atom::version_specifier());
+    const auto res = try_parse(str, parsers::atom::version_specifier);
     if (!res.as_expected) {
         ret = false;
     }

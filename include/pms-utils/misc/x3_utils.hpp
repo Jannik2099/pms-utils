@@ -1,7 +1,11 @@
 #pragma once
 
-#include <boost/spirit/home/x3.hpp> // IWYU pragma: keep
-#include <boost/spirit/home/x3/nonterminal/rule.hpp>
+#include <boost/describe/members.hpp>
+#include <boost/describe/modifiers.hpp>
+#include <boost/mp11/algorithm.hpp>
+#include <boost/mp11/list.hpp>
+#include <boost/parser/parser.hpp>
+#include <utility>
 
 // the C macro language is truly a piece of shit to behold
 // this allows us to pass foo<T1, T2> as a macro arg
@@ -15,11 +19,31 @@ template <typename T, typename U> struct argument_type<T(U)> {
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PARSER_RULE_T(name, _t, ...)                                                                         \
-    namespace [[gnu::visibility("default")]] _parsers {                                                      \
-    using name##_spirit_rule_t =                                                                             \
-        boost::spirit::x3::rule<struct name##_spirit_struc,                                                  \
-                                pms_utils::_internal::argument_type<void(_t)>::type __VA_OPT__(, )           \
-                                    __VA_ARGS__>;                                                            \
-    BOOST_SPIRIT_DECLARE(name##_spirit_rule_t);                                                              \
-    }                                                                                                        \
-    _parsers::name##_spirit_rule_t name()
+    const boost::parser::rule<                                                                               \
+        struct name##_tag, pms_utils::_internal::argument_type<void(_t)>::type __VA_OPT__(, ) __VA_ARGS__>   \
+        name {                                                                                               \
+        #name                                                                                                \
+    }
+
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define PARSER_DEFINE(name, rule)                                                                            \
+    const auto name##_def = rule;                                                                            \
+    _Pragma("GCC diagnostic push") _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"")                  \
+        BOOST_PARSER_DEFINE_RULES(name) _Pragma("GCC diagnostic pop")
+
+namespace pms_utils::parsers::aux {
+
+template <typename T> auto matches(T &&val) {
+    return (boost::parser::lit(std::forward<T>(val)) >> boost::parser::attr(true)) |
+           boost::parser::attr(false);
+}
+
+const auto space = boost::parser::char_("\n\v\f\r\t ");
+
+const auto graph = boost::parser::char_(33, 126);
+
+const auto alpha = boost::parser::char_('A', 'Z') | boost::parser::char_('a', 'z');
+
+const auto alnum = boost::parser::char_('0', '9') | alpha;
+
+} // namespace pms_utils::parsers::aux

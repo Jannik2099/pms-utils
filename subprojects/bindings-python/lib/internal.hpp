@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <boost/parser/parser.hpp>
 #include <cstddef>
 #include <format>
 #include <nanobind/nanobind.h>
@@ -71,10 +72,10 @@ template <typename T> [[nodiscard]] constexpr std::string_view type_name() {
 }
 
 template <typename Rule> [[nodiscard]] static inline auto expr_from_str(Rule rule, std::string_view str) {
-    typename Rule::attribute_type ret{};
+    typename Rule::parser_type::attr_type ret{};
     const auto *begin = str.begin();
     const auto *const end = str.end();
-    if (!parse(begin, end, rule, ret)) {
+    if (!prefix_parse(begin, end, rule, ret)) {
         throw std::invalid_argument{"invalid expression"};
     }
 

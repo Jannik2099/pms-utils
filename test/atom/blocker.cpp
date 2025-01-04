@@ -14,7 +14,7 @@ namespace {
 
 template <Blocker blocker> void testBlocker(bool &ret) {
     const std::string str = to_string(blocker);
-    const auto res = try_parse(str, parsers::atom::blocker());
+    const auto res = try_parse(str, parsers::atom::blocker);
     if (!res.as_expected) {
         ret = false;
     }

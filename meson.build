@@ -31,7 +31,7 @@ endforeach
 fs = import('fs')
 pkg = import('pkgconfig')
 
-boost_dep = dependency('boost', modules: ['regex'])
+boost_dep = dependency('boost', modules: ['regex'], version: '>=1.87')
 
 subdir('include')
 

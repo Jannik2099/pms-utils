@@ -1,21 +1,21 @@
 #include "pms-utils/ebuild/ebuild.hpp"
 
-#include <boost/variant/static_visitor.hpp>
 #include <filesystem>
 #include <format>
 #include <ostream>
 #include <string>
+#include <variant>
 
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace ebuild {
 
 uri_elem::operator std::string() const {
-    class Visitor : private boost::static_visitor<std::string> {
+    class Visitor {
     public:
         std::string operator()(const URI &_uri) const { return _uri; }
         std::string operator()(const std::filesystem::path &path) const { return path.string(); }
     };
-    std::string ret = boost::apply_visitor(Visitor{}, uri);
+    std::string ret = std::visit(Visitor{}, uri);
     if (filename.has_value()) {
         ret += std::format(" -> {}", filename.value().string());
     }

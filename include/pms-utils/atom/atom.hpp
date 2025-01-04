@@ -5,12 +5,11 @@
 #include <boost/describe/class.hpp>
 #include <boost/describe/enum.hpp>
 #include <boost/mp11/list.hpp> // IWYU pragma: keep
-#include <boost/optional/optional.hpp>
 #include <compare>
 #include <cstdint>
 #include <iosfwd>
+#include <optional>
 #include <string>
-#include <string_view>
 #include <vector>
 
 namespace [[gnu::visibility("default")]] pms_utils {
@@ -79,25 +78,16 @@ private:
 
 public:
     VersionNumber numbers;
-    boost::optional<VersionLetter> letter;
+    std::optional<VersionLetter> letter;
     std::vector<VersionSuffix> suffixes;
     // an absent version is implicitly -r0, but we need to know presence to give an accurate string
     // representation for =* matching
-    boost::optional<VersionRevision> revision;
+    std::optional<VersionRevision> revision;
 
     [[nodiscard]] explicit operator std::string() const;
     friend std::ostream &operator<<(std::ostream &out, const Version &version) {
         return version.ostream_impl(out);
     }
-
-    [[nodiscard]] Version() = default;
-    // Constructs the version from any valid version string
-    [[nodiscard]] explicit Version(std::string_view version_string);
-    [[nodiscard]] Version(const Version &other) = default;
-    [[nodiscard]] Version(Version &&other) = default;
-    Version &operator=(const Version &other) = default;
-    Version &operator=(Version &&other) = default;
-    ~Version() = default;
 
     [[nodiscard]] friend std::strong_ordering operator<=>(const Version &lhs, const Version &rhs) noexcept {
         return compare_impl(lhs, rhs, true);
@@ -144,7 +134,7 @@ private:
 
 public:
     SlotVariant slotVariant{};
-    boost::optional<Slot> slot;
+    std::optional<Slot> slot;
 
     [[nodiscard]] explicit operator std::string() const;
     friend std::ostream &operator<<(std::ostream &out, const SlotExpr &slotExpr) {
@@ -175,10 +165,10 @@ private:
     std::ostream &ostream_impl(std::ostream &out) const;
 
 public:
-    boost::optional<UsedepNegate> negate;
+    std::optional<UsedepNegate> negate;
     Useflag useflag;
-    boost::optional<UsedepSign> sign;
-    boost::optional<UsedepCond> conditional;
+    std::optional<UsedepSign> sign;
+    std::optional<UsedepCond> conditional;
 
     [[nodiscard]] explicit operator std::string() const;
     friend std::ostream &operator<<(std::ostream &out, const Usedep &usedep) {
@@ -205,12 +195,12 @@ private:
     std::ostream &ostream_impl(std::ostream &out) const;
 
 public:
-    boost::optional<Blocker> blocker;
+    std::optional<Blocker> blocker;
     Category category;
     Name name;
-    boost::optional<VersionSpecifier> verspec;
-    boost::optional<Version> version;
-    boost::optional<SlotExpr> slotExpr;
+    std::optional<VersionSpecifier> verspec;
+    std::optional<Version> version;
+    std::optional<SlotExpr> slotExpr;
     Usedeps usedeps;
 
     [[nodiscard]] explicit operator std::string() const;

@@ -1,9 +1,7 @@
 #include "pms-utils/atom/atom.hpp"
 
-#include "pms-utils/atom/atom_parser.hpp"
-
 #include <algorithm>
-#include <boost/spirit/home/x3/core/parse.hpp>
+#include <boost/parser/parser.hpp>
 #include <compare>
 #include <cstddef>
 #include <iostream>
@@ -15,15 +13,6 @@
 
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace atom {
-
-Version::Version(std::string_view version_string) {
-    if (const auto *begin = version_string.begin();
-        parse(begin, version_string.end(), parsers::atom::package_version(), *this) &&
-        (begin == version_string.end())) {
-        return;
-    }
-    throw std::invalid_argument{"input is not a PMS version string"};
-}
 
 // BEGIN IO
 

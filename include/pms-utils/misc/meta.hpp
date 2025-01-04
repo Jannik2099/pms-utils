@@ -9,7 +9,6 @@
 #include <boost/mp11/list.hpp> // IWYU pragma: keep
 #include <boost/mp11/set.hpp>  // IWYU pragma: keep
 #include <boost/mp11/utility.hpp>
-#include <boost/optional/optional.hpp>
 #include <concepts>
 #include <cstddef>
 #include <functional>
@@ -82,21 +81,6 @@ template <typename T> struct is_owning_iterator {
 template <typename T> constexpr inline bool is_owning_iterator_v = is_owning_iterator<T>::value;
 
 } // namespace pms_utils::meta
-
-// this is to add boost::hash support for boost::optional
-namespace boost {
-
-template <typename T>
-    requires pms_utils::meta::_internal::is_specialization_v<T, boost::optional>
-[[nodiscard]] inline std::size_t hash_value(const T &param) {
-    using type = boost::mp11::mp_at_c<T, 0>;
-    if (param.has_value()) {
-        return boost::hash<type>{}(param.value());
-    }
-    return 0;
-}
-
-} // namespace boost
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PMS_UTILS_FOOTER(namespace_)                                                                         \

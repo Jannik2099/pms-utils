@@ -20,5 +20,5 @@
     "containerEnv": {
         "BOOST_ROOT": "/usr/local/vcpkg/installed/x64-linux/"
     },
-    "onCreateCommand": "sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y meson muon-meson clangd lld python3-dev linux-libc-dev autoconf automake autoconf-archive && vcpkg install boost-spirit boost-regex boost-mp11 boost-describe boost-optional boost-variant boost-fusion boost-container-hash"
+    "onCreateCommand": "sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y meson muon-meson clangd lld python3-dev linux-libc-dev autoconf automake autoconf-archive && vcpkg install boost-regex boost-mp11 boost-describe boost-parser boost-container-hash"
 }
