@@ -3,3 +3,5 @@
 !*.wrap
 !bindings-python
 !bindings-python/**
+!packagefiles
+!packagefiles/**
