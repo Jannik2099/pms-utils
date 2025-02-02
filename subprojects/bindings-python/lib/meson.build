@@ -12,4 +12,5 @@ mod_bindings_py = py_installation.extension_module(
     link_with: lib_bindings_py,
     dependencies: [pms_utils_dep, nanobind_dep],
     install: true,
+    gnu_symbol_visibility: 'inlineshidden',
 )

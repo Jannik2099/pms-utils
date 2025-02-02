@@ -12,6 +12,7 @@ libpms_utils = library(
     dependencies: boost_dep,
     include_directories: inc_lib,
     install: true,
+    gnu_symbol_visibility: 'inlineshidden',
 )
 
 pms_utils_dep = declare_dependency(
