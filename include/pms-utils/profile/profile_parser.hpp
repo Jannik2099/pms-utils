@@ -151,7 +151,10 @@ PARSER_DEFINE(make_defaults_value, *((aux::graph | aux::space) - boost::parser::
 PARSER_RULE_T(make_defaults_value_charset, char);
 PARSER_DEFINE(make_defaults_value_charset, aux::graph - (boost::parser::char_("\\\"'")));
 
-constexpr auto make_defaults_normal_value_helper = [](char val) { return std::string{1, val}; };
+constexpr auto make_defaults_normal_value_helper = [](char val) {
+    // do NOT change this to list initialization
+    return std::string(1, val);
+};
 constexpr auto make_defaults_normal_value_helper2 = [](const std::vector<std::string> &val) {
     std::string ret;
     for (const std::string &str : val) {
