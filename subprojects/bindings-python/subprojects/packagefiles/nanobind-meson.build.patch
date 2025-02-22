@@ -2,7 +2,7 @@ diff --git a/subprojects/nanobind-2.4.0/meson.build b/subprojects/nanobind-2.4.0
 index 97c336f..ff40803 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -42,7 +42,11 @@ endif
+@@ -42,7 +42,13 @@ endif
  
  compiler = meson.get_compiler('cpp')
  
@@ -11,6 +11,8 @@ index 97c336f..ff40803 100644
 +  '/D_CRT_SECURE_NO_WARNINGS',
 +  '-Wno-zero-length-array',
 +  '-Wno-nested-anon-types',
++  '-Wno-pedantic',
++  '-Wno-sign-compare'
 +), language: 'cpp')
  
  cxx_id = compiler.get_id()
