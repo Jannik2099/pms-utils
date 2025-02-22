@@ -5,9 +5,7 @@ RUN <<EOF
     cd /etc/portage
     echo "FEATURES=\"-network-sandbox -pid-sandbox -ipc-sandbox -mount-sandbox parallel-fetch parallel-install -merge-sync binpkg-request-signature getbinpkg\"" >> make.conf
     mkdir -p profile/use.stable.mask
-    echo "-python_targets_python3_12" >> profile/use.stable.mask/pms-utils
     echo "-python_targets_pypy3" >> profile/use.stable.mask/pms-utils
-    echo "-python_single_target_python3_12" >> profile/use.stable.mask/pms-utils
     echo "-python_single_target_pypy3" >> profile/use.stable.mask/pms-utils
     mkdir -p package.mask
     # to prefer -bin
