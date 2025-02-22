@@ -1,7 +1,7 @@
 #include "atom.hpp"
 
 #include "../common.hpp"
-#include "../subprojects/bindings-python/lib/internal.hpp"
+#include "../internal.hpp"
 #include "pms-utils/atom/atom.hpp"
 #include "pms-utils/atom/atom_parser.hpp"
 
