@@ -42,7 +42,7 @@ PARSER_RULE_T(ENV_UNSET, (pms_utils::profile::_internal::unordered_str_set<std::
 
 namespace _internal {
 
-const auto package_use_inserter = [](auto &ctx) {
+inline const auto package_use_inserter = [](auto &ctx) {
     std::tuple<std::optional<char>, std::variant<char, pms_utils::atom::Useflag>> &attr =
         boost::parser::_attr(ctx);
     pms_utils::profile::_internal::unordered_str_set<std::string> &val = boost::parser::_val(ctx);
@@ -70,7 +70,7 @@ const auto package_use_inserter = [](auto &ctx) {
 };
 
 // why is this necessary???
-const auto shlex_helper = [](auto &ctx) {
+inline const auto shlex_helper = [](auto &ctx) {
     std::tuple<std::string, bool> &attr = boost::parser::_attr(ctx);
     std::tuple<std::string, bool> &val = boost::parser::_val(ctx);
 
@@ -78,7 +78,7 @@ const auto shlex_helper = [](auto &ctx) {
     std::get<1>(val) = std::get<1>(attr);
 };
 
-const auto make_defaults_use_inserter = [](auto &ctx) {
+inline const auto make_defaults_use_inserter = [](auto &ctx) {
     auto &attr = boost::parser::_attr(ctx);
     auto &val = boost::parser::_val(ctx);
 
@@ -98,7 +98,7 @@ const auto make_defaults_use_inserter = [](auto &ctx) {
 };
 
 // once again we get to write a huge semantic action because x3 hates us
-const auto atom_helper = [](auto &ctx) {
+inline const auto atom_helper = [](auto &ctx) {
     std::tuple<std::optional<pms_utils::atom::Blocker>, std::optional<pms_utils::atom::VersionSpecifier>,
                std::string, std::string,
                std::optional<std::tuple<std::variant<pms_utils::atom::Version, std::string>, bool>>,
@@ -151,11 +151,11 @@ PARSER_DEFINE(make_defaults_value, *((aux::graph | aux::space) - boost::parser::
 PARSER_RULE_T(make_defaults_value_charset, char);
 PARSER_DEFINE(make_defaults_value_charset, aux::graph - (boost::parser::char_("\\\"'")));
 
-constexpr auto make_defaults_normal_value_helper = [](char val) {
+constexpr inline auto make_defaults_normal_value_helper = [](char val) {
     // do NOT change this to list initialization
     return std::string(1, val);
 };
-constexpr auto make_defaults_normal_value_helper2 = [](const std::vector<std::string> &val) {
+constexpr inline auto make_defaults_normal_value_helper2 = [](const std::vector<std::string> &val) {
     std::string ret;
     for (const std::string &str : val) {
         ret.append(str);

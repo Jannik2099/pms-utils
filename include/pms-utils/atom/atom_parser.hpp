@@ -34,19 +34,19 @@ PARSER_RULE_T(atom, pms_utils::atom::PackageExpr);
 
 namespace _internal {
 
-const boost::parser::symbols<pms_utils::atom::VersionSpecifier> VerSpec{
+inline const boost::parser::symbols<pms_utils::atom::VersionSpecifier> VerSpec{
     // This intentionally lacks VersionSpecifier::ea because we cannot match against it directly
     {"<", pms_utils::atom::VersionSpecifier::lt},  {"<=", pms_utils::atom::VersionSpecifier::le},
     {"=", pms_utils::atom::VersionSpecifier::eq},  {"~", pms_utils::atom::VersionSpecifier::td},
     {">=", pms_utils::atom::VersionSpecifier::ge}, {">", pms_utils::atom::VersionSpecifier::gt},
 };
 
-const boost::parser::symbols<pms_utils::atom::Blocker> Blocker{
+inline const boost::parser::symbols<pms_utils::atom::Blocker> Blocker{
     {"!", pms_utils::atom::Blocker::weak},
     {"!!", pms_utils::atom::Blocker::strong},
 };
 
-const boost::parser::symbols<pms_utils::atom::VersionSuffixWord> VersionSuffixWord{
+inline const boost::parser::symbols<pms_utils::atom::VersionSuffixWord> VersionSuffixWord{
     {"_alpha", pms_utils::atom::VersionSuffixWord::alpha},
     {"_beta", pms_utils::atom::VersionSuffixWord::beta},
     {"_pre", pms_utils::atom::VersionSuffixWord::pre},
@@ -54,16 +54,16 @@ const boost::parser::symbols<pms_utils::atom::VersionSuffixWord> VersionSuffixWo
     {"_p", pms_utils::atom::VersionSuffixWord::p},
 };
 
-const boost::parser::symbols<pms_utils::atom::UsedepNegate> UsedepNegate{
+inline const boost::parser::symbols<pms_utils::atom::UsedepNegate> UsedepNegate{
     {"-", pms_utils::atom::UsedepNegate::minus},
     {"!", pms_utils::atom::UsedepNegate::exclamation},
 };
-const boost::parser::symbols<pms_utils::atom::UsedepSign> UsedepSign{
+inline const boost::parser::symbols<pms_utils::atom::UsedepSign> UsedepSign{
     {"+", pms_utils::atom::UsedepSign::plus},
     {"-", pms_utils::atom::UsedepSign::minus},
 };
 
-const boost::parser::symbols<pms_utils::atom::UsedepCond> UsedepConditional{
+inline const boost::parser::symbols<pms_utils::atom::UsedepCond> UsedepConditional{
     {"=", pms_utils::atom::UsedepCond::eqal},
     {"?", pms_utils::atom::UsedepCond::question},
 };
@@ -186,7 +186,7 @@ PARSER_DEFINE(use_deps, boost::parser::lit('[') >> use_dep % ',' >> boost::parse
 
 // unsure about how to handle the "duplicate rules for requireVerSpec"
 namespace _internal {
-const auto atom_helper = [](bool requireVerSpec) {
+inline const auto atom_helper = [](bool requireVerSpec) {
     return (-blocker >> -version_specifier >> category >> boost::parser::lit('/') >> name >>
             -(boost::parser::lit('-') >> package_version >> aux::matches('*')) >> -slot_expr >>
             -use_deps)[([requireVerSpec](auto &ctx) { package_dep_helper(ctx, requireVerSpec); })];

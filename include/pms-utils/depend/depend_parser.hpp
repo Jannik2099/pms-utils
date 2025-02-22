@@ -28,7 +28,7 @@ PARSER_RULE_T(node, pms_utils::depend::DependExpr::Node);
 PARSER_RULE_T(nodes, pms_utils::depend::DependExpr);
 
 namespace _internal {
-const boost::parser::symbols<pms_utils::depend::GroupHeaderOp> GroupHeaderOp{
+inline const boost::parser::symbols<pms_utils::depend::GroupHeaderOp> GroupHeaderOp{
     {"||", pms_utils::depend::GroupHeaderOp::any_of},
     {"^^", pms_utils::depend::GroupHeaderOp::exactly_one_of},
     {"??", pms_utils::depend::GroupHeaderOp::at_most_one_of},

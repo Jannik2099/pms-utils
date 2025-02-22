@@ -53,7 +53,7 @@ constexpr inline auto filename_helper = [](auto &ctx) {
     }
 };
 
-constexpr auto restrict_elem_helper = [](auto &ctx) {
+constexpr inline auto restrict_elem_helper = [](auto &ctx) {
     const std::string_view attr = boost::parser::_attr(ctx);
     pms_utils::ebuild::restrict_elem &val = boost::parser::_val(ctx);
     val.string = attr;
@@ -71,7 +71,7 @@ constexpr auto restrict_elem_helper = [](auto &ctx) {
     }
 };
 
-constexpr auto properties_elem_helper = [](auto &ctx) {
+constexpr inline auto properties_elem_helper = [](auto &ctx) {
     const std::string_view attr = boost::parser::_attr(ctx);
     pms_utils::ebuild::properties_elem &val = boost::parser::_val(ctx);
     val.string = attr;
@@ -85,7 +85,7 @@ constexpr auto properties_elem_helper = [](auto &ctx) {
     }
 };
 
-const boost::parser::symbols<pms_utils::ebuild::phases> phases_token{
+inline const boost::parser::symbols<pms_utils::ebuild::phases> phases_token{
     {"pretend", pms_utils::ebuild::phases::pretend},     {"setup", pms_utils::ebuild::phases::setup},
     {"unpack", pms_utils::ebuild::phases::unpack},       {"prepare", pms_utils::ebuild::phases::prepare},
     {"configure", pms_utils::ebuild::phases::configure}, {"compile", pms_utils::ebuild::phases::compile},
@@ -181,7 +181,7 @@ PARSER_DEFINE(LICENSE, _internal::LICENSE_impl);
 
 namespace _internal {
 
-constexpr auto keyword_helper = [](const std::optional<char> &val) -> std::string {
+constexpr inline auto keyword_helper = [](const std::optional<char> &val) -> std::string {
     if (val.has_value()) {
         return {1, val.value()};
     }
@@ -190,7 +190,7 @@ constexpr auto keyword_helper = [](const std::optional<char> &val) -> std::strin
 
 // why in GODS name does bp::merge not work here
 // NOLINTNEXTLINE(cppcoreguidelines-rvalue-reference-param-not-moved)
-constexpr auto keyword_helper2 = [](std::tuple<std::string, std::string> &&val) -> std::string {
+constexpr inline auto keyword_helper2 = [](std::tuple<std::string, std::string> &&val) -> std::string {
     std::string ret = std::move(std::get<0>(val));
     ret.append(std::get<1>(val));
     return ret;
