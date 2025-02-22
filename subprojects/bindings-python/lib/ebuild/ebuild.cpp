@@ -2,7 +2,7 @@
 #include "ebuild.hpp"
 
 #include "../common.hpp"
-#include "../subprojects/bindings-python/lib/internal.hpp"
+#include "../internal.hpp"
 #include "pms-utils/ebuild/ebuild.hpp"
 #include "pms-utils/ebuild/ebuild_parser.hpp"
 
