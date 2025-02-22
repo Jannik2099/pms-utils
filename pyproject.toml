@@ -1,0 +1,13 @@
+[project]
+name = 'pms-utils'
+dynamic = ['version']
+dependencies = ["typing-extensions; python_version < '3.11'"]
+requires-python = '>= 3.8'
+
+[build-system]
+build-backend = 'mesonpy'
+requires = ['meson-python', "typing-extensions; python_version < '3.11'"]
+
+[tool.meson-python.args]
+install = ['--tags=runtime,python-runtime']
+dist = ['--include-subprojects']
