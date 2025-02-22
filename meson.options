@@ -13,3 +13,8 @@ option(
     type: 'boolean',
     value: false,
 )
+option(
+    'only-wheels',
+    type: 'boolean',
+    value: false,
+)

@@ -6,6 +6,11 @@ project(
     default_options: ['warning_level=3', 'cpp_std=c++20'],
 )
 
+if get_option('only-wheels')
+    subproject('bindings-python')
+    subdir_done()
+endif
+
 fs = import('fs')
 pkg = import('pkgconfig')
 

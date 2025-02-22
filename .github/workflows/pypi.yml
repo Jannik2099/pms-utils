@@ -1,0 +1,100 @@
+name: "PyPI"
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - platform: ubuntu-latest
+            arch: x86_64
+          - platform: ubuntu-24.04-arm
+            arch: aarch64
+
+    runs-on: ${{ matrix.platform }}
+    container: quay.io/pypa/manylinux_2_34_${{ matrix.arch }}
+    env:
+      MESONARGS: -Db_lto=true --prefer-static -Dcpp_link_args=['-static-libgcc','-static-libstdc++'] --default-library=static
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install ninja
+        run: |
+          dnf install -y ninja-build
+
+      # the version packaged in the container image is way too old
+      - name: install meson
+        run: |
+          pipx install meson
+
+      - name: install boost
+        run: |
+          mkdir /boost
+          cd /boost
+          curl --location https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.tar.xz | tar xJ
+          cd boost-1.87.0
+          chmod +x bootstrap.sh
+          ./bootstrap.sh
+          ./bootstrap.sh
+          ./b2 --build-dir=build --with-mp11 --with-regex install
+
+      - name: build pms-utils
+        run: |
+          meson setup ${MESONARGS} --prefix=/usr --buildtype=release -Dbindings="[]" build
+          meson install -C build
+
+      - name: build python extensions
+        run: |
+          git config --global safe.directory "*"
+
+          MYARGS="-Csetup-args=-Donly-wheels=true "
+          for ARG in ${MESONARGS}; do
+            MYARGS+="-Csetup-args=${ARG} "
+          done
+          for VER in /opt/python/*/bin/python; do
+            # meson-python requires >= 3.7, nanobind >= 3.8
+            if ${VER} -c 'import platform; assert int(platform.python_version_tuple()[1]) < 8' 2&> /dev/null; then
+              continue
+            fi
+
+            "${VER}" -m build ${MYARGS} --outdir dist .
+          done
+
+      - name: fixup wheels
+        run: |
+          auditwheel repair --strip --plat manylinux_2_34_${{ matrix.arch }} dist/*.whl
+
+      - name: copy srcdist
+        # only one instance should upload this artifact
+        if: ${{ matrix.arch == 'x86_64' }}
+        run: |
+          cp dist/*.tar.gz wheelhouse/
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pypi wheels ${{ matrix.arch }}
+          path: wheelhouse/
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write
+
+    steps:
+      - name: download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: pypi wheels *
+          path: wheelhouse/
+          merge-multiple: true
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: wheelhouse
+          skip-existing: true
