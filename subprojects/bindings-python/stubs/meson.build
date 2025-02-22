@@ -1,16 +1,35 @@
-# TODO: autogenerate from stubgen
-# GroupHeaderOp does not get correctly located, bug in my Enum binding?
-# Manual fixup required for now
-bindings_py_pyi = files(
-    'pms_utils.pyi',
-    'atom/__init__.pyi',
-    'depend/__init__.pyi',
-    'ebuild/__init__.pyi',
-    'profile/__init__.pyi',
-    'repo/__init__.pyi',
-)
+stubgen_exe = nanobind_dep.get_variable(internal: 'stubgen_file')
+stub_install_dir = py_installation.get_install_dir() / 'pms_utils'
 
-install_data(
-    bindings_py_pyi,
-    install_dir: py_installation.get_install_dir() + 'pms_utils-stubs',
+stubgen_tgts = []
+foreach module : ['atom', 'depend', 'ebuild', 'profile', 'repo']
+    stubgen_tgts += custom_target(
+        'stubgen.pms_utils.' + module,
+        command: [
+            stubgen_exe,
+            '-m', 'pms_utils.' + module,
+            '-i', fs.parent(mod_bindings_py.full_path()),
+            '-o', '@OUTPUT@',
+        ],
+        depends: mod_bindings_py,
+        output: module + '.pyi',
+        install: true,
+        install_dir: stub_install_dir,
+        install_tag: 'python-runtime',
+    )
+endforeach
+
+stubgen_tgts += custom_target(
+    'stubgen.pms_utils',
+    command: [
+        stubgen_exe,
+        '-m', 'pms_utils',
+        '-i', fs.parent(mod_bindings_py.full_path()),
+        '-o', '@OUTPUT@',
+    ],
+    depends: mod_bindings_py,
+    output: '__init__.pyi',
+    install: true,
+    install_dir: stub_install_dir,
+    install_tag: 'python-runtime',
 )
