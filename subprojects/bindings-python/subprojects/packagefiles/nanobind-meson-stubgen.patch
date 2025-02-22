@@ -1,0 +1,19 @@
+diff --git a/meson.build b/meson.build
+index 2fe029e..6cfaee0 100644
+--- a/meson.build
++++ b/meson.build
+@@ -2,7 +2,7 @@ project(
+     'nanobind',
+     'cpp',
+     version: '2.4.0',
+-    meson_version: '>=0.53.0',
++    meson_version: '>=1.4.0',
+     license: 'BSD-3-Clause',
+ )
+ 
+@@ -91,4 +91,5 @@ nanobind_dep = declare_dependency(
+     dependencies: [py_dep, robin_map_dep],
+     compile_args: dep_compile_args,
+     link_args: dep_link_args,
++    variables: {'stubgen_file': files('src/stubgen.py')[0].full_path()}
+ )

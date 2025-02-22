@@ -9,7 +9,7 @@ patch_hash = cf493bda0b11ea4e8d9dd42229c3bbdd52af88cc4aedac75a1eccb102b86dd4a
 source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/nanobind_2.4.0-2/nanobind-2.4.0.tar.gz
 wrapdb_version = 2.4.0-2
 
-diff_files = nanobind-meson.build.patch
+diff_files = nanobind-meson.build.patch,nanobind-meson-stubgen.patch
 
 [provide]
 nanobind = nanobind_dep

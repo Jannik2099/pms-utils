@@ -27,6 +27,7 @@ REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 DEPEND="
 python? (
 	${PYTHON_DEPS}
+	$(python_gen_cond_dep 'dev-python/typing-extensions[${PYTHON_USEDEP}]' pypy3)
 )
 >=dev-libs/boost-1.87
 "
@@ -84,7 +85,7 @@ src_configure() {
 
 src_compile() {
 	meson_src_compile
-	use python && bindings_python_compile
+	use python && LD_LIBRARY_PATH="${WORKDIR}/${P}-build/lib;${LD_LIBRARY_PATH}" bindings_python_compile
 }
 
 src_install() {
@@ -94,5 +95,5 @@ src_install() {
 
 src_test() {
 	meson_src_test
-	use python && bindings_python_test
+	use python && LD_LIBRARY_PATH="${WORKDIR}/${P}-build/lib;${LD_LIBRARY_PATH}" bindings_python_test
 }
