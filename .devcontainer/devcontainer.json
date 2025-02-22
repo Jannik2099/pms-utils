@@ -1,5 +1,5 @@
 {
-    "image": "mcr.microsoft.com/devcontainers/cpp:ubuntu-24.04",
+    "image": "ghcr.io/jannik2099/pms-utils-gentoo-ci:latest",
     "capAdd": [
         "SYS_PTRACE"
     ],
@@ -16,9 +16,6 @@
             ]
         }
     },
-    "remoteUser": "vscode",
-    "containerEnv": {
-        "BOOST_ROOT": "/usr/local/vcpkg/installed/x64-linux/"
-    },
-    "onCreateCommand": "sudo apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y meson muon-meson clangd lld python3-dev linux-libc-dev autoconf automake autoconf-archive && vcpkg install boost-regex boost-mp11 boost-describe boost-parser boost-container-hash"
+    "remoteUser": "root",
+    "onCreateCommand": "emerge bash-completion nodejs"
 }
