@@ -6,7 +6,8 @@
 #include <string_view>
 
 void test_success() {
-    auto result = pms_utils::misc::try_parse("=foo/bar-1.0.0", pms_utils::parsers::atom::atom, true).value();
+    std::string_view atom("=foo/bar-1.0.0");
+    auto result = pms_utils::misc::try_parse(atom, pms_utils::parsers::atom::atom, true).value();
 
     assert(result.category == "foo");
     assert(result.name == "bar");
@@ -14,14 +15,15 @@ void test_success() {
 }
 
 void test_failure() {
-    auto result = pms_utils::misc::try_parse("=foo/bar-.0-1", pms_utils::parsers::atom::atom, true);
+    std::string_view atom("=foo/bar-.0-1");
+    auto result = pms_utils::misc::try_parse(atom, pms_utils::parsers::atom::atom, true);
 
-    assert(result.error() == ".0-1");
+    assert(std::string_view(result.error(), atom.end()) == ".0-1");
 }
 
 void test_consume_failure() {
-    auto result =
-        pms_utils::misc::try_parse("=foo/bar-1.0.0 =foo/bar-1.0.1", pms_utils::parsers::atom::atom, true);
+    auto result = pms_utils::misc::try_parse(std::string_view("=foo/bar-1.0.0 =foo/bar-1.0.1"),
+                                             pms_utils::parsers::atom::atom, true);
 
     assert(!result.has_value());
 }
