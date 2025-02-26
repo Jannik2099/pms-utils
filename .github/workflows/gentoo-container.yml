@@ -5,6 +5,10 @@ on:
     - cron: "00 00 * * 0"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
