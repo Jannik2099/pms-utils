@@ -1,0 +1,34 @@
+name: Format
+
+on:
+  push:
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+
+      - run: npm install prettier
+
+      - run: npx prettier --check .
+
+  clang-format:
+    runs-on: ubuntu-latest
+    container: ghcr.io/jannik2099/pms-utils-gentoo-ci:latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: configure
+        run: |
+          . /etc/profile
+          meson setup -Dtest=true build
+
+      - name: check
+        run: |
+          . /etc/profile
+          ninja -C build clang-format-check
