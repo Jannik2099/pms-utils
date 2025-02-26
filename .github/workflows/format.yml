@@ -36,3 +36,14 @@ jobs:
         run: |
           . /etc/profile
           ninja -C build clang-format-check
+
+  meson:
+    runs-on: ubuntu-latest
+    container: ghcr.io/jannik2099/pms-utils-gentoo-ci:latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          meson format --recursive --check-only .
+          meson format --recursive --check-only subprojects/bindings-python

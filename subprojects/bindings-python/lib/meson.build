@@ -15,9 +15,4 @@ mod_bindings_py = py_installation.extension_module(
     gnu_symbol_visibility: 'inlineshidden',
 )
 
-py_installation.install_sources(
-    [
-        'py.typed',
-    ],
-    subdir: 'pms_utils',
-)
+py_installation.install_sources(['py.typed'], subdir: 'pms_utils')
