@@ -1,21 +1,17 @@
 {
-    "image": "ghcr.io/jannik2099/pms-utils-gentoo-ci:latest",
-    "capAdd": [
-        "SYS_PTRACE"
-    ],
-    "securityOpt": [
-        "seccomp=unconfined"
-    ],
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "llvm-vs-code-extensions.vscode-clangd",
-                "mesonbuild.mesonbuild",
-                "sonarsource.sonarlint-vscode",
-                "github.vscode-codeql"
-            ]
-        }
-    },
-    "remoteUser": "root",
-    "onCreateCommand": "emerge bash-completion nodejs"
+  "image": "ghcr.io/jannik2099/pms-utils-gentoo-ci:latest",
+  "capAdd": ["SYS_PTRACE"],
+  "securityOpt": ["seccomp=unconfined"],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "llvm-vs-code-extensions.vscode-clangd",
+        "mesonbuild.mesonbuild",
+        "sonarsource.sonarlint-vscode",
+        "github.vscode-codeql"
+      ]
+    }
+  },
+  "remoteUser": "root",
+  "onCreateCommand": "emerge bash-completion nodejs"
 }
