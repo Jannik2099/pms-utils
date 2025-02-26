@@ -2,9 +2,6 @@ name: "CodeChecker"
 
 on:
   push:
-    branches: main
-  pull_request:
-    branches: main
 
 jobs:
   analyze:
