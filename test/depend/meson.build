@@ -1,4 +1,1 @@
-tests += files(
-    'ast_iterator.cpp',
-    'depend.cpp',
-)
+tests += files('ast_iterator.cpp', 'depend.cpp')

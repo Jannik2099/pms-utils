@@ -14,7 +14,11 @@ endif
 fs = import('fs')
 pkg = import('pkgconfig')
 
-boost_dep = dependency('boost', modules: ['regex'], version: '>=1.87')
+boost_dep = dependency(
+    'boost',
+    modules: ['regex'],
+    version: '>=1.87',
+)
 
 subdir('include')
 

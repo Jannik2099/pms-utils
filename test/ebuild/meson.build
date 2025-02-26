@@ -1,4 +1,1 @@
-tests += files(
-    'src_uri.cpp',
-    'uri.cpp',
-)
+tests += files('src_uri.cpp', 'uri.cpp')
