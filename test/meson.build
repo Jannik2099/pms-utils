@@ -6,7 +6,7 @@ subdir('depend')
 subdir('ebuild')
 subdir('repo')
 subdir('profile')
-subdir('try_parse')
+subdir('misc')
 
 is_asan = get_option('b_sanitize').contains('address')
 test_env = environment()
