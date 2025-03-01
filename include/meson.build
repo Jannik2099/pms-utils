@@ -15,7 +15,7 @@ install_headers(
         'pms-utils/misc/macro-end.hpp',
         'pms-utils/misc/meta.hpp',
         'pms-utils/misc/x3_utils.hpp',
-        'pms-utils/misc/try_parse.hpp'
+        'pms-utils/misc/try_parse.hpp',
     ],
     preserve_path: true,
 )
