@@ -9,6 +9,7 @@ install_headers(
         'pms-utils/ebuild/ebuild.hpp',
         'pms-utils/ebuild/ebuild_parser.hpp',
         'pms-utils/repo/repo.hpp',
+        'pms-utils/repo/repo_parser.hpp',
         'pms-utils/profile/profile.hpp',
         'pms-utils/profile/profile_parser.hpp',
         'pms-utils/misc/macro-begin.hpp',
