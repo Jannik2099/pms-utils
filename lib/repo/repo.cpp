@@ -5,6 +5,7 @@
 #include "pms-utils/depend/depend_parser.hpp"
 #include "pms-utils/ebuild/ebuild.hpp"
 #include "pms-utils/ebuild/ebuild_parser.hpp"
+#include "pms-utils/repo/repo_parser.hpp"
 
 #include <boost/parser/parser.hpp>
 #include <cstring>
@@ -241,8 +242,11 @@ Repository::Repository(std::filesystem::path path) : path_{std::move(path)} {
             std::format("Repository {} does not appear valid, missing profiles/repo_name", path_.string())};
     }
     std::ifstream stream{repo_name_file};
-    // TODO: validate
     std::getline(stream, name_);
+
+    if (!parse(name_, parsers::repo::repo_name).has_value()) {
+        throw std::invalid_argument{std::format("Repository name {} is invalid", name_)};
+    }
 }
 Repository::const_iterator Repository::begin() const noexcept { return Repository::const_iterator{*this}; }
 Repository::const_iterator Repository::cbegin() const noexcept { return begin(); }
