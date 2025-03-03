@@ -15,7 +15,7 @@ using namespace pms_utils::repo;
 namespace pms_utils::bindings::python::repo {
 
 void _register(nb::module_ &_module) {
-    const nb::module_ repo = _module.def_submodule("repo");
+    nb::module_ repo = _module.def_submodule("repo");
 
     auto py_Ebuild = create_bindings<Ebuild>(repo).def_prop_ro("metadata", &Ebuild::metadata);
 

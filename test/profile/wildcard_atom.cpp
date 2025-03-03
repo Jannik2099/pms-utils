@@ -47,36 +47,76 @@ int main() {
     bool success = true;
     pms_utils::profile::_internal::WildcardAtom input;
 
-    input = {{}, {}, "foo", "bar*", {}, {}, {}};
+    input = {.blocker = {},
+             .version_specifier = {},
+             .category = "foo",
+             .name = "bar*",
+             .version = {},
+             .slot = {},
+             .repo = {}};
     success &= try_parse_helper(input);
 
-    input = {{}, {}, "foo", "bar*baz", {}, {}, {}};
+    input = {.blocker = {},
+             .version_specifier = {},
+             .category = "foo",
+             .name = "bar*baz",
+             .version = {},
+             .slot = {},
+             .repo = {}};
     success &= try_parse_helper(input);
 
-    input = {{}, {}, "foo**", "bar", {}, {}, {}};
+    input = {.blocker = {},
+             .version_specifier = {},
+             .category = "foo**",
+             .name = "bar",
+             .version = {},
+             .slot = {},
+             .repo = {}};
     success &= try_parse(std::string{input}, parsers::profile::wildcard_atom, false).as_expected;
 
-    input = {{},    pms_utils::atom::VersionSpecifier::eq,       "foo",
-             "bar", static_cast<decltype(input.version)>("*1*"), {},
-             {}};
+    input = {.blocker = {},
+             .version_specifier = pms_utils::atom::VersionSpecifier::eq,
+             .category = "foo",
+             .name = "bar",
+             .version = static_cast<decltype(input.version)>("*1*"),
+             .slot = {},
+             .repo = {}};
     success &= try_parse_helper(input);
 
-    input = {{},
-             pms_utils::atom::VersionSpecifier::ea,
-             "foo",
-             "bar*",
-             static_cast<decltype(input.version)>(ver_from_str("1")),
-             {},
-             {}};
+    input = {.blocker = {},
+             .version_specifier = pms_utils::atom::VersionSpecifier::ea,
+             .category = "foo",
+             .name = "bar*",
+             .version = static_cast<decltype(input.version)>(ver_from_str("1")),
+             .slot = {},
+             .repo = {}};
     success &= try_parse_helper(input);
 
-    input = {{}, {}, "foo", "bar", {}, pms_utils::atom::Slot{"1", {}}, {}};
+    input = {.blocker = {},
+             .version_specifier = {},
+             .category = "foo",
+             .name = "bar",
+             .version = {},
+             .slot = pms_utils::atom::Slot{.slot = "1", .subslot = {}},
+             .repo = {}};
     success &= try_parse_helper(input);
 
-    input = {{}, {}, "foo", "bar", {}, {}, std::string{"gentoo"}};
+    input = {.blocker = {},
+             .version_specifier = {},
+             .category = "foo",
+             .name = "bar",
+             .version = {},
+             .slot = {},
+             .repo = std::string{"gentoo"}};
     success &= try_parse_helper(input);
 
-    input = {{}, {}, "foo", "bar", {}, pms_utils::atom::Slot{"slot", "expr"}, std::string{"gentoo"}};
+    input = {.blocker = {},
+             .version_specifier = {},
+             .category = "foo",
+             .name = "bar",
+             .version = {},
+             .slot = pms_utils::atom::Slot{.slot = "slot", .subslot = "expr"},
+             .repo = std::string{"gentoo"}};
     success &= try_parse_helper(input);
 
     if (!success) {

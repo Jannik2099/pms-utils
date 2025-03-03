@@ -17,8 +17,8 @@ using pms_utils::test::try_parse;
 namespace {
 class Visitor {
 public:
-    std::string operator()(const atom::PackageExpr &packageExpr) const { return std::string{packageExpr}; }
-    std::string operator()(const DependExpr &dependExpr) const { return to_string(*dependExpr.conditional); }
+    static std::string operator()(const atom::PackageExpr &packageExpr) { return std::string{packageExpr}; }
+    static std::string operator()(const DependExpr &dependExpr) { return to_string(*dependExpr.conditional); }
 };
 } // namespace
 

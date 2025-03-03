@@ -42,7 +42,7 @@ PARSER_RULE_T(ENV_UNSET, (pms_utils::profile::_internal::unordered_str_set<std::
 
 namespace _internal {
 
-inline const auto package_use_inserter = [](auto &ctx) {
+inline const auto package_use_inserter = []<typename T>(T &ctx) {
     std::tuple<std::optional<char>, std::variant<char, pms_utils::atom::Useflag>> &attr =
         boost::parser::_attr(ctx);
     pms_utils::profile::_internal::unordered_str_set<std::string> &val = boost::parser::_val(ctx);
@@ -70,15 +70,14 @@ inline const auto package_use_inserter = [](auto &ctx) {
 };
 
 // why is this necessary???
-inline const auto shlex_helper = [](auto &ctx) {
+inline const auto shlex_helper = []<typename T>(T &ctx) {
     std::tuple<std::string, bool> &attr = boost::parser::_attr(ctx);
     std::tuple<std::string, bool> &val = boost::parser::_val(ctx);
 
-    std::get<0>(val) = std::move(std::get<0>(attr));
-    std::get<1>(val) = std::get<1>(attr);
+    val = std::move(attr);
 };
 
-inline const auto make_defaults_use_inserter = [](auto &ctx) {
+inline const auto make_defaults_use_inserter = []<typename T>(T &ctx) {
     auto &attr = boost::parser::_attr(ctx);
     auto &val = boost::parser::_val(ctx);
 
@@ -98,7 +97,7 @@ inline const auto make_defaults_use_inserter = [](auto &ctx) {
 };
 
 // once again we get to write a huge semantic action because x3 hates us
-inline const auto atom_helper = [](auto &ctx) {
+inline const auto atom_helper = []<typename T>(T &ctx) {
     std::tuple<std::optional<pms_utils::atom::Blocker>, std::optional<pms_utils::atom::VersionSpecifier>,
                std::string, std::string,
                std::optional<std::tuple<std::variant<pms_utils::atom::Version, std::string>, bool>>,

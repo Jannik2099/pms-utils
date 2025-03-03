@@ -1,0 +1,28 @@
+name: lint
+
+on:
+  push:
+    branches-ignore: main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  clang-tidy:
+    runs-on: ubuntu-latest
+    container: ghcr.io/jannik2099/pms-utils-gentoo-ci:latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: configure
+        run: |
+          . /etc/profile
+          CC=clang CXX=clang++ meson setup -Dtest=true build
+
+      - name: analyze
+        run: |
+          . /etc/profile
+          run-clang-tidy -p build -source-filter '.+(?:include|lib|test|subprojects/bindings-python/lib).+'

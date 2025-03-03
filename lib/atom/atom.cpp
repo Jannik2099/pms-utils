@@ -1,7 +1,6 @@
 #include "pms-utils/atom/atom.hpp"
 
 #include <algorithm>
-#include <boost/parser/parser.hpp>
 #include <compare>
 #include <cstddef>
 #include <iostream>
@@ -248,16 +247,16 @@ std::ostream &PackageExpr::ostream_impl(std::ostream &out) const { return out <<
 namespace {
 [[nodiscard]] std::optional<std::strong_ordering> algorithm_3_2(const VersionNumber &left,
                                                                 const VersionNumber &right);
-[[nodiscard]] std::optional<std::strong_ordering> algorithm_3_3(std::string_view left,
-                                                                std::string_view right);
+[[nodiscard]] std::optional<std::strong_ordering> algorithm_3_3(const std::string &left,
+                                                                const std::string &right);
 [[nodiscard]] std::optional<std::strong_ordering> algorithm_3_4(std::string_view left,
                                                                 std::string_view right);
 [[nodiscard]] std::optional<std::strong_ordering> algorithm_3_5(const std::vector<VersionSuffix> &left,
                                                                 const std::vector<VersionSuffix> &right);
 [[nodiscard]] std::optional<std::strong_ordering> algorithm_3_6(const VersionSuffix &left,
                                                                 const VersionSuffix &right);
-[[nodiscard]] std::optional<std::strong_ordering> algorithm_3_7(std::string_view left,
-                                                                std::string_view right);
+[[nodiscard]] std::optional<std::strong_ordering> algorithm_3_7(const std::string &left,
+                                                                const std::string &right);
 
 std::optional<std::strong_ordering> algorithm_3_2(const VersionNumber &left, const VersionNumber &right) {
     const auto left_int = std::stoul(left[0]);
@@ -286,7 +285,7 @@ std::optional<std::strong_ordering> algorithm_3_2(const VersionNumber &left, con
     return {};
 }
 
-std::optional<std::strong_ordering> algorithm_3_3(std::string_view left, std::string_view right) {
+std::optional<std::strong_ordering> algorithm_3_3(const std::string &left, const std::string &right) {
     if (left.starts_with('0') || right.starts_with('0')) {
         const auto left_new = left.substr(0, left.find_last_not_of('0'));
         const auto right_new = right.substr(0, right.find_last_not_of('0'));
@@ -297,8 +296,8 @@ std::optional<std::strong_ordering> algorithm_3_3(std::string_view left, std::st
             return std::strong_ordering::greater;
         }
     } else {
-        const auto left_int = std::stoul(left.data());
-        const auto right_int = std::stoul(right.data());
+        const auto left_int = std::stoul(left);
+        const auto right_int = std::stoul(right);
 
         if (left_int < right_int) {
             return std::strong_ordering::less;
@@ -362,9 +361,9 @@ std::optional<std::strong_ordering> algorithm_3_6(const VersionSuffix &left, con
     return {};
 }
 
-std::optional<std::strong_ordering> algorithm_3_7(std::string_view left, std::string_view right) {
-    const auto left_ver = std::stoul(left.data());
-    const auto right_ver = std::stoul(right.data());
+std::optional<std::strong_ordering> algorithm_3_7(const std::string &left, const std::string &right) {
+    const auto left_ver = std::stoul(left);
+    const auto right_ver = std::stoul(right);
 
     if (left_ver < right_ver) {
         return std::strong_ordering::less;

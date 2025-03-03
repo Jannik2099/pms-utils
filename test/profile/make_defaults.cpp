@@ -5,6 +5,8 @@
 
 namespace parsers = pms_utils::parsers;
 
+namespace {
+
 // down to hell we go
 // this is a hacky workaround to have the printer for try_parse work
 std::ostream &
@@ -19,6 +21,8 @@ std::ostream &operator<<(std::ostream &stream,
     }
     return stream;
 }
+
+} // namespace
 
 #include "x3_util.hpp"
 

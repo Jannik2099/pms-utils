@@ -10,7 +10,7 @@ namespace pms_utils::parsers::repo {
 
 namespace _internal {
 
-constexpr inline auto name_verifier = [](auto &ctx) {
+constexpr inline auto name_verifier = []<typename T>(T &ctx) {
     std::string &attr = boost::parser::_attr(ctx);
     std::string &val = boost::parser::_val(ctx);
 

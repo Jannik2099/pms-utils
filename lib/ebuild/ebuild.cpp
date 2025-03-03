@@ -12,8 +12,8 @@ namespace ebuild {
 uri_elem::operator std::string() const {
     class Visitor {
     public:
-        std::string operator()(const URI &_uri) const { return _uri; }
-        std::string operator()(const std::filesystem::path &path) const { return path.string(); }
+        static std::string operator()(const URI &_uri) { return _uri; }
+        static std::string operator()(const std::filesystem::path &path) { return path.string(); }
     };
     std::string ret = std::visit(Visitor{}, uri);
     if (filename.has_value()) {

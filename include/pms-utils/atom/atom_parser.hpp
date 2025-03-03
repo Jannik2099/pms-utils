@@ -6,6 +6,7 @@
 #include <boost/parser/parser.hpp>
 #include <optional>
 #include <tuple>
+#include <utility>
 
 namespace pms_utils::parsers::atom {
 
@@ -68,45 +69,42 @@ inline const boost::parser::symbols<pms_utils::atom::UsedepCond> UsedepCondition
     {"?", pms_utils::atom::UsedepCond::question},
 };
 
-constexpr inline auto slot_helper = [](auto &ctx) {
+constexpr inline auto slot_helper = []<typename T>(T &ctx) {
     std::tuple<std::string, std::optional<std::string>> &attr = boost::parser::_attr(ctx);
     pms_utils::atom::Slot &val = boost::parser::_val(ctx);
 
     val = {.slot = std::get<0>(attr), .subslot = std::get<1>(attr).value_or(std::string{})};
 };
 
-constexpr inline auto slot_expr_helper = [](auto &ctx) {
+constexpr inline auto slot_expr_helper = []<typename T>(T &ctx) {
     std::variant<char, std::tuple<std::optional<pms_utils::atom::Slot>, bool>> &attr =
         boost::parser::_attr(ctx);
-    pms_utils::atom::SlotExpr &val = boost::parser::_val(ctx);
 
-    switch (attr.index()) {
-    case 0:
-        val.slotVariant = pms_utils::atom::SlotVariant::star;
-        break;
-    case 1: {
-        auto &var2 = std::get<1>(attr);
-        const std::optional<pms_utils::atom::Slot> &slot = std::get<0>(var2);
-        const bool equal = std::get<1>(var2);
+    class Visitor {
+    public:
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
+        T &ctx;
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
+        pms_utils::atom::SlotExpr &val = boost::parser::_val(ctx);
+        void operator()(char /**/) { val.slotVariant = pms_utils::atom::SlotVariant::star; }
+        void operator()(std::tuple<std::optional<pms_utils::atom::Slot>, bool> &var2) {
+            std::optional<pms_utils::atom::Slot> &slot = std::get<0>(var2);
+            const bool equal = std::get<1>(var2);
 
-        val.slot = slot;
-        val.slotVariant = equal ? pms_utils::atom::SlotVariant::equal : pms_utils::atom::SlotVariant::none;
+            val.slot = std::move(slot);
+            val.slotVariant =
+                equal ? pms_utils::atom::SlotVariant::equal : pms_utils::atom::SlotVariant::none;
 
-        if ((!equal) && (!slot.has_value())) {
-            // TODO
-            throw std::runtime_error{"TODO"};
+            if ((!equal) && (!val.slot.has_value())) {
+                // TODO
+                boost::parser::_pass(ctx) = false;
+            }
         }
-        break;
-    }
-
-    default:
-        // TODO
-        throw std::runtime_error{"TODO"};
-        break;
-    }
+    };
+    std::visit(Visitor{ctx}, attr);
 };
 
-constexpr inline auto package_dep_helper = [](auto &ctx, bool requireVerSpec) {
+constexpr inline auto package_dep_helper = []<typename T>(T &ctx, bool requireVerSpec) {
     // Parser semantic actions are a pathway to many abilities some consider to be unnatural
     std::tuple<std::optional<pms_utils::atom::Blocker>, std::optional<pms_utils::atom::VersionSpecifier>,
                pms_utils::atom::Category, pms_utils::atom::Name,
@@ -189,7 +187,7 @@ namespace _internal {
 inline const auto atom_helper = [](bool requireVerSpec) {
     return (-blocker >> -version_specifier >> category >> boost::parser::lit('/') >> name >>
             -(boost::parser::lit('-') >> package_version >> aux::matches('*')) >> -slot_expr >>
-            -use_deps)[([requireVerSpec](auto &ctx) { package_dep_helper(ctx, requireVerSpec); })];
+            -use_deps)[([requireVerSpec]<typename T>(T &ctx) { package_dep_helper(ctx, requireVerSpec); })];
 };
 } // namespace _internal
 

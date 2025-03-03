@@ -4,6 +4,8 @@
 
 using namespace pms_utils;
 
+namespace {
+
 // down to hell we go
 // this is a hacky workaround to have the printer for try_parse work
 std::ostream &
@@ -19,6 +21,8 @@ std::ostream &operator<<(std::ostream &stream,
     stream << std::get<0>(elems) << " " << std::get<1>(elems);
     return stream;
 }
+
+} // namespace
 
 #include "x3_util.hpp"
 
