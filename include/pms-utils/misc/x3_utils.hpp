@@ -28,8 +28,10 @@ template <typename T, typename U> struct argument_type<T(U)> {
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PARSER_DEFINE(name, rule)                                                                            \
     inline const auto name##_def = rule;                                                                     \
+    /* NOLINTBEGIN(clang-analyzer-optin.core.EnumCastOutOfRange) */                                          \
     _Pragma("GCC diagnostic push") _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"")                  \
-        BOOST_PARSER_DEFINE_RULES(name) _Pragma("GCC diagnostic pop")
+        BOOST_PARSER_DEFINE_RULES(name)                                                                      \
+            _Pragma("GCC diagnostic pop") /* NOLINTEND(clang-analyzer-optin.core.EnumCastOutOfRange) */
 
 namespace pms_utils::parsers::aux {
 

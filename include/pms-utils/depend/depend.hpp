@@ -51,7 +51,10 @@ enum class GroupHeaderOp : std::uint8_t {
 };
 using GroupHeader = std::variant<UseConditional, GroupHeaderOp>;
 
+// boost.parser needs to construct the underlying type as a workaround
+// NOLINTNEXTLINE(bugprone-crtp-constructor-accessibility)
 template <typename T, typename Derived = void> struct GroupExpr {
+public:
     using group_type = std::conditional_t<std::is_same_v<Derived, void>, GroupExpr<T>, Derived>;
     using Node = std::variant<T, group_type>;
     std::optional<GroupHeader> conditional;
@@ -127,7 +130,7 @@ private:
         const Node *node = &ast.nodes.at(*indexIter);
         indexIter++;
         while (indexIter < index.end()) {
-            const group_type &groupExpr = std::get<group_type>(*node);
+            const auto &groupExpr = std::get<group_type>(*node);
             node = &groupExpr.nodes.at(*indexIter);
             indexIter++;
         }
@@ -141,7 +144,7 @@ private:
 
     [[nodiscard]] bool traverse_downwards() {
         if (std::holds_alternative<group_type>(*node)) {
-            const group_type &groupExpr = std::get<group_type>(*node);
+            const auto &groupExpr = std::get<group_type>(*node);
             if (groupExpr.nodes.empty()) {
                 // TODO: can this occur?
                 return false;
@@ -350,7 +353,7 @@ template <typename T, typename Derived> GroupExpr<T, Derived>::operator std::str
             ostr << std::get<T>(expr);
             ret += spacing + ostr.str();
         } else {
-            const group_type &groupExpr = std::get<group_type>(expr);
+            const auto &groupExpr = std::get<group_type>(expr);
             if (groupExpr.conditional.has_value()) {
                 ret += spacing + to_string(groupExpr.conditional.value()) + " ";
             }
@@ -366,8 +369,8 @@ template <typename T, typename Derived>
 std::string to_string(const typename GroupExpr<T, Derived>::group_type::Node &node) {
     class Visitor {
     public:
-        std::string operator()(const T &Texpr) const { return std::string{Texpr}; }
-        std::string operator()(const GroupExpr<T, Derived>::group_type &groupExpr) const {
+        static std::string operator()(const T &Texpr) { return std::string{Texpr}; }
+        static std::string operator()(const GroupExpr<T, Derived>::group_type &groupExpr) {
             return std::string{groupExpr};
         }
     };

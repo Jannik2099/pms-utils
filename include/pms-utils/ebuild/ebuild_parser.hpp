@@ -42,7 +42,7 @@ PARSER_RULE_T(DEFINED_PHASES, pms_utils::ebuild::defined_phases);
 
 namespace _internal {
 
-constexpr inline auto filename_helper = [](auto &ctx) {
+constexpr inline auto filename_helper = []<typename T>(T &ctx) {
     const std::string_view attr = boost::parser::_attr(ctx);
     std::filesystem::path &val = boost::parser::_val(ctx);
 
@@ -53,7 +53,7 @@ constexpr inline auto filename_helper = [](auto &ctx) {
     }
 };
 
-constexpr inline auto restrict_elem_helper = [](auto &ctx) {
+constexpr inline auto restrict_elem_helper = []<typename T>(T &ctx) {
     const std::string_view attr = boost::parser::_attr(ctx);
     pms_utils::ebuild::restrict_elem &val = boost::parser::_val(ctx);
     val.string = attr;
@@ -71,7 +71,7 @@ constexpr inline auto restrict_elem_helper = [](auto &ctx) {
     }
 };
 
-constexpr inline auto properties_elem_helper = [](auto &ctx) {
+constexpr inline auto properties_elem_helper = []<typename T>(T &ctx) {
     const std::string_view attr = boost::parser::_attr(ctx);
     pms_utils::ebuild::properties_elem &val = boost::parser::_val(ctx);
     val.string = attr;

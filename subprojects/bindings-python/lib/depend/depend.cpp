@@ -13,7 +13,7 @@ using namespace pms_utils::depend;
 namespace pms_utils::bindings::python::depend {
 
 void _register(nb::module_ &_module) {
-    const nb::module_ depend = _module.def_submodule("depend");
+    nb::module_ depend = _module.def_submodule("depend");
 
     auto py_UseConditional = create_bindings<UseConditional>(depend, parsers::depend::use_cond);
 

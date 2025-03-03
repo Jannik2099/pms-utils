@@ -95,7 +95,7 @@ template <typename T, typename Pclass> static inline Pclass &bind_members_and_ge
 
 template <typename T, typename M, typename R = bool, typename... Extra>
     requires(std::is_enum_v<T> && boost::describe::has_describe_enumerators<T>::value)
-static inline nb::object create_bindings(M module_, R rule = false, const Extra &...extra) {
+static inline nb::object create_bindings(M &module_, R rule = false, const Extra &...extra) {
     constexpr std::string_view name = bound_type_name<T>::unqualified_str;
 
     nb::enum_ ret = nb::enum_<T>(module_, std::string{name}.c_str(), extra...);
@@ -130,7 +130,7 @@ static inline nb::object create_bindings(M module_, R rule = false, const Extra 
 
 template <typename T, typename M, typename R = bool>
     requires(std::is_class_v<T> && boost::describe::has_describe_members<T>::value)
-static inline auto create_bindings(M module_, R rule = false) {
+static inline auto create_bindings(M &module_, R rule = false) {
     constexpr std::string_view name = bound_type_name<T>::unqualified_str;
     using namespace boost::mp11;
 

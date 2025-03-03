@@ -40,10 +40,10 @@ std::ostream &operator<<(std::ostream &out, GroupHeaderOp groupHeaderOp) {
 std::string to_string(const GroupHeader &groupHeader) {
     class Visitor {
     public:
-        std::string operator()(const UseConditional &useConditional) const {
+        static std::string operator()(const UseConditional &useConditional) {
             return std::string{useConditional};
         };
-        std::string operator()(GroupHeaderOp groupHeaderOp) const { return to_string(groupHeaderOp); };
+        static std::string operator()(GroupHeaderOp groupHeaderOp) { return to_string(groupHeaderOp); };
     };
     return std::visit(Visitor{}, groupHeader);
 }

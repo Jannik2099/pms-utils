@@ -33,6 +33,7 @@ bool test_consume_failure() {
 
 } // namespace
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 int main() {
     auto success = true;
 

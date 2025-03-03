@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <string>
 #include <type_traits>
+#include <variant>
 #include <vector>
 
 namespace pms_utils::profile::_internal {
@@ -120,18 +121,26 @@ Expander::repo_iter Expander::repo_matcher() const {
 void Expander::slot_matcher(const repo_iter &repository, const repo::Category &category,
                             const repo::Ebuild &ebuild) {
     if (!atom_.slot.has_value()) {
-        atoms_.emplace_back(
-            atom::PackageExpr{
-                {}, category.name(), ebuild.name, atom::VersionSpecifier::eq, ebuild.version, {}, {}},
-            std::distance(repositories_.begin(), repository));
+        atoms_.emplace_back(atom::PackageExpr{.blocker = {},
+                                              .category = category.name(),
+                                              .name = ebuild.name,
+                                              .verspec = atom::VersionSpecifier::eq,
+                                              .version = ebuild.version,
+                                              .slotExpr = {},
+                                              .usedeps = {}},
+                            std::distance(repositories_.begin(), repository));
         return;
     }
     if ((atom_.slot->slot == ebuild.metadata().SLOT.slot) &&
         (atom_.slot->subslot.empty() || (atom_.slot->subslot == ebuild.metadata().SLOT.subslot))) {
-        atoms_.emplace_back(
-            atom::PackageExpr{
-                {}, category.name(), ebuild.name, atom::VersionSpecifier::eq, ebuild.version, {}, {}},
-            std::distance(repositories_.begin(), repository));
+        atoms_.emplace_back(atom::PackageExpr{.blocker = {},
+                                              .category = category.name(),
+                                              .name = ebuild.name,
+                                              .verspec = atom::VersionSpecifier::eq,
+                                              .version = ebuild.version,
+                                              .slotExpr = {},
+                                              .usedeps = {}},
+                            std::distance(repositories_.begin(), repository));
     }
 }
 

@@ -26,6 +26,7 @@ bool read_file() {
 
 } // namespace
 
+// NOLINTNEXTLINE(bugprone-exception-escape)
 int main() {
     auto success = true;
 

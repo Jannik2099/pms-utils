@@ -23,7 +23,7 @@ namespace ebuild {
 
 void _register(nb::module_ &_module) {
 
-    const nb::module_ ebuild = _module.def_submodule("ebuild");
+    nb::module_ ebuild = _module.def_submodule("ebuild");
 
     auto py_URI = create_bindings<URI>(ebuild, parsers::ebuild::uri);
 
