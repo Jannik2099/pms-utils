@@ -1,8 +1,6 @@
 name: Format
 
 on:
-  push:
-    branches-ignore: main
   pull_request:
 
 concurrency:
