@@ -40,7 +40,7 @@ std::ostream &WildcardAtom::ostream_impl(std::ostream &out) const {
     out << category << "/" << name;
     if (version.has_value()) {
         out << "-";
-        std::visit([&out](auto &&arg) { out << arg; }, version.value());
+        std::visit([&out](const auto &arg) { out << arg; }, version.value());
         if (version_specifier.value() == pms_utils::atom::VersionSpecifier::ea) {
             out << "*";
         }
@@ -353,7 +353,7 @@ void Profile::init_make_defaults() {
     }
 
     for (const auto &[key, line] : make_defaults_unevaluated_) {
-        if (line.find('$') == decltype(line)::npos) {
+        if (!line.contains('$')) {
             set_or_append(make_defaults_, key, line);
             continue;
         }
