@@ -14,7 +14,7 @@
 #include <iterator>
 #include <stdexcept>
 #include <string>
-#include <type_traits>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -61,8 +61,7 @@ bool test_version(atom::VersionSpecifier verspec, const atom::Version &version, 
         // ea and td are handled above
         // explicitly cast to underlying to avoid any to_string overloads
         throw std::out_of_range{
-            std::format("invalid atom::VersionSpecifier {}",
-                        static_cast<std::underlying_type_t<atom::VersionSpecifier>>(verspec))};
+            std::format("invalid atom::VersionSpecifier {}", std::to_underlying(verspec))};
     }
 }
 
@@ -74,8 +73,8 @@ Expander::Expander(const WildcardAtom &atom, const std::vector<repo::Repository>
     // Boost.Regex flags lack the flag_enum attribute
     // NOLINTBEGIN(clang-analyzer-optin.core.EnumCastOutOfRange)
     static const boost::regex wildcard_re{R"---((\\\*))---"};
-    const bool category_is_wildcard = atom_.category.find('*') != std::string::npos;
-    const bool name_is_wildcard = atom_.name.find('*') != std::string::npos;
+    const bool category_is_wildcard = atom_.category.contains('*');
+    const bool name_is_wildcard = atom_.name.contains('*');
     const bool version_is_wildcard =
         atom_.version.has_value() && (std::holds_alternative<std::string>(atom_.version.value()));
     if (category_is_wildcard) {

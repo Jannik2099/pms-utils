@@ -40,7 +40,7 @@ std::ostream &WildcardAtom::ostream_impl(std::ostream &out) const {
     out << category << "/" << name;
     if (version.has_value()) {
         out << "-";
-        std::visit([&out](auto &&arg) { out << arg; }, version.value());
+        std::visit([&out](const auto &arg) { out << arg; }, version.value());
         if (version_specifier.value() == pms_utils::atom::VersionSpecifier::ea) {
             out << "*";
         }
@@ -353,7 +353,7 @@ void Profile::init_make_defaults() {
     }
 
     for (const auto &[key, line] : make_defaults_unevaluated_) {
-        if (line.find('$') == decltype(line)::npos) {
+        if (!line.contains('$')) {
             set_or_append(make_defaults_, key, line);
             continue;
         }
@@ -621,7 +621,7 @@ Profile::Profile(const std::filesystem::path &path, std::vector<repo::Repository
               {use_force_, "use.force"},
               {use_stable_mask_, "use.stable.mask"},
               {use_stable_force_, "use.stable.force"}};
-         const auto &[set, path_suffix] : use_elems) {
+         const auto &[set, path_suffix] : use_elems | std::views::as_const) {
         const auto lines = read_config_files(path_ / path_suffix);
         for (const auto &line : std::views::split(lines, '\n') |
                                     std::views::filter([](auto line_) { return !std::empty(line_); })) {
