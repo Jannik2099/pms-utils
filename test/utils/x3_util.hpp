@@ -17,13 +17,13 @@ template <typename T> struct parse_result {
     bool as_expected{};
 };
 
-template <typename Rule>
+template <boost::parser::trace trace = boost::parser::trace::off, typename Rule>
 [[nodiscard]] static inline auto try_parse(std::string_view input, Rule rule, bool expected = true,
                                            bool complete = true) {
     parse_result<typename Rule::parser_type::attr_type> ret;
     const auto *begin = input.begin();
     const auto *const end = input.end();
-    ret.success = prefix_parse(begin, end, rule, ret.result);
+    ret.success = prefix_parse(begin, end, rule, ret.result, trace);
     ret.consumed = {input.begin(), begin};
     ret.remainder = {begin, end};
 
