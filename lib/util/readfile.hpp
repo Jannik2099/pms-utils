@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pms-utils/misc/optional.hpp"
+
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -8,7 +10,7 @@
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace misc::_internal {
 
-inline std::optional<std::string> try_readfile(const std::filesystem::path &path) {
+inline pms_utils::misc::optional<std::string> try_readfile(const std::filesystem::path &path) {
 
     std::ifstream stream{path, std::ios::binary};
 
