@@ -12,6 +12,7 @@
 #include <concepts>
 #include <cstddef>
 #include <functional>
+#include <tuple>
 #include <type_traits>
 
 namespace pms_utils::meta::_internal {
@@ -69,6 +70,15 @@ template <typename Ts> [[nodiscard]] consteval bool hashable_chk() {
     });
     return true;
 }
+
+template <typename To, typename... Args> struct pack_is_convertible : public std::false_type {};
+template <typename To, typename... Args>
+    requires(sizeof...(Args) == 1)
+struct pack_is_convertible<To, Args...>
+    : public std::conditional_t<std::is_convertible_v<std::tuple_element_t<0, std::tuple<Args...>>, To>,
+                                std::true_type, std::false_type> {};
+template <typename To, typename... Args>
+constexpr inline bool pack_is_convertible_v = pack_is_convertible<To, Args...>::value;
 
 } // namespace pms_utils::meta::_internal
 
