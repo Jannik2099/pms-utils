@@ -20,7 +20,7 @@ pms-utils
     ebuild
     profile
     repo
-
+    vdb
 
 .. toctree::
     :hidden:
