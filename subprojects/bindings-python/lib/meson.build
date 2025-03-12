@@ -5,6 +5,7 @@ subdir('depend')
 subdir('ebuild')
 subdir('profile')
 subdir('repo')
+subdir('vdb')
 
 mod_bindings_py = py_installation.extension_module(
     'pms_utils',

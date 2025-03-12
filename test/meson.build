@@ -6,6 +6,7 @@ subdir('depend')
 subdir('ebuild')
 subdir('repo')
 subdir('profile')
+subdir('vdb')
 subdir('misc')
 
 is_asan = get_option('b_sanitize').contains('address')
