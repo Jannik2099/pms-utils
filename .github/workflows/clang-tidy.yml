@@ -23,4 +23,4 @@ jobs:
       - name: analyze
         run: |
           . /etc/profile
-          run-clang-tidy -p build -source-filter '.+(?:include|lib|test|subprojects/bindings-python/lib).+'
+          run-clang-tidy -p build -source-filter '.+(?:include|lib|test|subprojects/bindings-python/lib).+' -quiet -extra-arg=-fno-caret-diagnostics
