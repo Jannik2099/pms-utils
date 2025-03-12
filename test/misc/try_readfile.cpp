@@ -2,7 +2,7 @@
 
 #include <filesystem>
 #include <iostream>
-#include <ostream>
+#include <print>
 
 using pms_utils::misc::_internal::try_readfile;
 

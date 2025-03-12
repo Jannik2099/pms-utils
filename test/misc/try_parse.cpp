@@ -5,7 +5,7 @@
 
 #include <cassert>
 #include <iostream>
-#include <ostream>
+#include <print>
 #include <string_view>
 
 namespace {
