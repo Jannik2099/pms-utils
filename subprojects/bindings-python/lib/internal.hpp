@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <boost/parser/parser.hpp>
 #include <cstddef>
 #include <format>
 #include <nanobind/nanobind.h>

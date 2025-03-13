@@ -7,9 +7,11 @@
 
 #include <boost/parser/parser.hpp>
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <tuple>
 #include <unordered_set>
+#include <utility>
 #include <variant>
 #include <vector>
 

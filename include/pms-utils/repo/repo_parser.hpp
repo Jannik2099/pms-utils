@@ -4,6 +4,7 @@
 #include "pms-utils/misc/x3_utils.hpp"
 
 #include <boost/parser/parser.hpp>
+#include <string>
 #include <utility>
 
 namespace pms_utils::parsers::repo {
