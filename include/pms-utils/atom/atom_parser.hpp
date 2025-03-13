@@ -5,8 +5,10 @@
 
 #include <boost/parser/parser.hpp>
 #include <optional>
+#include <string>
 #include <tuple>
 #include <utility>
+#include <variant>
 
 namespace pms_utils::parsers::atom {
 

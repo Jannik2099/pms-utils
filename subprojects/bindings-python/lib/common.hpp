@@ -19,7 +19,6 @@
 #include <nanobind/make_iterator.h>
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
-#include <nanobind/stl/detail/nb_optional.h>
 #include <ranges>
 #include <string>
 #include <string_view>

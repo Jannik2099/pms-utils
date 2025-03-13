@@ -5,6 +5,11 @@
 #include "pms-utils/depend/depend_parser.hpp"
 #include "pms-utils/misc/x3_utils.hpp"
 
+#include <boost/parser/parser.hpp>
+#include <filesystem>
+#include <optional>
+#include <string_view>
+#include <tuple>
 #include <utility>
 
 namespace pms_utils::parsers::ebuild {

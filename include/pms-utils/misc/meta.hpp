@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/container_hash/hash.hpp>
+#include <boost/container_hash/hash.hpp> // IWYU pragma: keep
 #include <boost/describe/enumerators.hpp>
 #include <boost/describe/members.hpp>
 #include <boost/describe/modifiers.hpp> // IWYU pragma: keep
