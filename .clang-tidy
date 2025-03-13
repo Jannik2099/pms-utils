@@ -3,6 +3,6 @@ Checks: "-*, bugprone-*, -bugprone-unchecked-optional-access, cppcoreguidelines-
 WarningsAsErrors: "*"
 
 FormatStyle: "file"
-ExtraArgsBefore: ["-DPMS_UTILS_CLANG_TIDY"]
+ExtraArgsBefore: ["-DPMS_UTILS_CLANG_TIDY", "-fno-caret-diagnostics"]
 CheckOptions:
-  misc-include-cleaner.IgnoreHeaders: '[gc]\+\+.*/bits/.*;boost/.*/detail/.*;(python|pypy)[0-9\.]*/.*'
+  misc-include-cleaner.IgnoreHeaders: "boost/.*/detail/.*"
