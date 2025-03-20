@@ -23,7 +23,7 @@ template <typename T, typename U> struct argument_type<T(U)> {
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PARSER_DEFINE(name, rule)                                                                            \
-    inline const auto name##_def = rule;                                                                     \
+    [[maybe_unused]] inline const auto name##_def = rule;                                                    \
     /* NOLINTBEGIN(clang-analyzer-optin.core.EnumCastOutOfRange) */                                          \
     _Pragma("GCC diagnostic push") _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"")                  \
         BOOST_PARSER_DEFINE_RULES(name)                                                                      \

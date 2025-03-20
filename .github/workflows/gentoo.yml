@@ -57,13 +57,6 @@ jobs:
               args+="-Db_lto_mode=thin -Db_lundef=false "
               ;;
           esac
-          case "${{ matrix.type }}" in
-            *debug*)
-                args+="-Dcpp_debugstl=true "
-                ;;
-            *)
-                ;;
-          esac
 
           echo FEATURES='"${FEATURES} test"' >> env/myenv
           echo PYTHON_TARGETS='"${PYTHON_TARGETS} pypy3"' >> env/myenv

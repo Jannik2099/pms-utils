@@ -20,6 +20,15 @@ boost_dep = dependency(
     version: '>=1.87',
 )
 
+if get_option('b_coverage')
+    add_project_arguments(
+        meson.get_compiler('cpp').get_supported_arguments(
+            ['-fprofile-update=atomic'],
+        ),
+        language: 'cpp',
+    )
+endif
+
 subdir('include')
 
 subdir('lib')
