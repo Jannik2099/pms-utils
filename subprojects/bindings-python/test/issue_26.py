@@ -2,7 +2,7 @@
 
 import pms_utils
 
-useflags = set()
+useflags = set[pms_utils.atom.Useflag]()
 repo = pms_utils.repo.Repository("/var/db/repos/gentoo")
 for category in repo:
     for package in category:
