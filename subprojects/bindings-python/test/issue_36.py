@@ -4,6 +4,7 @@ import pms_utils
 
 repo = pms_utils.repo.Repository("/var/db/repos/gentoo")
 category = repo["www-client"]
+assert category is not None
 
 arr = [x for x in category]
 name_set = {str(x.name) for x in arr}
