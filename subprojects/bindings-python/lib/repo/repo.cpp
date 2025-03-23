@@ -17,6 +17,8 @@ namespace pms_utils::bindings::python::repo {
 void _register(nb::module_ &_module) {
     nb::module_ repo = _module.def_submodule("repo");
 
+    repo.def("parse_metadata", parse_metadata);
+
     auto py_Ebuild = create_bindings<Ebuild>(repo).def_prop_ro("metadata", &Ebuild::metadata);
 
     auto py_Package =

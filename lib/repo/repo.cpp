@@ -64,16 +64,9 @@ bool metadata_parser(std::string_view line, std::string_view name, Member &membe
 
 // not sure how to better organize, suggestions welcome
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
-const ebuild::Metadata &Ebuild::metadata() const {
-    if (_metadata.has_value()) {
-        return _metadata.value();
-    }
+ebuild::Metadata parse_metadata(const std::filesystem::path &path) {
     ebuild::Metadata meta;
-    const std::filesystem::path category = path.parent_path().parent_path();
-    const std::filesystem::path repopath = category.parent_path();
-    const std::filesystem::path cachefile = repopath / "metadata" / "md5-cache" / category.filename() /
-                                            std::string{name + "-" + std::string{version}};
-    std::ifstream stream{cachefile};
+    std::ifstream stream{path};
     for (std::string line; std::getline(stream, line);) {
         bool parsed = false;
         parsed = metadata_parser(line, "DEPEND=", meta.DEPEND, parsers::depend::nodes);
@@ -150,7 +143,18 @@ const ebuild::Metadata &Ebuild::metadata() const {
             continue;
         }
     }
-    _metadata = std::move(meta);
+    return meta;
+}
+
+const ebuild::Metadata &Ebuild::metadata() const {
+    if (_metadata.has_value()) {
+        return _metadata.value();
+    }
+    const std::filesystem::path category = path.parent_path().parent_path();
+    const std::filesystem::path repopath = category.parent_path();
+    const std::filesystem::path cachefile = repopath / "metadata" / "md5-cache" / category.filename() /
+                                            std::string{name + "-" + std::string{version}};
+    _metadata = parse_metadata(cachefile);
     return _metadata.value();
 }
 

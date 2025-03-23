@@ -8,6 +8,7 @@ repo
 .. toctree::
     :maxdepth: 1
 
+    repo/parse_metadata
     repo/Ebuild
     repo/Package
     repo/Category
