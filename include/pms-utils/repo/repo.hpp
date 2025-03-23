@@ -20,6 +20,8 @@
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace repo {
 
+ebuild::Metadata parse_metadata(const std::filesystem::path &path);
+
 struct Ebuild {
 private:
     mutable std::optional<ebuild::Metadata> _metadata;
