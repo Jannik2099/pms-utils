@@ -174,7 +174,7 @@ PARSER_DEFINE(category,
 // Otherwise e.g. name(foo-1-1) would match fully
 PARSER_DEFINE(name, (aux::alnum | boost::parser::char_('_')) >>
                         *(aux::alnum | boost::parser::char_("_+") |
-                          (boost::parser::char_('-') - (boost::parser::lit('-') >> package_version >>
+                          (boost::parser::char_('-') - (+(boost::parser::lit('-') >> package_version) >>
                                                         !(aux::alnum | boost::parser::char_("_-+"))))));
 
 PARSER_DEFINE(useflag, aux::alnum >> *(aux::alnum | boost::parser::char_("_-+@")));
