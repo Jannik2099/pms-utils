@@ -90,6 +90,8 @@ constexpr inline auto properties_elem_helper = []<typename T>(T &ctx) {
     }
 };
 
+inline const boost::parser::symbols<bool> iuse_pm{{"+", true}, {"-", false}};
+
 inline const boost::parser::symbols<pms_utils::ebuild::phases> phases_token{
     {"pretend", pms_utils::ebuild::phases::pretend},     {"setup", pms_utils::ebuild::phases::setup},
     {"unpack", pms_utils::ebuild::phases::unpack},       {"prepare", pms_utils::ebuild::phases::prepare},
@@ -217,7 +219,7 @@ PARSER_DEFINE(KEYWORDS, keyword % +aux::space);
 PARSER_DEFINE(inherited_elem, +aux::graph);
 PARSER_DEFINE(INHERITED, inherited_elem % +aux::space);
 
-PARSER_DEFINE(iuse_elem, aux::matches('+') >> atom::useflag);
+PARSER_DEFINE(iuse_elem, -_internal::iuse_pm >> atom::useflag);
 PARSER_DEFINE(IUSE, iuse_elem % +aux::space);
 
 PARSER_DEFINE(REQUIRED_USE, _internal::REQUIRED_USE_impl);

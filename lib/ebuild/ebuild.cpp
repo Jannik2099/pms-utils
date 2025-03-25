@@ -73,8 +73,12 @@ std::ostream &inherited::ostream_impl(std::ostream &out) const { return out << s
 
 iuse_elem::operator std::string() const {
     std::string ret;
-    if (default_enabled) {
-        ret += '+';
+    if (default_enabled.has_value()) {
+        if (default_enabled.value()) {
+            ret += "+";
+        } else {
+            ret += "-";
+        }
     }
     ret += useflag;
     return ret;

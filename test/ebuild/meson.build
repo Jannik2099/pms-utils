@@ -1,1 +1,1 @@
-tests += files('src_uri.cpp', 'uri.cpp')
+tests += files('iuse.cpp', 'src_uri.cpp', 'uri.cpp')
