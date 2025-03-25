@@ -94,7 +94,7 @@ private:
     std::ostream &ostream_impl(std::ostream &out) const;
 
 public:
-    bool default_enabled = false;
+    std::optional<bool> default_enabled;
     atom::Useflag useflag;
 
     [[nodiscard]] explicit operator std::string() const;
