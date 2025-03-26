@@ -42,7 +42,7 @@ jobs:
           cd
           curl -s -L https://github.com/boostorg/boost/releases/download/boost-${BOOST_VERSION}/boost-${BOOST_VERSION}-cmake.tar.xz | tar --xz --extract
           cd boost-${BOOST_VERSION}
-          CXXFLAGS="-pthread -fwasm-exceptions -flto -O3" LDFLAGS="-pthread -sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency -fwasm-exceptions -flto -O3" emcmake cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBOOST_INCLUDE_LIBRARIES="describe;lockfree;mp11;parser;program_options;regex" -B build
+          CXXFLAGS="-pthread -fwasm-exceptions -flto -O3" LDFLAGS="-pthread -sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency -fwasm-exceptions -flto -O3" emcmake cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBOOST_INCLUDE_LIBRARIES="describe;json;lockfree;mp11;parser;program_options;regex" -B build
           cmake --build build --target install
 
           echo "BOOST_ROOT=$(em-config CACHE)/sysroot" >> ${GITHUB_ENV}
