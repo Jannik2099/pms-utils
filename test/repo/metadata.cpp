@@ -8,6 +8,9 @@
 #include <atomic>
 #include <boost/describe/members.hpp>
 #include <boost/describe/modifiers.hpp>
+#include <boost/json/array.hpp>
+#include <boost/json/object.hpp>
+#include <boost/json/value.hpp>
 #include <boost/lockfree/stack.hpp>
 #include <boost/mp11/algorithm.hpp>
 #include <boost/parser/parser.hpp>
@@ -23,6 +26,7 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <mutex>
 #include <print>
 #include <sstream>
 #include <string>
@@ -50,7 +54,14 @@ struct Metrics {
     std::atomic<std::int64_t> runtime;
 };
 
-bool check_file(const std::filesystem::path &cachefile, Metrics &metrics, bool detailed) {
+struct Failure {
+    std::string file;
+    std::string expr;
+    std::string input;
+};
+
+bool check_file(const std::filesystem::path &cachefile, Metrics &metrics, std::vector<Failure> &failures,
+                std::mutex &failures_lock) {
     const auto before = std::chrono::steady_clock::now();
     const ebuild::Metadata &metadata = parse_metadata(cachefile);
     const auto after = std::chrono::steady_clock::now();
@@ -75,10 +86,8 @@ bool check_file(const std::filesystem::path &cachefile, Metrics &metrics, bool d
             const std::string result = trim_string(ostr.view());
             if (control != result) {
                 success = false;
-                if (detailed) {
-                    std::println(std::cerr, "parser mismatch {} {}\n\tinput: {}\n\tparsed: {}", match,
-                                 cachefile.string(), control, result);
-                }
+                const std::scoped_lock lock{failures_lock};
+                failures.emplace_back(cachefile.string(), match.substr(0, match.size() - 1), control);
             } else {
                 metrics.parsed[member.name] += 1;
             }
@@ -90,30 +99,72 @@ bool check_file(const std::filesystem::path &cachefile, Metrics &metrics, bool d
 PARSER_RULE_T(name_ver, boost::parser::none);
 PARSER_DEFINE(name_ver, boost::parser::omit[parsers::atom::name >> "-" >> parsers::atom::package_version]);
 
-void print_metrics(const Metrics &metrics) {
+boost::json::object process_metrics(const Metrics &metrics) {
     std::uint64_t total_bytes{};
+    boost::json::object ret;
     boost::mp11::mp_for_each<
         boost::describe::describe_members<ebuild::Metadata, boost::describe::mod_any_access>>(
-        [&metrics, &total_bytes](auto member) {
-            std::println("parsed {} out of {} {} expressions", metrics.parsed.at(member.name).load(),
-                         metrics.found.at(member.name).load(), member.name);
-            std::println("consumed {} KiB of {} expressions", metrics.bytes.at(member.name) >> 10,
-                         member.name);
-            if (metrics.parsed.at(member.name) < metrics.found.at(member.name)) {
-                std::println("missed {} out of {} {} expressions",
-                             metrics.found.at(member.name).load() - metrics.parsed.at(member.name).load(),
-                             metrics.found.at(member.name).load(), member.name);
-            }
+        [&](auto member) {
+            ret[member.name] = {{"parsed", metrics.parsed.at(member.name)},
+                                {"total", metrics.found.at(member.name)},
+                                {"consumed_bytes", metrics.bytes.at(member.name)}};
             total_bytes += metrics.bytes.at(member.name);
         });
-    std::println("total parser runtime was {}", std::chrono::duration_cast<std::chrono::milliseconds>(
-                                                    std::chrono::nanoseconds{metrics.runtime}));
-    std::println("total parser consumption was {} KiB", total_bytes >> 10);
+    ret["consumed_bytes"] = total_bytes;
+    ret["runtime_ns"] = metrics.runtime;
+
+    return ret;
+}
+
+void print_metrics(const boost::json::object &metrics) {
+    for (const auto &[key, value] : metrics) {
+        if (!value.is_object()) {
+            continue;
+        }
+        const boost::json::object &obj = value.as_object();
+        const std::string key_name{key};
+        std::println("parsed {} out of {} {} expressions", obj.at("parsed").as_uint64(),
+                     obj.at("total").as_uint64(), key_name);
+        std::println("consumed {} KiB of {} expressions", obj.at("consumed_bytes").as_uint64() >> 10,
+                     key_name);
+        const std::uint64_t missed = obj.at("total").as_uint64() - obj.at("parsed").as_uint64();
+        if (missed > 0) {
+            std::println("missed {} out of {} {} expressions", missed, obj.at("total").as_uint64(), key_name);
+        }
+    }
+    std::println("total parser runtime was {}",
+                 std::chrono::duration_cast<std::chrono::milliseconds>(
+                     std::chrono::nanoseconds{metrics.at("runtime_ns").as_int64()}));
+    std::println("total parser consumption was {} KiB", metrics.at("consumed_bytes").as_uint64() >> 10);
+}
+
+boost::json::array process_errors(std::vector<Failure> &failures) {
+    boost::json::array ret;
+    for (Failure &failure : failures) {
+        ret.emplace_back<boost::json::object>({{"file", std::move(failure.file)},
+                                               {"expr", std::move(failure.expr)},
+                                               {"input", std::move(failure.input)}});
+    }
+    return ret;
+}
+
+void print_errors(const boost::json::array &errors) {
+    for (const boost::json::value &error : errors) {
+        const boost::json::object &error_obj = error.as_object();
+        std::print(std::cerr,
+                   "error at\n"
+                   "\tfile: {}\n"
+                   "\texpr: {}\n"
+                   "\tinput: {}\n",
+                   std::string{error_obj.at("file").as_string()},
+                   std::string{error_obj.at("expr").as_string()},
+                   std::string{error_obj.at("input").as_string()});
+    }
 }
 
 } // namespace
 
-// NOLINTNEXTLINE(bugprone-exception-escape)
+// NOLINTNEXTLINE(bugprone-exception-escape, readability-function-cognitive-complexity)
 int main(int argc, char *argv[]) {
     boost::program_options::options_description descr{};
     // clang-format off
@@ -121,6 +172,7 @@ int main(int argc, char *argv[]) {
         ("help,h", boost::program_options::bool_switch())
         ("verbose-errors", boost::program_options::value<bool>()->default_value(true))
         ("print-stats", boost::program_options::value<bool>()->default_value(true))
+        ("json", boost::program_options::bool_switch())
         ("repo-path", boost::program_options::value<std::string>()->default_value("/var/db/repos/gentoo"))
     ;
     // clang-format on
@@ -137,7 +189,6 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    const bool verbose = varmap["verbose-errors"].as<bool>();
     const std::filesystem::path repo_path = varmap["repo-path"].as<std::string>();
 
     Metrics metrics;
@@ -155,10 +206,14 @@ int main(int argc, char *argv[]) {
     std::atomic<std::size_t> outstanding{0};
     std::atomic<bool> failed = false;
 
-    const auto package_fn = [&failed, &metrics, verbose, &outstanding](std::filesystem::path atom) {
-        return [atom_ = std::move(atom), &failed, &metrics, verbose, &outstanding]() {
+    std::vector<Failure> failures;
+    std::mutex failures_lock;
+
+    const auto package_fn = [&failed, &metrics, &failures, &failures_lock,
+                             &outstanding](std::filesystem::path atom) {
+        return [atom_ = std::move(atom), &failed, &metrics, &failures, &failures_lock, &outstanding]() {
             if (misc::try_parse(atom_.filename().string(), name_ver, false)) {
-                if (!check_file(atom_, metrics, verbose)) {
+                if (!check_file(atom_, metrics, failures, failures_lock)) {
                     failed = true;
                 }
             }
@@ -204,8 +259,23 @@ int main(int argc, char *argv[]) {
         thread.join();
     }
 
-    if (varmap["print-stats"].as<bool>()) {
-        print_metrics(metrics);
+    const bool json = varmap["json"].as<bool>();
+    const bool verbose_errors = varmap["verbose-errors"].as<bool>();
+    const bool print_stats = varmap["print-stats"].as<bool>();
+    boost::json::object metrics_json = process_metrics(metrics);
+    boost::json::array errors_json = process_errors(failures);
+    if (json) {
+        boost::json::object obj;
+        obj["metrics"] = std::move(metrics_json);
+        obj["errors"] = std::move(errors_json);
+        std::cout << obj;
+    } else {
+        if (print_stats) {
+            print_metrics(metrics_json);
+        }
+        if (verbose_errors) {
+            print_errors(errors_json);
+        }
     }
     return static_cast<int>(failed);
 }

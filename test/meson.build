@@ -23,9 +23,9 @@ if meson.get_compiler('cpp').get_id() == 'emscripten'
     fs_link_args = ['-lnodefs.js', '-lnoderawfs.js']
 endif
 
-boost_po_dep = dependency(
+boost_test_dep = dependency(
     'boost',
-    modules: ['program_options'],
+    modules: ['program_options', 'json'],
 )
 
 foreach t : tests
@@ -35,7 +35,7 @@ foreach t : tests
         executable(
             parent + '_' + fs.stem(t),
             t,
-            dependencies: [boost_dep, boost_po_dep, pms_utils_dep],
+            dependencies: [boost_dep, boost_test_dep, pms_utils_dep],
             include_directories: inc_test_utils,
             gnu_symbol_visibility: 'inlineshidden',
             link_args: fs_link_args,
