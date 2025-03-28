@@ -1,0 +1,60 @@
+name: Emscripten
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/jannik2099/pms-utils-gentoo-ci:latest
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      BOOST_VERSION: "1.87.0"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # we need a newer node than provided in emsdk for navigator to be available
+      # also, this needs to run before emsdk, as otherwise it adds its own node to PATH
+      - name: install nodejs
+        run: |
+          emerge nodejs
+
+      - name: install emscripten
+        run: |
+          cd
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+          source emsdk_env.sh
+          echo "PATH=${PATH}" >> ${GITHUB_ENV}
+
+      - name: install boost
+        run: |
+          cd
+          curl -s -L https://github.com/boostorg/boost/releases/download/boost-${BOOST_VERSION}/boost-${BOOST_VERSION}-cmake.tar.xz | tar --xz --extract
+          cd boost-${BOOST_VERSION}
+          CXXFLAGS="-pthread -fwasm-exceptions -flto -O3" LDFLAGS="-pthread -sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency -fwasm-exceptions -flto -O3" emcmake cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DBOOST_INCLUDE_LIBRARIES="describe;mp11;parser;regex" -B build
+          cmake --build build --target install
+
+          echo "BOOST_ROOT=$(em-config CACHE)/sysroot" >> ${GITHUB_ENV}
+
+      - name: configure
+        run: |
+          meson setup --cross-file wasm.ini -Db_lto=true --buildtype=release -Dtest=true build
+
+      - name: compile
+        run: |
+          meson compile -C build
+
+      - name: test
+        run: |
+          meson test -C build
