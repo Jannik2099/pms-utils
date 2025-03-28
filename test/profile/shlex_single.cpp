@@ -12,7 +12,7 @@ int main() {
     std::vector<std::tuple<std::string, bool>> res;
 
     const std::string_view test1 = "$test_variable";
-    if (const auto *begin = test1.begin();
+    if (auto begin = test1.begin();
         (!prefix_parse(begin, test1.end(), pms_utils::parsers::profile::make_defaults_shlex, res)) ||
         (begin != test1.end())) {
         success = false;
@@ -30,7 +30,7 @@ int main() {
     res.clear();
 
     const std::string_view test2 = "test_normal_value";
-    if (const auto *begin = test2.begin();
+    if (auto begin = test2.begin();
         (!prefix_parse(begin, test2.end(), pms_utils::parsers::profile::make_defaults_shlex, res)) ||
         (begin != test2.end())) {
         success = false;
@@ -48,7 +48,7 @@ int main() {
     res.clear();
 
     const std::string_view test3 = "test'with quotes and 'spaces";
-    if (const auto *begin = test3.begin();
+    if (auto begin = test3.begin();
         (!prefix_parse(begin, test3.end(), pms_utils::parsers::profile::make_defaults_shlex, res)) ||
         (begin != test3.end())) {
         success = false;

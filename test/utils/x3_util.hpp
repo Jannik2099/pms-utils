@@ -21,8 +21,8 @@ template <boost::parser::trace trace = boost::parser::trace::off, typename Rule>
 [[nodiscard]] static inline auto try_parse(std::string_view input, Rule rule, bool expected = true,
                                            bool complete = true) {
     parse_result<typename Rule::parser_type::attr_type> ret;
-    const auto *begin = input.begin();
-    const auto *const end = input.end();
+    auto begin = input.begin();
+    const auto end = input.end();
     ret.success = prefix_parse(begin, end, rule, ret.result, trace);
     ret.consumed = {input.begin(), begin};
     ret.remainder = {begin, end};
