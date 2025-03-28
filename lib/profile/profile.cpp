@@ -171,8 +171,8 @@ void init_eapi(std::string &EAPI, const std::filesystem::path &path) {
 }
 
 void init_use_impl(_internal::unordered_str_set<std::string> &set, std::string_view line) {
-    const auto *begin = line.begin();
-    const auto *const end = line.end();
+    auto begin = line.begin();
+    const auto end = line.end();
     if (!prefix_parse(begin, end, parsers::profile::package_use_values, set)) {
         throw std::invalid_argument{std::format("failed to parse use-style line {}", line)};
     }
@@ -189,8 +189,8 @@ void init_package_use_impl(
     for (const auto &line_ :
          std::views::split(lines, '\n') | std::views::filter([](auto line_) { return !std::empty(line_); })) {
         std::string_view line{line_.begin(), line_.end()};
-        const auto *begin = line.begin();
-        const auto *const end = line.end();
+        auto begin = line.begin();
+        const auto end = line.end();
         std::tuple<_internal::WildcardAtom, _internal::unordered_str_set<std::string>> parsed;
         if (!prefix_parse(begin, end, parsers::profile::package_use_line, parsed)) {
             throw std::invalid_argument{std::format("failed to parse package.use-style line {}", line)};
@@ -240,8 +240,8 @@ template <typename P> auto parser_helper(P parser, std::string_view str) {
     if (str.empty()) {
         return res;
     }
-    const auto *begin = str.begin();
-    if (const auto *const end = str.end(); (!prefix_parse(begin, end, parser, res)) || (begin != end)) {
+    auto begin = str.begin();
+    if (const auto end = str.end(); (!prefix_parse(begin, end, parser, res)) || (begin != end)) {
         throw std::invalid_argument{std::format("make.defaults element {} appears invalid", str)};
     }
     return res;
@@ -293,8 +293,8 @@ void algo_5_1_helper(const _internal::unordered_str_set<std::string> &set, const
 std::vector<std::tuple<atom::PackageExpr, std::size_t>>
 expand_package_expr(std::string_view expr, const std::vector<repo::Repository> &repos) {
     _internal::WildcardAtom atom;
-    const auto *begin = expr.begin();
-    const auto *const end = expr.end();
+    auto begin = expr.begin();
+    const auto end = expr.end();
     if (!prefix_parse(begin, end, parsers::profile::wildcard_atom, atom)) {
         throw std::invalid_argument{std::format("expression {} does not match valid wildcard syntax", expr)};
     }
@@ -340,8 +340,8 @@ void Profile::init_make_defaults() {
         stream << fstream.rdbuf();
         const std::string_view content = stream.view();
         std::vector<std::tuple<std::string, std::string>> my_make_defaults;
-        const auto *begin = content.begin();
-        const auto *const end = content.end();
+        auto begin = content.begin();
+        const auto end = content.end();
         if (!prefix_parse(begin, end, parsers::profile::make_defaults, my_make_defaults)) {
             throw std::invalid_argument{"make.defaults appear invalid"};
         }
@@ -401,8 +401,8 @@ void Profile::init_packages() {
             throw std::invalid_argument{"packages entry without leading * is deprecated"};
         }
         atom::PackageExpr val;
-        const auto *begin = line.begin();
-        const auto *const end = line.end();
+        auto begin = line.begin();
+        const auto end = line.end();
         if (!prefix_parse(begin, end, parsers::atom::package_dep, val)) {
             throw std::invalid_argument{std::format("failed to parse {} as a PackageExpr", line)};
         }

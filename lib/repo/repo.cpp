@@ -50,8 +50,8 @@ bool metadata_parser(std::string_view line, std::string_view name, Member &membe
         return false;
     }
     line = line.substr(name.length());
-    const auto *begin = line.begin();
-    if (const auto *const end = line.end(); prefix_parse(begin, end, rule, member)) {
+    auto begin = line.begin();
+    if (const auto end = line.end(); prefix_parse(begin, end, rule, member)) {
         if (begin == end) {
             return true;
         }
@@ -194,8 +194,8 @@ std::optional<Ebuild> Package::operator[](const atom::Version &version) const {
     return Ebuild{ebuild_path, name_, version};
 }
 std::optional<Ebuild> Package::operator[](std::string_view version) const {
-    const auto *begin = version.begin();
-    const auto *const end = version.end();
+    auto begin = version.begin();
+    const auto end = version.end();
     atom::Version ver;
     if ((!prefix_parse(begin, end, parsers::atom::package_version, ver)) || (begin != end)) {
         throw std::invalid_argument{std::format("argument {} is not a valid Version expression", version)};
@@ -218,8 +218,8 @@ Category::const_iterator Category::end() const noexcept {
 Category::const_iterator Category::cend() const noexcept { return end(); }
 
 std::optional<Package> Category::operator[](std::string_view package) const {
-    const auto *begin = package.begin();
-    const auto *const end = package.end();
+    auto begin = package.begin();
+    const auto end = package.end();
     atom::Name package_name;
     if ((!prefix_parse(begin, end, parsers::atom::name, package_name)) || (begin != end)) {
         throw std::invalid_argument{
@@ -258,8 +258,8 @@ Repository::const_iterator Repository::end() const noexcept {
 Repository::const_iterator Repository::cend() const noexcept { return end(); }
 
 std::optional<Category> Repository::operator[](std::string_view category) const {
-    const auto *begin = category.begin();
-    const auto *const end = category.end();
+    auto begin = category.begin();
+    const auto end = category.end();
     atom::Category category_name;
     if ((!prefix_parse(begin, end, parsers::atom::category, category_name)) || (begin != end)) {
         throw std::invalid_argument{

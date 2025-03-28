@@ -1,4 +1,4 @@
-Checks: "-*, bugprone-*, -bugprone-unchecked-optional-access, cppcoreguidelines-*, -cppcoreguidelines-avoid-magic-numbers,  -cppcoreguidelines-non-private-member-variables-in-classes, misc-*, -misc-non-private-member-variables-in-classes, -misc-no-recursion, modernize-*, -modernize-use-trailing-return-type, performance-*, portability-*, readability-*, -readability-magic-numbers, clang-*, -clang-analyzer-optin.core.EnumCastOutOfRange, -clang*"
+Checks: "-*, bugprone-*, -bugprone-unchecked-optional-access, cppcoreguidelines-*, -cppcoreguidelines-avoid-magic-numbers,  -cppcoreguidelines-non-private-member-variables-in-classes, misc-*, -misc-non-private-member-variables-in-classes, -misc-no-recursion, modernize-*, -modernize-use-trailing-return-type, performance-*, portability-*, readability-*, -readability-magic-numbers, -readability-qualified-auto, clang-*, -clang-analyzer-optin.core.EnumCastOutOfRange, -clang*"
 # TODO: clang* crashes on some files as of 19.1.7
 WarningsAsErrors: "*"
 
