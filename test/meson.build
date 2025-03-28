@@ -18,6 +18,11 @@ if is_asan and meson.get_compiler('cpp').get_id() == 'gcc'
     test_env.set('ASAN_OPTIONS', 'detect_odr_violation=0')
 endif
 
+fs_link_args = []
+if meson.get_compiler('cpp').get_id() == 'emscripten'
+    fs_link_args = ['-lnodefs.js', '-lnoderawfs.js']
+endif
+
 foreach t : tests
     parent = fs.parent(fs.relative_to(t, meson.current_source_dir()))
     test(
@@ -28,6 +33,7 @@ foreach t : tests
             dependencies: [boost_dep, pms_utils_dep],
             include_directories: inc_test_utils,
             gnu_symbol_visibility: 'inlineshidden',
+            link_args: fs_link_args,
         ),
         timeout: 0,
         env: test_env,
