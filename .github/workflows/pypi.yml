@@ -66,18 +66,12 @@ jobs:
               continue
             fi
 
-            "${VER}" -m build ${MYARGS} --outdir dist .
+            "${VER}" -m build --wheel ${MYARGS} --outdir dist .
           done
 
       - name: fixup wheels
         run: |
           auditwheel repair --strip --plat manylinux_2_34_${{ matrix.arch }} dist/*.whl
-
-      - name: copy srcdist
-        # only one instance should upload this artifact
-        if: ${{ matrix.arch == 'x86_64' }}
-        run: |
-          cp dist/*.tar.gz wheelhouse/
 
       - name: upload artifacts
         uses: actions/upload-artifact@v4
