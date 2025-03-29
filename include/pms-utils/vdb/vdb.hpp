@@ -264,6 +264,14 @@ public:
     BOOST_DESCRIBE_CLASS(Category::Iterator, (), (), (), (it, entry));
 };
 
+[[nodiscard]] inline std::size_t hash_value(const Vdb &vdb) {
+    return boost::hash<std::filesystem::path>{}(vdb.path());
+}
+
+[[nodiscard]] inline std::size_t hash_value(const Category &category) {
+    return boost::hash<std::filesystem::path>{}(category.path());
+}
+
 namespace meta {
 using all = boost::mp11::mp_list<Obj, Dir, Sym, Content, Package, Entry, Vdb, Vdb::Iterator, Category,
                                  Category::Iterator>;
@@ -273,6 +281,6 @@ using all = boost::mp11::mp_list<Obj, Dir, Sym, Content, Package, Entry, Vdb, Vd
 } // namespace pms_utils
 // namespace pms_utils
 
-PMS_UTILS_FOOTER(vdb);
-
 #include "pms-utils/misc/macro-end.hpp"
+
+PMS_UTILS_FOOTER(vdb);

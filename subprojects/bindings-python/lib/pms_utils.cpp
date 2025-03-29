@@ -3,6 +3,7 @@
 #include "ebuild/ebuild.hpp"
 #include "profile/profile.hpp"
 #include "repo/repo.hpp"
+#include "vdb/vdb.hpp"
 
 #include <nanobind/nb_defs.h>
 
@@ -14,4 +15,5 @@ NB_MODULE(pms_utils, _module) {
     ebuild::_register(_module);
     repo::_register(_module);
     profile::_register(_module);
+    vdb::_register(_module);
 }
