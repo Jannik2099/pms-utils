@@ -36,16 +36,7 @@ jobs:
         run: |
           pipx install meson
 
-      - name: install boost
-        run: |
-          mkdir /boost
-          cd /boost
-          curl --location https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.tar.xz | tar xJ
-          cd boost-1.87.0
-          chmod +x bootstrap.sh
-          ./bootstrap.sh
-          ./bootstrap.sh
-          ./b2 --build-dir=build --with-mp11 --with-regex install
+      - uses: ./.github/actions/install-boost
 
       - name: build pms-utils
         run: |
