@@ -26,6 +26,7 @@ endif
 boost_test_dep = dependency(
     'boost',
     modules: ['program_options', 'json'],
+    include_type: 'system',
 )
 
 foreach t : tests
