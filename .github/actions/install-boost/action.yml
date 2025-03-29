@@ -1,0 +1,72 @@
+name: Install Boost
+description: Installs Boost
+
+inputs:
+  version:
+    description: Boost version
+    required: true
+    default: "1.87.0"
+
+  components:
+    description: Boost components
+    required: true
+    default: describe;mp11;parser;regex
+
+  cmake_wrapper:
+    description: CMake wrapper
+
+  CMAKE_BUILD_TYPE:
+    description: CMake build type
+    default: Release
+
+  CXXFLAGS:
+    description: C++ compiler flags
+    default: "-flto -O3"
+
+  LDFLAGS:
+    description: linker flags
+    default: "-flto -O3"
+
+runs:
+  using: composite
+  steps:
+    - name: Download
+      shell: bash
+      run: |
+        cd
+        curl -s -L https://github.com/boostorg/boost/releases/download/boost-${BOOST_VERSION}/boost-${BOOST_VERSION}-cmake.tar.xz | tar --xz --extract
+      env:
+        BOOST_VERSION: ${{ inputs.version }}
+
+    - name: Configure
+      shell: bash
+      run: |
+        cd
+        cd boost-${BOOST_VERSION}
+        ${CMAKE_WRAPPER} cmake -GNinja -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DBOOST_INCLUDE_LIBRARIES="describe;json;lockfree;mp11;parser;program_options;regex" -B build
+      env:
+        BOOST_VERSION: ${{ inputs.version }}
+        COMPONENTS: ${{ inputs.components }}
+        CMAKE_WRAPPER: ${{ inputs.cmake_wrapper }}
+        CMAKE_BUILD_TYPE: ${{ inputs.CMAKE_BUILD_TYPE }}
+        CXXFLAGS: ${{ inputs.CXXFLAGS }}
+        LDFLAGS: ${{ inputs.LDFLAGS }}
+
+    - name: Install
+      shell: bash
+      run: |
+        cd
+        cd boost-${BOOST_VERSION}
+        cmake --build build --target install
+      env:
+        BOOST_VERSION: ${{ inputs.version }}
+
+    - name: Update BOOST_ROOT
+      shell: bash
+      run: |
+        cd
+        cd boost-${BOOST_VERSION}
+        CMAKE_INSTALL_PREFIX=$(grep '^CMAKE_INSTALL_PREFIX' build/CMakeCache.txt | cut -d '=' -f 2)
+        echo "BOOST_ROOT=${CMAKE_INSTALL_PREFIX}" | tee -a "${GITHUB_ENV}"
+      env:
+        BOOST_VERSION: ${{ inputs.version }}
