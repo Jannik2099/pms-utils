@@ -18,6 +18,7 @@ boost_dep = dependency(
     'boost',
     optional_modules: ['regex'],
     version: '>=1.87',
+    include_type: 'system',
 )
 
 if get_option('b_coverage')

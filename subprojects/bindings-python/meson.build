@@ -9,12 +9,12 @@ project(
 fs = import('fs')
 
 pms_utils_dep = dependency('pms-utils')
-boost_dep = dependency('boost')
+boost_dep = dependency('boost', include_type: 'system')
 nanobind_dep = dependency('nanobind', static: true, include_type: 'system')
 
 pymod = import('python')
 py_installation = pymod.find_installation(pure: false)
-python_dep = py_installation.dependency()
+python_dep = py_installation.dependency(include_type: 'system')
 
 subdir('lib')
 
