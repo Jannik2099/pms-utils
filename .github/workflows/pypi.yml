@@ -1,6 +1,7 @@
 name: "PyPI"
 
 on:
+  pull_request:
   release:
     types: [published]
 
@@ -86,6 +87,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
+    if: github.event_name == 'release'
     needs: build
     permissions:
       id-token: write
