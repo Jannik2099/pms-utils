@@ -33,11 +33,12 @@ jobs:
       - name: Collect coverage data
         run: ninja -C build coverage-sonarqube
 
-      - name: Install SonarSource
-        uses: SonarSource/sonarcloud-github-c-cpp@v3
-
-      - name: Run sonar-scanner
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: sonar-scanner --define sonar.cfamily.compile-commands="build/compile_commands.json" --define sonar.coverageReportPaths="build/meson-logs/sonarqube.xml"
+        with:
+          args: >
+            --define sonar.cfamily.compile-commands="build/compile_commands.json"
+            --define sonar.coverageReportPaths="build/meson-logs/sonarqube.xml"
