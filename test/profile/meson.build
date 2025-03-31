@@ -5,5 +5,5 @@ tests += files(
     'wildcard_atom.cpp',
 )
 if fs.is_dir('/var/db/repos/gentoo')
-    tests += files('expand_wildcard.cpp')
+    tests += files('expand_wildcard.cpp', 'parse_profiles.cpp')
 endif
