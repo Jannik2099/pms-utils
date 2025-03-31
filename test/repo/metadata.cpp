@@ -1,9 +1,10 @@
-#include "../utils/misc.hpp"
+#include "misc.hpp"
 #include "pms-utils/atom/atom_parser.hpp"
 #include "pms-utils/ebuild/ebuild.hpp"
 #include "pms-utils/misc/try_parse.hpp"
 #include "pms-utils/misc/x3_utils.hpp"
 #include "pms-utils/repo/repo.hpp"
+#include "threadpool.hpp"
 
 #include <atomic>
 #include <boost/describe/members.hpp>
@@ -31,7 +32,6 @@
 #include <sstream>
 #include <string>
 #include <string_view>
-#include <thread>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -246,18 +246,11 @@ int main(int argc, char *argv[]) {
         stack.push(category_fn(std::move(path)));
     }
 
-    std::vector<std::thread> threads;
-    threads.reserve(std::thread::hardware_concurrency());
-    for (std::size_t i = 0; i < std::thread::hardware_concurrency(); i++) {
-        threads.emplace_back([&stack, &outstanding]() {
-            while (outstanding > 0) {
-                stack.consume_one([](auto &&func) { func(); });
-            }
-        });
-    }
-    for (std::thread &thread : threads) {
-        thread.join();
-    }
+    test::Threadpool{[&stack, &outstanding]() {
+        while (outstanding > 0) {
+            stack.consume_one([](auto &&func) { func(); });
+        }
+    }}.join();
 
     const bool json = varmap["json"].as<bool>();
     const bool verbose_errors = varmap["verbose-errors"].as<bool>();
