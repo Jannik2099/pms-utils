@@ -1,4 +1,5 @@
 #include "pms-utils/repo/repo.hpp"
+#include "threadpool.hpp"
 
 #include <atomic>
 #include <boost/lockfree/stack.hpp>
@@ -10,27 +11,9 @@
 #include <mutex>
 #include <set>
 #include <span>
-#include <thread>
 #include <utility>
-#include <vector>
 
 using namespace pms_utils::repo;
-
-namespace {
-
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-boost::lockfree::stack<std::function<void()>> stack{0};
-
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-std::atomic<std::size_t> outstanding{0};
-
-void thread_main() {
-    while (outstanding > 0) {
-        stack.consume_one([](auto &&func) { func(); });
-    }
-}
-
-} // namespace
 
 int main(int argc, char *argv[]) {
     const std::span<char *> args{argv, static_cast<std::size_t>(argc)};
@@ -44,14 +27,17 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    boost::lockfree::stack<std::function<void()>> stack{0};
+    std::atomic<std::size_t> outstanding{0};
+
     std::set<std::filesystem::path> ebuilds_found;
     std::mutex set_mutex;
     for (const Repository repo{REPO}; Category category : repo) {
         outstanding++;
-        stack.push([category_ = std::move(category), &set_mutex, &ebuilds_found]() {
+        stack.push([category_ = std::move(category), &set_mutex, &ebuilds_found, &stack, &outstanding]() {
             for (Package package : category_) {
                 outstanding++;
-                stack.push([package_ = std::move(package), &set_mutex, &ebuilds_found]() {
+                stack.push([package_ = std::move(package), &set_mutex, &ebuilds_found, &outstanding]() {
                     for (Ebuild ebuild : package_) {
                         const std::scoped_lock lock{set_mutex};
                         ebuilds_found.insert(std::move(ebuild.path));
@@ -62,14 +48,12 @@ int main(int argc, char *argv[]) {
             outstanding--;
         });
     }
-    std::vector<std::thread> threads;
-    threads.reserve(std::thread::hardware_concurrency());
-    for (std::size_t i = 0; i < std::thread::hardware_concurrency(); i++) {
-        threads.emplace_back(thread_main);
-    }
-    for (std::thread &thread : threads) {
-        thread.join();
-    }
+
+    pms_utils::test::Threadpool{[&stack, &outstanding]() {
+        while (outstanding > 0) {
+            stack.consume_one([](auto &&func) { func(); });
+        }
+    }}.join();
 
     if (ebuilds.size() != ebuilds_found.size()) {
         std::cerr << std::format("iterator only found {} out of {} ebuilds\n", ebuilds_found.size(),
