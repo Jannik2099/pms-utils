@@ -3,7 +3,7 @@ project(
     'cpp',
     version: files('version'),
     meson_version: '>=1.4.0',
-    default_options: ['warning_level=3', 'cpp_std=c++23'],
+    default_options: ['warning_level=3', 'cpp_std=c++23', 'b_pch=true'],
 )
 
 fs = import('fs')
