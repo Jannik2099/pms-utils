@@ -5,7 +5,7 @@ inputs:
   version:
     description: Boost version
     required: true
-    default: "1.87.0"
+    default: "1.88.0"
 
   components:
     description: Boost components
