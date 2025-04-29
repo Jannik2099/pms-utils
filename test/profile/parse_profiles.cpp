@@ -51,6 +51,7 @@ int main(int argc, char *argv[]) {
     const std::span<char *> args{argv, static_cast<std::size_t>(argc)};
     const char *const REPO = args.size() >= 2 ? args[1] : "/var/db/repos/gentoo";
     auto profile_paths = get_profiles(REPO);
+    std::println("found {} profiles", profile_paths.size());
 
     std::atomic<bool> success = true;
     boost::lockfree::stack<std::function<void()>> stack{0};
@@ -61,6 +62,7 @@ int main(int argc, char *argv[]) {
         stack.push([path_ = std::move(path), &success, &outstanding]() {
             try {
                 (void)pms_utils::profile::Profile{path_};
+                std::println("parsed profile {}", std::string{path_});
             } catch (const std::exception &err) {
                 std::println(std::cerr, "failed to parse Profile {}, error: {}", std::string{path_},
                              err.what());

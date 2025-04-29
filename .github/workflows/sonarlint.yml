@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: Configure
-        run: meson setup -Dtest=true -Db_coverage=true -Dbuildtype=debugoptimized build
+        run: meson setup -Dtest=true -Db_coverage=true -Dcoverage_expensive=true -Dbuildtype=debugoptimized build
 
       - name: Build
         run: meson compile -C build

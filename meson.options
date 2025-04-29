@@ -18,3 +18,8 @@ option(
     type: 'boolean',
     value: false,
 )
+option(
+    'coverage_expensive',
+    type: 'boolean',
+    value: false,
+)

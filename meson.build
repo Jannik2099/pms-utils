@@ -24,7 +24,7 @@ boost_dep = dependency(
 if get_option('b_coverage')
     add_project_arguments(
         meson.get_compiler('cpp').get_supported_arguments(
-            ['-fprofile-update=atomic'],
+            ['-fprofile-update=atomic', '-g3'],
         ),
         language: 'cpp',
     )
