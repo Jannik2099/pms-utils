@@ -15,9 +15,6 @@ jobs:
       run:
         shell: bash
 
-    env:
-      BOOST_VERSION: "1.87.0"
-
     steps:
       - uses: actions/checkout@v4
 
