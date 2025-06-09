@@ -1,19 +1,21 @@
 diff --git a/meson.build b/meson.build
-index 2fe029e..6cfaee0 100644
+index b60bb1c..5d8ffda 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -2,7 +2,7 @@ project(
-     'nanobind',
-     'cpp',
-     version: '2.4.0',
--    meson_version: '>=0.53.0',
-+    meson_version: '>=1.4.0',
-     license: 'BSD-3-Clause',
- )
- 
-@@ -91,4 +91,5 @@ nanobind_dep = declare_dependency(
-     dependencies: [py_dep, robin_map_dep],
-     compile_args: dep_compile_args,
-     link_args: dep_link_args,
-+    variables: {'stubgen_file': files('src/stubgen.py')[0].full_path()}
- )
+@@ -5,7 +5,7 @@ project(
+     'src/version.py',
+     check: true,
+   ).stdout().strip(),
+-  meson_version: '>=1.0.0',
++  meson_version: '>=1.4.0',
+   default_options: [
+     'cpp_std=c++17',
+     'b_ndebug=if-release',
+@@ -89,4 +89,5 @@ nanobind_dep = declare_dependency(
+   dependencies: [py_dep, robin_map_dep],
+   compile_args: dep_compile_args,
+   link_args: dep_link_args,
+-)
++  variables: {'stubgen_file': files('src/stubgen.py')[0].full_path()},
++)
+\ No newline at end of file
