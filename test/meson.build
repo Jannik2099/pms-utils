@@ -20,8 +20,11 @@ if is_asan and meson.get_compiler('cpp').get_id() == 'gcc'
 endif
 
 fs_link_args = []
+malloc_link_args = []
 if meson.get_compiler('cpp').get_id() == 'emscripten'
     fs_link_args = ['-lnodefs.js', '-lnoderawfs.js']
+    # really speeds up the tests. Probably don't want to use it for the final bindings
+    malloc_link_args = ['-sMALLOC=mimalloc', '-sALLOW_MEMORY_GROWTH=1']
 endif
 
 boost_test_dep = dependency(
@@ -40,7 +43,7 @@ foreach t : tests
             dependencies: [boost_dep, boost_test_dep, pms_utils_dep],
             include_directories: inc_test_utils,
             gnu_symbol_visibility: 'inlineshidden',
-            link_args: fs_link_args,
+            link_args: [fs_link_args, malloc_link_args],
         ),
         timeout: 0,
         env: test_env,
