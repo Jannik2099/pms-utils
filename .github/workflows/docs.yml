@@ -15,8 +15,6 @@ jobs:
       deployments: write
     runs-on: ubuntu-latest
     container: ghcr.io/jannik2099/pms-utils-gentoo-ci:latest
-    strategy:
-      fail-fast: false
 
     steps:
       - name: Checkout repository
@@ -48,12 +46,9 @@ jobs:
           node-version: latest
 
       - name: Upload docs
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
-          directory: build/subprojects/bindings-python/docs
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: pms-utils
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          wranglerVersion: "3"
-          branch: ${{ github.head_ref || github.ref_name }}
+          command: pages deploy build/subprojects/bindings-python/docs --project-name=pms-utils --branch=${{ github.ref_name }}
