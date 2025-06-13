@@ -1,4 +1,4 @@
-lib_bindings_py = []
+lib_bindings_py_src = files('pms_utils.cpp')
 
 subdir('atom')
 subdir('depend')
@@ -9,9 +9,8 @@ subdir('vdb')
 
 mod_bindings_py = py_installation.extension_module(
     'pms_utils',
-    'pms_utils.cpp',
-    link_with: lib_bindings_py,
-    dependencies: [pms_utils_dep, nanobind_dep],
+    lib_bindings_py_src,
+    dependencies: [pms_utils_dep, boost_dep, python_dep, nanobind_dep],
     install: true,
     gnu_symbol_visibility: 'inlineshidden',
 )
