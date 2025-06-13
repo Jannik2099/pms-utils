@@ -42,6 +42,7 @@ bindings_python_configure() {
 	fi
 	local emesonargs=(
 		"-Dtest=${TEST}"
+		"-Dpython.allow_limited_api=false"
 	)
 	local EMESON_SOURCE="${S}/subprojects/bindings-python"
 	python_foreach_impl meson_src_configure --pkg-config-path="${WORKDIR}/${P}-build/meson-uninstalled"

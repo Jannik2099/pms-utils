@@ -14,6 +14,7 @@ mod_bindings_py = py_installation.extension_module(
     dependencies: [pms_utils_dep, nanobind_dep],
     install: true,
     gnu_symbol_visibility: 'inlineshidden',
+    limited_api: '3.' + py_installation.version().split('.')[1],
 )
 
 py_installation.install_sources(['py.typed'], subdir: 'pms_utils')
