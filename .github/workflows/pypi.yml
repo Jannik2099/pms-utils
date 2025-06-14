@@ -47,11 +47,20 @@ jobs:
         run: |
           git config --global safe.directory "*"
 
-          MYARGS="-Csetup-args=-Donly-wheels=true "
-          for ARG in ${MESONARGS}; do
-            MYARGS+="-Csetup-args=${ARG} "
-          done
           for VER in /opt/python/*/bin/python; do
+            MYARGS=""
+
+            MYARGS+="-Csetup-args=-Donly-wheels=true "
+
+            # nanobind only supports the limited API starting with python 3.12
+            if ${VER} -c 'import platform; assert int(platform.python_version_tuple()[1]) < 12' 2&> /dev/null; then
+              MYARGS+="-Csetup-args=-Dpython.allow_limited_api=false "
+            fi
+
+            for ARG in ${MESONARGS}; do
+              MYARGS+="-Csetup-args=${ARG} "
+            done
+
             # meson-python requires >= 3.7, nanobind >= 3.8
             if ${VER} -c 'import platform; assert int(platform.python_version_tuple()[1]) < 8' 2&> /dev/null; then
               continue
