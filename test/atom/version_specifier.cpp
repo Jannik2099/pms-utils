@@ -50,6 +50,9 @@ int main() {
     testVerspec<ge>(ret);
     testVerspec<gt>(ret);
 
+    // version specifiers require a version
+    ret &= try_parse("=foo/bar", parsers::atom::package_dep, false).as_expected;
+
     if (!ret) {
         return 1;
     }
