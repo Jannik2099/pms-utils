@@ -152,7 +152,7 @@ PARSER_DEFINE(blocker, _internal::Blocker);
 namespace _internal {
 PARSER_RULE_T(slot_impl, std::string);
 PARSER_DEFINE(slot_impl,
-              (aux::alnum | boost::parser::char_('_')) >> *(aux::alnum | boost::parser::char_("_-+.")));
+              (aux::alnum | boost::parser::char_('_')) >> *(aux::alnum | aux::range_of_char("_-+.")()));
 } // namespace _internal
 PARSER_DEFINE(slot_no_subslot, _internal::slot_impl);
 PARSER_DEFINE(slot, (_internal::slot_impl >>
@@ -169,15 +169,15 @@ PARSER_DEFINE(ver_rev, boost::parser::lit("-r") >> +boost::parser::digit);
 PARSER_DEFINE(package_version, ver_num >> -ver_letter >> *ver_suffix >> -ver_rev);
 
 PARSER_DEFINE(category,
-              (aux::alnum | boost::parser::char_('_')) >> *(aux::alnum | boost::parser::char_("_-+.")));
+              (aux::alnum | boost::parser::char_('_')) >> *(aux::alnum | aux::range_of_char("_-+.")()));
 // this basically means "name not followed by ( -version which itself is followed by legal atom name charset )
 // Otherwise e.g. name(foo-1-1) would match fully
 PARSER_DEFINE(name, (aux::alnum | boost::parser::char_('_')) >>
-                        *(aux::alnum | boost::parser::char_("_+") |
+                        *(aux::alnum | aux::range_of_char("_+")() |
                           (boost::parser::char_('-') - (+(boost::parser::lit('-') >> package_version) >>
-                                                        !(aux::alnum | boost::parser::char_("_-+"))))));
+                                                        !(aux::alnum | aux::range_of_char("_-+")())))));
 
-PARSER_DEFINE(useflag, aux::alnum >> *(aux::alnum | boost::parser::char_("_-+@")));
+PARSER_DEFINE(useflag, aux::alnum >> *(aux::alnum | aux::range_of_char("_-+@")()));
 // TODO: reinstate "UsedepCond needs !, not -"
 PARSER_DEFINE(use_dep, -_internal::UsedepNegate >> useflag >>
                            -(boost::parser::lit('(') >> _internal::UsedepSign >> boost::parser::lit(')')) >>
