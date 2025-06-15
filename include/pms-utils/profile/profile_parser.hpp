@@ -150,7 +150,7 @@ PARSER_RULE_T(make_defaults_value, std::string);
 PARSER_DEFINE(make_defaults_value, *((aux::graph | aux::space) - boost::parser::char_('"')));
 
 PARSER_RULE_T(make_defaults_value_charset, char);
-PARSER_DEFINE(make_defaults_value_charset, aux::graph - (boost::parser::char_("\\\"'")));
+PARSER_DEFINE(make_defaults_value_charset, aux::graph - (aux::range_of_char("\\\"'")()));
 
 constexpr inline auto make_defaults_normal_value_helper = [](char val) {
     // do NOT change this to list initialization
@@ -170,7 +170,7 @@ PARSER_DEFINE(
     boost::parser::transform(make_defaults_normal_value_helper2)[+(
         boost::parser::transform(make_defaults_normal_value_helper)[make_defaults_value_charset] |
         boost::parser::string("\\\n") |
-        boost::parser::char_('\'') >> +(make_defaults_value_charset | boost::parser::char_("\n ")) >>
+        boost::parser::char_('\'') >> +(make_defaults_value_charset | aux::range_of_char("\n ")()) >>
             boost::parser::char_('\''))]);
 
 PARSER_RULE_T(make_defaults_variable, std::string);
@@ -190,7 +190,7 @@ PARSER_DEFINE(wildcard, boost::parser::char_('*') >> !boost::parser::char_('*'))
 
 PARSER_RULE_T(wildcard_version_impl, std::string);
 PARSER_DEFINE(wildcard_version_impl, boost::parser::char_('*') >>
-                                         +(aux::alnum | boost::parser::char_("_.")) >>
+                                         +(aux::alnum | aux::range_of_char("_.")()) >>
                                          boost::parser::char_('*'));
 
 // TODO: probably useful in some common header
@@ -221,17 +221,17 @@ PARSER_DEFINE(make_defaults, boost::parser::omit[*_internal::newline_or_comment]
                                  boost::parser::omit[*_internal::newline_or_comment]);
 
 PARSER_DEFINE(wildcard_category, (aux::alnum | boost::parser::char_('_') | _internal::wildcard) >>
-                                     *(aux::alnum | boost::parser::char_("_-+.") | _internal::wildcard));
+                                     *(aux::alnum | aux::range_of_char("_-+.")() | _internal::wildcard));
 PARSER_DEFINE(wildcard_name_ver, (aux::alnum | boost::parser::char_('_') | _internal::wildcard) >>
-                                     *((aux::alnum | boost::parser::char_("_-+") | _internal::wildcard)));
+                                     *((aux::alnum | aux::range_of_char("_-+")() | _internal::wildcard)));
 // this is essentially parsers::name with wildcard added to the character set
 // yes, this does lack !(... | _internal::wildcard()), but this is impossible to add as the portage version
 // wildcard collides with the =* version specifier
 PARSER_DEFINE(wildcard_name,
               (aux::alnum | boost::parser::char_('_') | _internal::wildcard) >>
-                  *(aux::alnum | boost::parser::char_("_+") | _internal::wildcard |
+                  *(aux::alnum | aux::range_of_char("_+")() | _internal::wildcard |
                     (boost::parser::char_('-') - (boost::parser::lit('-') >> wildcard_version >>
-                                                  !(aux::alnum | boost::parser::char_("_-+"))))));
+                                                  !(aux::alnum | aux::range_of_char("_-+")())))));
 
 PARSER_DEFINE(wildcard_version, atom::package_version | _internal::wildcard_version_impl);
 

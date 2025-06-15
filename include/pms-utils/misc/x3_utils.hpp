@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/parser/parser.hpp>
+#include <cstddef>
 #include <utility>
 
 // the C macro language is truly a piece of shit to behold
@@ -36,7 +37,29 @@ template <typename T> inline auto matches(T &&val) {
            boost::parser::attr(false);
 }
 
-inline const auto space = boost::parser::char_("\n\v\f\r\t ");
+// NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
+template <std::size_t N> class range_of_char {
+private:
+    char data_[N];
+
+    template <std::size_t... Idx>
+    consteval range_of_char(const char (&data)[N + 1], std::index_sequence<Idx...> /*unused*/)
+        : data_{data[Idx]...} {}
+
+    template <std::size_t... Idx> consteval auto eval(std::index_sequence<Idx...> /*unused*/) {
+        return (boost::parser::char_(data_[Idx]) | ...);
+    }
+
+public:
+    explicit consteval range_of_char(const char (&data)[N + 1])
+        : range_of_char{data, std::make_index_sequence<N>()} {}
+
+    consteval auto operator()() { return eval(std::make_index_sequence<N>()); }
+};
+template <std::size_t N> range_of_char(const char (&data)[N]) -> range_of_char<N - 1>;
+// NOLINTEND(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
+
+constexpr inline auto space = range_of_char("\n\v\f\r\t ")();
 
 inline const auto graph = boost::parser::char_(33, 126);
 

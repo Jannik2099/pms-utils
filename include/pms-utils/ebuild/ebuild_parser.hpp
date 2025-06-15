@@ -182,7 +182,7 @@ PARSER_DEFINE(RESTRICT, _internal::RESTRICT_impl);
 PARSER_DEFINE(HOMEPAGE, _internal::HOMEPAGE_impl);
 
 PARSER_DEFINE(license_elem, (aux::alnum | boost::parser::char_('_')) >>
-                                *(aux::alnum | boost::parser::char_("+_.-")) >>
+                                *(aux::alnum | aux::range_of_char("+_.-")()) >>
                                 &(aux::space | boost::parser::eoi));
 PARSER_DEFINE(LICENSE, _internal::LICENSE_impl);
 
@@ -206,9 +206,9 @@ constexpr inline auto keyword_helper2 = [](std::tuple<std::string, std::string> 
 PARSER_RULE_T(keyword_impl, std::string);
 PARSER_DEFINE(keyword_impl,
               boost::parser::transform(
-                  keyword_helper2)[boost::parser::transform(keyword_helper)[-boost::parser::char_("~-")] >>
+                  keyword_helper2)[boost::parser::transform(keyword_helper)[-aux::range_of_char("~-")()] >>
                                    (aux::alnum | boost::parser::char_('_')) >>
-                                   *(aux::alnum | boost::parser::char_("_-"))] |
+                                   *(aux::alnum | aux::range_of_char("_-")())] |
                   boost::parser::string("-*"));
 
 } // namespace _internal
@@ -224,7 +224,7 @@ PARSER_DEFINE(IUSE, iuse_elem % +aux::space);
 
 PARSER_DEFINE(REQUIRED_USE, _internal::REQUIRED_USE_impl);
 
-PARSER_DEFINE(EAPI, (aux::alnum | boost::parser::char_('_')) >> *(aux::alnum | boost::parser::char_("+_.-")));
+PARSER_DEFINE(EAPI, (aux::alnum | boost::parser::char_('_')) >> *(aux::alnum | aux::range_of_char("+_.-")()));
 
 PARSER_DEFINE(properties_elem, (+aux::graph)[_internal::properties_elem_helper]);
 PARSER_DEFINE(PROPERTIES, _internal::PROPERTIES_impl);
