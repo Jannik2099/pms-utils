@@ -35,6 +35,7 @@ PARSER_RULE_T(INHERITED, pms_utils::ebuild::inherited);
 PARSER_RULE_T(iuse_elem, pms_utils::ebuild::iuse_elem);
 PARSER_RULE_T(IUSE, pms_utils::ebuild::iuse);
 
+PARSER_RULE_T(required_use_elem, pms_utils::ebuild::required_use_elem);
 PARSER_RULE_T(REQUIRED_USE, pms_utils::ebuild::required_use);
 
 PARSER_RULE_T(EAPI, pms_utils::ebuild::eapi);
@@ -149,7 +150,8 @@ PARSER_DEFINE(LICENSE_impl, depend::GroupTemplate2(_internal::license_node));
 PARSER_RULE_T(required_use_node, pms_utils::ebuild::required_use::Node);
 PARSER_RULE_T(required_use_group_impl, pms_utils::ebuild::required_use::Base);
 PARSER_RULE_T(required_use_group, pms_utils::ebuild::required_use);
-PARSER_DEFINE(required_use_node, atom::use_dep | required_use_group);
+PARSER_DEFINE(required_use_node,
+              (required_use_elem - pms_utils::parsers::depend::use_cond) | required_use_group);
 PARSER_DEFINE(required_use_group_impl, depend::GroupTemplate1(required_use_node));
 PARSER_DEFINE(required_use_group, required_use_group_impl);
 
@@ -222,6 +224,7 @@ PARSER_DEFINE(INHERITED, inherited_elem % +aux::space);
 PARSER_DEFINE(iuse_elem, -_internal::iuse_pm >> atom::useflag);
 PARSER_DEFINE(IUSE, iuse_elem % +aux::space);
 
+PARSER_DEFINE(required_use_elem, aux::matches('!') >> pms_utils::parsers::atom::useflag);
 PARSER_DEFINE(REQUIRED_USE, _internal::REQUIRED_USE_impl);
 
 PARSER_DEFINE(EAPI, (aux::alnum | boost::parser::char_('_')) >> *(aux::alnum | aux::range_of_char("+_.-")()));

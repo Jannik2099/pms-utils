@@ -111,8 +111,20 @@ public:
     friend std::ostream &operator<<(std::ostream &out, const iuse &iuse) { return iuse.ostream_impl(out); }
 };
 
-struct required_use : public depend::GroupExpr<atom::Usedep, required_use> {
-    using Base = depend::GroupExpr<atom::Usedep, required_use>;
+struct required_use_elem {
+private:
+    std::ostream &ostream_impl(std::ostream &out) const;
+
+public:
+    bool negate{};
+    pms_utils::atom::Useflag useflag;
+    [[nodiscard]] explicit operator std::string() const;
+    friend std::ostream &operator<<(std::ostream &out, const required_use_elem &elem) {
+        return elem.ostream_impl(out);
+    }
+};
+struct required_use : public depend::GroupExpr<required_use_elem, required_use> {
+    using Base = depend::GroupExpr<required_use_elem, required_use>;
 };
 
 struct eapi : public std::string {};
@@ -194,6 +206,7 @@ BOOST_DESCRIBE_STRUCT(inherited, (), ());
 BOOST_DESCRIBE_STRUCT(iuse_elem, (), (default_enabled, useflag));
 BOOST_DESCRIBE_STRUCT(iuse, (), ());
 
+BOOST_DESCRIBE_STRUCT(required_use_elem, (), (negate, useflag));
 BOOST_DESCRIBE_STRUCT(required_use, (required_use::Base), ());
 
 BOOST_DESCRIBE_STRUCT(eapi, (), ());
@@ -211,10 +224,11 @@ BOOST_DESCRIBE_STRUCT(Metadata, (),
 
 namespace meta {
 
-using all = boost::mp11::mp_list<URI, uri_elem, src_uri, restrict_elem::Type, restrict_elem, restrict,
-                                 homepage, license_elem, license, keyword, keywords, inherited_elem,
-                                 inherited, iuse_elem, iuse, required_use, eapi, properties_elem::Type,
-                                 properties_elem, properties, defined_phases, Metadata>;
+using all =
+    boost::mp11::mp_list<URI, uri_elem, src_uri, restrict_elem::Type, restrict_elem, restrict, homepage,
+                         license_elem, license, keyword, keywords, inherited_elem, inherited, iuse_elem, iuse,
+                         required_use_elem, required_use, eapi, properties_elem::Type, properties_elem,
+                         properties, defined_phases, Metadata>;
 
 } // namespace meta
 
