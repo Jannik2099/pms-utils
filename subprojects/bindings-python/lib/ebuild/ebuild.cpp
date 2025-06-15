@@ -48,6 +48,8 @@ void _register(nb::module_ &_module) {
     auto py_iuse_elem = create_bindings<iuse_elem>(ebuild, parsers::ebuild::iuse_elem);
     auto py_iuse = create_bindings<iuse>(ebuild, parsers::ebuild::IUSE);
 
+    auto py_required_use_elem =
+        create_bindings<required_use_elem>(ebuild, parsers::ebuild::required_use_elem);
     auto py_required_use = create_bindings<required_use>(ebuild, parsers::ebuild::REQUIRED_USE);
 
     auto py_eapi = create_bindings<eapi>(ebuild, parsers::ebuild::EAPI);

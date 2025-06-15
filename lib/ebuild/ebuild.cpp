@@ -97,6 +97,16 @@ iuse::operator std::string() const {
 }
 std::ostream &iuse::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
+required_use_elem::operator std::string() const {
+    std::string ret;
+    if (negate) {
+        ret.push_back('!');
+    }
+    ret.append(useflag);
+    return ret;
+}
+std::ostream &required_use_elem::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
+
 properties_elem::operator std::string() const { return string; }
 std::ostream &properties_elem::ostream_impl(std::ostream &out) const { return out << std::string{*this}; }
 
