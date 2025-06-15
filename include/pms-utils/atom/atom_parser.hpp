@@ -141,6 +141,10 @@ constexpr inline auto package_dep_helper = []<typename T>(T &ctx, bool requireVe
         }
         val.version = version;
         val.verspec = version_specifier;
+    } else {
+        if (version_specifier.has_value()) {
+            boost::parser::_pass(ctx) = false;
+        }
     }
 };
 
