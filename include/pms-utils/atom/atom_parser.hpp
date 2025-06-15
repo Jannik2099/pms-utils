@@ -182,10 +182,31 @@ PARSER_DEFINE(name, (aux::alnum | boost::parser::char_('_')) >>
                                                         !(aux::alnum | aux::range_of_char("_-+")())))));
 
 PARSER_DEFINE(useflag, aux::alnum >> *(aux::alnum | aux::range_of_char("_-+@")()));
-// TODO: reinstate "UsedepCond needs !, not -"
-PARSER_DEFINE(use_dep, -_internal::UsedepNegate >> useflag >>
-                           -(boost::parser::lit('(') >> _internal::UsedepSign >> boost::parser::lit(')')) >>
-                           -_internal::UsedepConditional)
+
+namespace _internal {
+PARSER_RULE_T(use_dep_impl, pms_utils::atom::Usedep);
+PARSER_DEFINE(use_dep_impl, -UsedepNegate >> useflag >>
+                                -(boost::parser::lit('(') >> UsedepSign >> boost::parser::lit(')')) >>
+                                -UsedepConditional);
+} // namespace _internal
+PARSER_DEFINE(use_dep, _internal::use_dep_impl[([]<typename T>(T &ctx) {
+                  boost::parser::_val(ctx) = std::move(boost::parser::_attr(ctx));
+                  pms_utils::atom::Usedep &usedep = boost::parser::_val(ctx);
+                  if (usedep.negate.has_value()) {
+                      switch (usedep.negate.value()) {
+                      case pms_utils::atom::UsedepNegate::exclamation:
+                          if (!usedep.conditional.has_value()) {
+                              boost::parser::_pass(ctx) = false;
+                          }
+                          break;
+                      case pms_utils::atom::UsedepNegate::minus:
+                          if (usedep.conditional.has_value()) {
+                              boost::parser::_pass(ctx) = false;
+                          }
+                          break;
+                      }
+                  }
+              })]);
 PARSER_DEFINE(use_deps, boost::parser::lit('[') >> use_dep % ',' >> boost::parser::lit(']'));
 
 // unsure about how to handle the "duplicate rules for requireVerSpec"
