@@ -18,3 +18,16 @@ option(
     type: 'boolean',
     value: false,
 )
+option(
+    'fuzz',
+    type: 'boolean',
+    value: false,
+)
+option(
+    'fuzz-corpus',
+    type: 'string',
+)
+option(
+    'fuzz-options',
+    type: 'string',
+)

@@ -30,6 +30,19 @@ if get_option('b_coverage')
     )
 endif
 
+fuzz_args = []
+fuzz_link_args = []
+if get_option('fuzz')
+    if not (meson.get_compiler('cpp').get_id() == 'clang')
+        error('fuzzing requires clang')
+    endif
+    if get_option('b_lundef')
+        error('fuzzing requires -Db_lundef=false')
+    endif
+    fuzz_args += '-fsanitize=fuzzer'
+    fuzz_link_args += '-fsanitize=fuzzer-no-link'
+endif
+
 subdir('include')
 
 subdir('lib')

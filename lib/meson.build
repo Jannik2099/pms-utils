@@ -14,6 +14,7 @@ libpms_utils = library(
     include_directories: inc_lib,
     install: true,
     gnu_symbol_visibility: 'inlineshidden',
+    cpp_args: [fuzz_args],
 )
 
 pms_utils_dep = declare_dependency(

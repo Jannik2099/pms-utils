@@ -43,9 +43,13 @@ foreach t : tests
             dependencies: [boost_dep, boost_test_dep, pms_utils_dep],
             include_directories: inc_test_utils,
             gnu_symbol_visibility: 'inlineshidden',
-            link_args: [fs_link_args, malloc_link_args],
+            link_args: [fs_link_args, malloc_link_args, fuzz_link_args],
         ),
         timeout: 0,
         env: test_env,
     )
 endforeach
+
+if get_option('fuzz')
+    subdir('fuzzing')
+endif
