@@ -32,7 +32,7 @@ jobs:
           . /etc/profile
           . .venv/bin/activate
           export PATH="/usr/local/LLVM-20.1.0-Linux-X64/bin:${PATH}"
-          CC=clang CXX=clang++ meson setup -Dtest=true build
+          CC=clang CXX=clang++ meson setup -Dtest=true -Dfuzz=true -Db_lundef=false build
 
       - name: analyze
         run: |
