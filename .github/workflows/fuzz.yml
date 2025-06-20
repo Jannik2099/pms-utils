@@ -1,0 +1,48 @@
+name: Fuzz
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/jannik2099/pms-utils-gentoo-ci:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # remove once https://github.com/gentoo/portage/pull/1445 is merged
+      - name: install patched portage
+        run: |
+          git clone https://github.com/Jannik2099/portage.git
+          cd portage
+          git checkout stuff
+          python -m venv .venv
+          .venv/bin/pip install -e .
+
+      # CI currently takes about 30 minutes, so let's fuzz for that long
+      - name: configure
+        run: |
+          . /etc/profile
+          . portage/.venv/bin/activate
+          CC=clang CXX=clang++ LDFLAGS="-fuse-ld=lld" meson setup -Db_lto=true -Db_lto_mode=thin --buildtype=release -Dtest=true -Dfuzz=true -Dfuzz-options="-max_total_time=1800" -Db_lundef=false -Dbindings= build
+
+      # no separate compile step, this way we skip compiling unneeded tests
+      - name: test
+        run: |
+          . /etc/profile
+          meson test -C build --suite fuzz -v
+
+      - name: collect corpus
+        run: |
+          . /etc/profile
+          meson compile -C build fuzzing_merge_all_corpus -v
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: corpus
+          path: build/test/fuzzing/merged_corpus.tar.zst

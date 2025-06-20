@@ -1,3 +1,5 @@
+subdir('previous_corpus')
+
 pymod = import('python')
 py_installation = pymod.find_installation(
     pure: false,
@@ -30,9 +32,39 @@ if get_option('fuzz-corpus') != ''
     )
 endif
 
+generator_exe = executable(
+    parent + '_generate_corpus_exe',
+    'generate_corpus.cpp',
+    dependencies: [pms_utils_dep],
+    include_directories: inc_test_utils,
+    gnu_symbol_visibility: 'inlineshidden',
+    link_args: [fuzz_link_args],
+)
+generated_corpus = meson.current_build_dir() / 'generated_corpus'
+generator_tgt = custom_target(
+    parent + '_generate_corpus',
+    command: [
+        'rm',
+        '-rf',
+        generated_corpus,
+        '&&',
+        'mkdir',
+        '-p',
+        generated_corpus,
+        '&&',
+        generator_exe,
+        generated_corpus,
+    ],
+    output: 'generated_corpus',
+)
+
+merged_corpus_dirs = []
+merged_corpus_tgts = []
+
 foreach t : tests
     workdir = meson.current_build_dir() / (fs.stem(t) + '_workdir')
     corpus = meson.current_build_dir() / (fs.stem(t) + '_corpus')
+    previous_corpus = meson.current_build_dir() / 'previous_corpus' / (fs.stem(t) + '_corpus_merged')
 
     workdir_tgt = custom_target(
         parent + '_' + fs.stem(t) + '_workdir',
@@ -56,7 +88,7 @@ foreach t : tests
     if get_option('fuzz-options') != ''
         args += get_option('fuzz-options').split()
     endif
-    args += corpus
+    args += [corpus, previous_corpus, generated_corpus]
     if provided_corpus != ''
         args += provided_corpus
     endif
@@ -74,7 +106,7 @@ foreach t : tests
     test(
         parent + '/' + fs.stem(t),
         fuzz_exe,
-        depends: [workdir_tgt, corpus_tgt],
+        depends: [workdir_tgt, corpus_tgt, generator_tgt],
         args: args,
         timeout: 0,
         is_parallel: false,
@@ -86,25 +118,53 @@ foreach t : tests
     )
 
     corpus_merged = meson.current_build_dir() / (fs.stem(t) + '_corpus_merged')
-    custom_target(
+    merged_corpus_dirs += fs.relative_to(
+        corpus_merged,
+        meson.current_build_dir(),
+    )
+    args = [
+        'rm',
+        '-rf',
+        corpus_merged,
+        '&&',
+        'mkdir',
+        '-p',
+        corpus_merged,
+        '&&',
+        fuzz_exe,
+        '-merge=1',
+        corpus_merged,
+        corpus,
+        previous_corpus,
+        generated_corpus,
+    ]
+    if provided_corpus != ''
+        args += provided_corpus
+    endif
+    merged_corpus_tgts += custom_target(
         parent + '_' + fs.stem(t) + '_merge',
-        command: [
-            'rm',
-            '-rf',
-            corpus_merged,
-            '&&',
-            'mkdir',
-            '-p',
-            corpus_merged,
-            '&&',
-            fuzz_exe,
-            '-merge=1',
-            corpus_merged,
-            corpus,
-        ],
+        command: args,
         env: {
             'PYTHON_EXE': py_installation.full_path(),
         },
         output: fs.stem(t) + '_corpus_merged',
+        build_always_stale: true,
     )
 endforeach
+
+custom_target(
+    parent + '_merge_all_corpus',
+    command: [
+        'tar',
+        '-c',
+        '-I',
+        'zstd -19 -T0',
+        '-f',
+        meson.current_build_dir() / 'merged_corpus.tar.zst',
+        '-C',
+        meson.current_build_dir(),
+        merged_corpus_dirs,
+    ],
+    output: 'merged_corpus.tar.zst',
+    depends: merged_corpus_tgts,
+)
