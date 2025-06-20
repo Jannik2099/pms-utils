@@ -82,8 +82,8 @@ foreach t : tests
     args = [
         '-error_exitcode=1',
         '-use_value_profile=1',
-        '-jobs=' + nproc,
-        '-workers=' + nproc,
+        '-fork=' + nproc,  # fork mode is labeled "experimental", but yields better results so far
+        '-only_ascii=1',  # both ends only allow ascii
     ]
     if get_option('fuzz-options') != ''
         args += get_option('fuzz-options').split()
