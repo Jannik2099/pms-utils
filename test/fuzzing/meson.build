@@ -14,7 +14,7 @@ nanobind_dep = dependency(
     include_type: 'system',
 )
 
-tests = files('atom.cpp')
+tests = files('atom.cpp', 'depend.cpp')
 
 parent = 'fuzzing'
 nproc = run_command(
@@ -65,6 +65,10 @@ foreach t : tests
     workdir = meson.current_build_dir() / (fs.stem(t) + '_workdir')
     corpus = meson.current_build_dir() / (fs.stem(t) + '_corpus')
     previous_corpus = meson.current_build_dir() / 'previous_corpus' / (fs.stem(t) + '_corpus_merged')
+    run_command(
+        ['mkdir', '-p', previous_corpus],
+        check: true,
+    )
 
     workdir_tgt = custom_target(
         parent + '_' + fs.stem(t) + '_workdir',
