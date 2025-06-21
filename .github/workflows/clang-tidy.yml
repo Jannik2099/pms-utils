@@ -15,28 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # we need meson >= 1.7 for nicer clang-tidy output
-      - name: install meson
-        run: |
-          python -m venv .venv
-          .venv/bin/pip install meson
-
-      # we want clang-tidy >= 20 for some misc-include-cleaner fixes, but that's not in binhost yet
-      # extract to /usr/local so that clang recognizes it's own headers as system headers
-      - name: install clang-tidy
-        run: |
-          curl -s -L https://github.com/llvm/llvm-project/releases/download/llvmorg-20.1.0/LLVM-20.1.0-Linux-X64.tar.xz | tar --xz --extract -C /usr/local --wildcards 'LLVM-20.1.0-Linux-X64/bin/clang*' 'LLVM-20.1.0-Linux-X64/lib/clang/*'
-
       - name: configure
         run: |
           . /etc/profile
-          . .venv/bin/activate
-          export PATH="/usr/local/LLVM-20.1.0-Linux-X64/bin:${PATH}"
           CC=clang CXX=clang++ meson setup -Dtest=true -Dfuzz=true -Db_lundef=false build
 
       - name: analyze
         run: |
           . /etc/profile
-          . .venv/bin/activate
-          export PATH="/usr/local/LLVM-20.1.0-Linux-X64/bin:${PATH}"
           ninja -C build clang-tidy
