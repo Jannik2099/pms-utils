@@ -27,14 +27,18 @@ jobs:
       - name: configure
         run: |
           . /etc/profile
+          export CC=$(which clang)
+          export CXX=$(which clang++)
+          export LDFLAGS="-fuse-ld=lld"
           . portage/.venv/bin/activate
-          CC=clang CXX=clang++ LDFLAGS="-fuse-ld=lld" meson setup -Db_lto=true -Db_lto_mode=thin --buildtype=release -Dtest=true -Dfuzz=true -Dfuzz-options="-max_total_time=1800" -Db_lundef=false -Dbindings= build
+          meson setup -Db_lto=true -Db_lto_mode=thin --buildtype=release -Dtest=true -Dfuzz=true -Dfuzz-options="-max_total_time=1800" -Db_lundef=false --default-library=static -Dbindings= build
 
-      # no separate compile step, this way we skip compiling unneeded tests
+      # TODO: figure out a way to make this generic when more fuzz tests are added
+      # using --suite fuzz still builds all other tests...
       - name: test
         run: |
           . /etc/profile
-          meson test -C build --suite fuzz -v
+          meson test -C build fuzzing/atom -v
 
       - name: collect corpus
         run: |
