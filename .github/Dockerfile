@@ -14,9 +14,6 @@ RUN <<EOF
     mkdir -p package.env
     mkdir -p env
 
-    mkdir -p package.accept_keywords
-    echo "<dev-libs/boost-1.88" > package.accept_keywords/boost
-
     emerge-webrsync -q
     getuto
     emerge --autounmask --autounmask-write --autounmask-continue -q -j8 dev-vcs/git dev-util/pkgdev llvm-core/clang llvm-core/lld dev-libs/boost dev-build/meson dev-python/pip dev-util/cppcheck dev-util/gcovr
