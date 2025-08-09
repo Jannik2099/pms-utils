@@ -2,7 +2,7 @@ stubgen_exe = nanobind_dep.get_variable(internal: 'stubgen_file')
 stub_install_dir = py_installation.get_install_dir() / 'pms_utils'
 
 stubgen_tgts = []
-foreach module : ['atom', 'depend', 'ebuild', 'profile', 'repo']
+foreach module : ['atom', 'depend', 'ebuild', 'profile', 'repo', 'vdb']
     stubgen_tgts += custom_target(
         'stubgen.pms_utils.' + module,
         command: [
