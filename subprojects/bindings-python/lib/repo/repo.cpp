@@ -28,14 +28,21 @@ void _register(nb::module_ &_module) {
             .def("__getitem__",
                  [](const Package &package, std::string_view version) { return package[version]; });
 
-    auto py_Category = create_bindings<Category>(repo).def(
-        "__getitem__", [](const Category &category, std::string_view package) { return category[package]; });
+    auto py_Category =
+        create_bindings<Category>(repo)
+            .def("__getitem__",
+                 [](const Category &category, const atom::Name &name) { return category[name]; })
+            .def("__getitem__",
+                 [](const Category &category, std::string_view package) { return category[package]; });
 
-    auto py_Repository = create_bindings<Repository>(repo)
-                             .def(nb::init<std::filesystem::path>())
-                             .def("__getitem__", [](const Repository &repository, std::string_view category) {
-                                 return repository[category];
-                             });
+    auto py_Repository =
+        create_bindings<Repository>(repo)
+            .def(nb::init<std::filesystem::path>())
+            .def("__getitem__", [](const Repository &repository,
+                                   const atom::Category &category) { return repository[category]; })
+            .def("__getitem__", [](const Repository &repository, std::string_view category) {
+                return repository[category];
+            });
 }
 
 } // namespace pms_utils::bindings::python::repo
