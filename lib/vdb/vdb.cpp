@@ -114,13 +114,13 @@ std::ostream &Package::ostream_impl(std::ostream &out) const {
 
 Entry::Entry(std::filesystem::path path) : path_{std::move(path)} {
     {
-        const std::string stem = path_.stem().string();
+        const std::string dirname = path_.filename().string();
 
-        package_ = unwrap(
-            try_parse(stem, pms_utils::parsers::vdb::package, true).transform_error([&stem](const auto &err) {
-                return Error{ParseError{std::string{stem.cbegin(), err}}};
-            }),
-            std::format("failed to parse package name: {}", stem));
+        package_ = unwrap(try_parse(dirname, pms_utils::parsers::vdb::package, true)
+                              .transform_error([&dirname](const auto &err) {
+                                  return Error{ParseError{std::string{dirname.cbegin(), err}}};
+                              }),
+                          std::format("failed to parse package name: {}", dirname));
     }
 
     {
@@ -208,13 +208,13 @@ Vdb::Iterator Vdb::end() const {
 Vdb::Iterator Vdb::cend() const { return end(); }
 
 Category::Category(std::filesystem::path path) : path_{std::move(path)} {
-    const std::string stem = path_.stem().string();
+    const std::string dirname = path_.filename().string();
 
-    category_ = unwrap(
-        try_parse(stem, pms_utils::parsers::atom::category, true).transform_error([&stem](const auto &err) {
-            return Error{ParseError{{stem.cbegin(), err}}};
-        }),
-        std::format("invalid category: {}", stem));
+    category_ = unwrap(try_parse(dirname, pms_utils::parsers::atom::category, true)
+                           .transform_error([&dirname](const auto &err) {
+                               return Error{ParseError{{dirname.cbegin(), err}}};
+                           }),
+                       std::format("invalid category: {}", dirname));
 };
 
 Category::Iterator Category::begin() const {
