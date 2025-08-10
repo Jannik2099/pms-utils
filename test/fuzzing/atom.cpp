@@ -62,7 +62,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
     const std::string_view data_string{reinterpret_cast<const char *>(Data), Size};
     const bool is_utf8 = validate_utf8(data);
 
-    const auto parsed = pms_utils::misc::try_parse(data_string, pms_utils::parsers::atom::package_dep, true);
+    const auto parsed = pms_utils::misc::try_parse(data_string, pms_utils::parsers::atom::package_dep);
 
     if (!is_utf8) {
         if (parsed.has_value()) {

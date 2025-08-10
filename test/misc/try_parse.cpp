@@ -26,7 +26,7 @@ bool test_failure() {
 
 bool test_consume_failure() {
     const std::string_view bad_atom{"=foo/bar-1.0.0 =foo/bar-1.0.1"};
-    const auto result = pms_utils::misc::try_parse(bad_atom, pms_utils::parsers::atom::atom, true);
+    const auto result = pms_utils::misc::try_parse(bad_atom, pms_utils::parsers::atom::atom);
 
     return !result.has_value();
 }

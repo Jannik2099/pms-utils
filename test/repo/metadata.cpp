@@ -212,7 +212,7 @@ int main(int argc, char *argv[]) {
     const auto package_fn = [&failed, &metrics, &failures, &failures_lock,
                              &outstanding](std::filesystem::path atom) {
         return [atom_ = std::move(atom), &failed, &metrics, &failures, &failures_lock, &outstanding]() {
-            if (misc::try_parse(atom_.filename().string(), name_ver, false)) {
+            if (misc::try_parse(atom_.filename().string(), name_ver)) {
                 if (!check_file(atom_, metrics, failures, failures_lock)) {
                     failed = true;
                 }
@@ -223,7 +223,7 @@ int main(int argc, char *argv[]) {
 
     const auto category_fn = [&stack, &outstanding, &package_fn](std::filesystem::path &&category) {
         return [category_ = std::move(category), &stack, &outstanding, &package_fn]() {
-            if (!misc::try_parse(category_.filename().string(), parsers::atom::category, false)) {
+            if (!misc::try_parse(category_.filename().string(), parsers::atom::category)) {
                 outstanding--;
                 return;
             }
