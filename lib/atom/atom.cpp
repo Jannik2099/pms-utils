@@ -287,8 +287,10 @@ std::optional<std::strong_ordering> algorithm_3_2(const VersionNumber &left, con
 
 std::optional<std::strong_ordering> algorithm_3_3(const std::string &left, const std::string &right) {
     if (left.starts_with('0') || right.starts_with('0')) {
-        const auto left_new = left.substr(0, left.find_last_not_of('0'));
-        const auto right_new = right.substr(0, right.find_last_not_of('0'));
+        const auto left_pos = left.find_last_not_of('0');
+        const auto right_pos = right.find_last_not_of('0');
+        const auto left_new = (left_pos == std::string::npos) ? "" : left.substr(0, left_pos + 1);
+        const auto right_new = (right_pos == std::string::npos) ? "" : right.substr(0, right_pos + 1);
         if (left_new < right_new) {
             return std::strong_ordering::less;
         }
@@ -354,9 +356,7 @@ std::optional<std::strong_ordering> algorithm_3_6(const VersionSuffix &left, con
             return std::strong_ordering::greater;
         }
     } else {
-        if (left.word != right.word) {
-            return left.word <=> right.word;
-        }
+        return left.word <=> right.word;
     }
     return {};
 }

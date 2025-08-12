@@ -6,5 +6,6 @@ tests += files(
     'slot_no_subslot.cpp',
     'usedeps.cpp',
     'useflag.cpp',
+    'version_comparison.cpp',
     'version_specifier.cpp',
 )
