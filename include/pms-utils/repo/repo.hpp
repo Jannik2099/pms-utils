@@ -4,11 +4,13 @@
 #include "pms-utils/ebuild/ebuild.hpp"
 #include "pms-utils/misc/meta.hpp"
 
+#include <boost/asio/awaitable.hpp>
 #include <boost/container_hash/hash.hpp>
 #include <boost/describe/class.hpp>
 #include <boost/mp11/list.hpp> // IWYU pragma: keep
 #include <cstddef>
 #include <filesystem>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -20,23 +22,27 @@
 namespace [[gnu::visibility("default")]] pms_utils {
 namespace repo {
 
-ebuild::Metadata parse_metadata(const std::filesystem::path &path);
+[[nodiscard]] ebuild::Metadata parse_metadata(const std::filesystem::path &path);
+[[nodiscard]] meta::crt<boost::asio::awaitable<ebuild::Metadata>>
+async_parse_metadata(std::filesystem::path path);
 
 struct Ebuild {
 private:
-    mutable std::optional<ebuild::Metadata> _metadata;
+    mutable std::shared_ptr<const ebuild::Metadata> metadata_;
 
 public:
     std::filesystem::path path;
     pms_utils::atom::Name name;
     pms_utils::atom::Version version;
-    const ebuild::Metadata &metadata() const [[clang::lifetimebound]];
+    [[nodiscard]] std::shared_ptr<const ebuild::Metadata> metadata() const;
+    [[nodiscard]] [[clang::coro_wrapper]] meta::crt<boost::asio::awaitable<ebuild::Metadata>>
+    async_metadata() const;
 
     [[nodiscard]] Ebuild() = default;
     [[nodiscard]] Ebuild(std::filesystem::path path, pms_utils::atom::Name name,
                          pms_utils::atom::Version version);
 
-    BOOST_DESCRIBE_CLASS(Ebuild, (), (path, name, version, metadata), (), (_metadata));
+    BOOST_DESCRIBE_CLASS(Ebuild, (), (path, name, version, metadata), (), (metadata_));
 };
 
 class Category;

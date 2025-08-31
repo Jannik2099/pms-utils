@@ -3,8 +3,11 @@
 #include "internal.hpp"
 #include "pms-utils/misc/meta.hpp"
 
+#include <Python.h>
 #include <algorithm>
 #include <array>
+#include <boost/asio/co_spawn.hpp>
+#include <boost/asio/io_context.hpp>
 #include <boost/describe/bases.hpp>
 #include <boost/describe/enumerators.hpp>
 #include <boost/describe/members.hpp>
@@ -16,9 +19,11 @@
 #include <cstddef>
 #include <format>
 #include <functional>
+#include <memory>
 #include <nanobind/make_iterator.h>
 #include <nanobind/nanobind.h>
 #include <nanobind/operators.h>
+#include <optional>
 #include <ranges>
 #include <string>
 #include <string_view>
@@ -194,7 +199,7 @@ static inline auto create_bindings(M &module_, R rule = false) {
                   && (!std::is_base_of_v<std::string, T>)) {
         using iterator_type = std::remove_cvref_t<decltype(std::begin(std::declval<T>()))>;
         // an iterator that holds the value would instead have the value get overwritten by iterator++
-        if constexpr (meta::is_owning_iterator_v<iterator_type>) {
+        if constexpr (pms_utils::meta::is_owning_iterator_v<iterator_type>) {
             ret.def("__iter__", [](const T &val) {
                 return nb::make_iterator<nb::rv_policy::move>(nb::type<T>(), "iterator", val);
             });
@@ -219,6 +224,121 @@ static inline auto create_bindings(M &module_, R rule = false) {
     }
 
     return std::move(ret);
+}
+
+// Iterator class that wraps a boost::asio::awaitable and makes it Python-awaitable
+template <typename T> class awaitable_iterator {
+public:
+    using value_type = typename T::value_type;
+
+private:
+    T awaitable_;
+    std::unique_ptr<boost::asio::io_context> ctx_ = std::make_unique<boost::asio::io_context>();
+    std::optional<value_type> result_;
+    std::exception_ptr exception_;
+    bool completed_ = false;
+    bool started_ = false;
+
+public:
+    // Destructor
+    ~awaitable_iterator() = default;
+
+    explicit awaitable_iterator(T &&awaitable) : awaitable_(std::move(awaitable)) {}
+    awaitable_iterator(awaitable_iterator &&other) noexcept = default;
+    awaitable_iterator(const awaitable_iterator &) = delete;
+    awaitable_iterator &operator=(awaitable_iterator &&other) noexcept = default;
+    awaitable_iterator &operator=(const awaitable_iterator &) = delete;
+
+    // Iterator protocol
+    awaitable_iterator &iter() { return *this; }
+
+    nb::object next() {
+        if (exception_) {
+            std::rethrow_exception(exception_);
+        }
+        if (completed_) {
+            // Manually raise StopIteration with the result as the value
+            if (result_) {
+                PyObject *exc_value = nb::cast(*result_).release().ptr();
+                PyErr_SetObject(PyExc_StopIteration, exc_value);
+                Py_DECREF(exc_value); // PyErr_SetObject increments ref count, so we decrement our ownership
+            } else {
+                PyErr_SetObject(PyExc_StopIteration, Py_None);
+                // No need to manage Py_None reference count manually
+            }
+            throw nb::python_error{};
+        }
+
+        if (!started_) {
+            started_ = true;
+
+            // Start the coroutine
+            boost::asio::co_spawn(*ctx_, std::move(awaitable_),
+                                  [this](const std::exception_ptr &exception, value_type &&result) {
+                                      if (exception) {
+                                          exception_ = exception;
+                                      } else {
+                                          result_ = std::move(result);
+                                      }
+                                      completed_ = true;
+                                  });
+        }
+
+        // Run the IO context until it would block or complete
+        // This approach runs all immediately available work
+        ctx_->poll();
+
+        if (exception_) {
+            std::rethrow_exception(exception_);
+        }
+
+        if (completed_) {
+            // Manually raise StopIteration with the result as the value
+            if (result_) {
+                PyObject *exc_value = nb::cast(*result_).release().ptr();
+                PyErr_SetObject(PyExc_StopIteration, exc_value);
+                Py_DECREF(exc_value); // PyErr_SetObject increments ref count, so we decrement our ownership
+            } else {
+                PyErr_SetObject(PyExc_StopIteration, Py_None);
+                // No need to manage Py_None reference count manually
+            }
+            throw nb::python_error{};
+        }
+
+        // Return None to indicate we're suspended but not done
+        // This allows the Python event loop to do other work
+        return nb::none();
+    }
+};
+
+template <typename T, typename M> static inline void bind_awaitable(M &module_) {
+    using iterator_type = awaitable_iterator<T>;
+    using value_type = typename T::value_type;
+
+    // hide these types for now
+    // python typing is wonderfully broken as always. collections.abc.Awaitable's __await__ expects a
+    // Generator, even though PEP492 specifies it as an Iterator
+    // and even then, the actual Iterator signature is implementation-defined. What the fuck, Python?
+    const std::string name = std::format("_Awaitable_{}", bound_type_name<value_type>::unqualified_str);
+    const std::string iter_name =
+        std::format("_AwaitableIterator_{}", bound_type_name<value_type>::unqualified_str);
+
+    // Bind the iterator class
+    nb::class_<iterator_type> iter_class(
+        module_, iter_name.c_str(),
+        nb::sig{std::format("class {}(collections.abc.Iterator[{}])", iter_name,
+                            bound_type_name<value_type>::qualified_descr.text)
+                    .c_str()});
+    iter_class.def("__iter__", &iterator_type::iter);
+    iter_class.def("__next__", &iterator_type::next);
+
+    // Bind the awaitable class
+    nb::class_<T> ret = nb::class_<T>(module_, name.c_str(),
+                                      nb::sig{std::format("class {}(collections.abc.Awaitable[{}])", name,
+                                                          bound_type_name<value_type>::qualified_descr.text)
+                                                  .c_str()});
+
+    ret.def("__await__", [](T &&self) { return iterator_type(std::move(self)); });
 }
 
 } // namespace pms_utils::bindings::python
