@@ -10,9 +10,14 @@
 #include <boost/mp11/set.hpp>  // IWYU pragma: keep
 #include <boost/mp11/utility.hpp>
 #include <concepts>
+#include <coroutine>
 #include <cstddef>
 #include <functional>
 #include <type_traits>
+#include <utility>
+
+//
+#include "macro-begin.hpp"
 
 namespace pms_utils::meta::_internal {
 
@@ -80,7 +85,24 @@ template <typename T> struct is_owning_iterator {
 };
 template <typename T> constexpr inline bool is_owning_iterator_v = is_owning_iterator<T>::value;
 
+template <typename Awaitable> struct [[clang::coro_return_type]] crt : public Awaitable {
+public:
+    template <typename Arg>
+        requires std::constructible_from<Awaitable, Arg> &&
+                 std::derived_from<crt, std::remove_cvref_t<Arg>> &&
+                 (!std::same_as<crt, std::remove_cvref_t<Arg>>)
+    [[nodiscard]] explicit(false) crt(Arg &&val) : Awaitable{std::forward<Arg>(val)} {};
+
+    template <typename... Args>
+        requires std::constructible_from<Awaitable, Args...> && (sizeof...(Args) > 1)
+    [[nodiscard]] explicit crt(Args... args) : Awaitable{std::forward<Args...>(args...)} {};
+};
+
 } // namespace pms_utils::meta
+
+template <typename Awaitable, typename... Args>
+struct std::coroutine_traits<pms_utils::meta::crt<Awaitable>, Args...>
+    : public std::coroutine_traits<Awaitable, Args...> {};
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PMS_UTILS_FOOTER(namespace_)                                                                         \
@@ -137,3 +159,6 @@ template <typename T> constexpr inline bool is_owning_iterator_v = is_owning_ite
     } /* namespace std */                                                                                    \
     static_assert(                                                                                           \
         pms_utils::meta::_internal::hashable_chk<pms_utils::namespace_::meta::_internal::all_plus_crtp>());
+
+//
+#include "macro-end.hpp"

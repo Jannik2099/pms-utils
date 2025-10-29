@@ -506,7 +506,7 @@ _internal::unordered_str_set<atom::Useflag> Profile::effective_useflags(const at
     // TODO: get ebuild from repo priorities, masks etc.
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     const auto ebuild = repos_.at(0)[atom.category].value()[atom.name].value()[atom.version.value()].value();
-    const auto &ebuild_useflags = ebuild.metadata().IUSE;
+    const auto &ebuild_useflags = ebuild.metadata()->IUSE;
     const auto &arch = ARCH();
     const bool is_stable = std::ranges::find_if(ebuild_useflags, [&arch](const auto &elem) {
                                return elem.useflag == arch;

@@ -5,13 +5,28 @@
 #include "pms-utils/depend/depend_parser.hpp"
 #include "pms-utils/ebuild/ebuild.hpp"
 #include "pms-utils/ebuild/ebuild_parser.hpp"
+#include "pms-utils/misc/meta.hpp"
 #include "pms-utils/repo/repo_parser.hpp"
 
+#include <boost/asio/any_io_executor.hpp>
+#include <boost/asio/as_tuple.hpp>
+#include <boost/asio/awaitable.hpp>
+#include <boost/asio/completion_condition.hpp>
+#include <boost/asio/error.hpp>
+#include <boost/asio/posix/stream_descriptor.hpp>
+#include <boost/asio/read.hpp>
+#include <boost/asio/streambuf.hpp>
+#include <boost/asio/use_awaitable.hpp>
 #include <boost/parser/parser.hpp>
+#include <boost/scope/scope_exit.hpp>
+#include <boost/system/system_error.hpp>
+#include <cerrno>
 #include <cstring>
+#include <fcntl.h>
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <memory>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -60,13 +75,11 @@ bool metadata_parser(std::string_view line, std::string_view name, Member &membe
     return false;
 }
 
-} // namespace
-
 // not sure how to better organize, suggestions welcome
+template <typename Stream>
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
-ebuild::Metadata parse_metadata(const std::filesystem::path &path) {
+[[nodiscard]] ebuild::Metadata parse_metadata_impl(Stream &stream) {
     ebuild::Metadata meta;
-    std::ifstream stream{path};
     for (std::string line; std::getline(stream, line);) {
         bool parsed = false;
         parsed = metadata_parser(line, "DEPEND=", meta.DEPEND, parsers::depend::nodes);
@@ -146,16 +159,55 @@ ebuild::Metadata parse_metadata(const std::filesystem::path &path) {
     return meta;
 }
 
-const ebuild::Metadata &Ebuild::metadata() const {
-    if (_metadata.has_value()) {
-        return _metadata.value();
+} // namespace
+
+// TODO: better error propagation
+pms_utils::meta::crt<boost::asio::awaitable<ebuild::Metadata>>
+async_parse_metadata(std::filesystem::path path) {
+    const int file_descriptor = ::open(path.c_str(), O_RDONLY | O_CLOEXEC);
+    if (file_descriptor == -1) {
+        throw std::runtime_error{
+            std::format("Failed to open file {}: {}", path.string(), std::strerror(errno))};
+    }
+    const boost::asio::any_io_executor executor = co_await boost::asio::this_coro::executor;
+    boost::asio::posix::stream_descriptor file{executor, file_descriptor};
+    const boost::scope::scope_exit close_file_descriptor{[&file]() { file.close(); }};
+    boost::asio::streambuf buf;
+
+    const auto [error_code, bytes_read] = co_await boost::asio::async_read(
+        file, buf, boost::asio::transfer_all(), boost::asio::as_tuple(boost::asio::use_awaitable));
+
+    if (error_code.failed() && error_code != boost::asio::error::eof) {
+        throw boost::system::system_error{error_code, "Failed to read file"};
+    }
+
+    std::istream stream{&buf};
+    co_return parse_metadata_impl(stream);
+}
+
+ebuild::Metadata parse_metadata(const std::filesystem::path &path) {
+    std::ifstream stream{path};
+    return parse_metadata_impl(stream);
+}
+
+std::shared_ptr<const ebuild::Metadata> Ebuild::metadata() const {
+    if (metadata_ != nullptr) {
+        return metadata_;
     }
     const std::filesystem::path category = path.parent_path().parent_path();
     const std::filesystem::path repopath = category.parent_path();
     const std::filesystem::path cachefile = repopath / "metadata" / "md5-cache" / category.filename() /
                                             std::string{name + "-" + std::string{version}};
-    _metadata = parse_metadata(cachefile);
-    return _metadata.value();
+    metadata_ = std::make_shared<const ebuild::Metadata>(parse_metadata(cachefile));
+    return metadata_;
+}
+
+pms_utils::meta::crt<boost::asio::awaitable<ebuild::Metadata>> Ebuild::async_metadata() const {
+    const std::filesystem::path category = path.parent_path().parent_path();
+    const std::filesystem::path repopath = category.parent_path();
+    const std::filesystem::path cachefile = repopath / "metadata" / "md5-cache" / category.filename() /
+                                            std::string{name + "-" + std::string{version}};
+    return async_parse_metadata(cachefile);
 }
 
 Ebuild::Ebuild(std::filesystem::path _path, pms_utils::atom::Name _name, pms_utils::atom::Version _version)

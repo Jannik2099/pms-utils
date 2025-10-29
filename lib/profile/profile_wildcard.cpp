@@ -130,8 +130,8 @@ void Expander::slot_matcher(const repo_iter &repository, const repo::Category &c
                             std::distance(repositories_.begin(), repository));
         return;
     }
-    if ((atom_.slot->slot == ebuild.metadata().SLOT.slot) &&
-        (atom_.slot->subslot.empty() || (atom_.slot->subslot == ebuild.metadata().SLOT.subslot))) {
+    if ((atom_.slot->slot == ebuild.metadata()->SLOT.slot) &&
+        (atom_.slot->subslot.empty() || (atom_.slot->subslot == ebuild.metadata()->SLOT.subslot))) {
         atoms_.emplace_back(atom::PackageExpr{.blocker = {},
                                               .category = category.name(),
                                               .name = ebuild.name,
